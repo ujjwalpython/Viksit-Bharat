@@ -33,6 +33,7 @@ public class SpringSecurityConfig {
 
     private final UserRepository userRepository;
 
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
@@ -89,8 +90,8 @@ public class SpringSecurityConfig {
                             .authenticated();
                 })
                 .authenticationProvider(authenticationProvider)
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(
-                        (req, rsp, e) -> rsp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized user.")));
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(customAuthenticationEntryPoint));
+
 
         com.negd.viksit.bharat.security.ApiJwtAuthenticationFilter jwtAuthenticationFilter = new com.negd.viksit.bharat.security.ApiJwtAuthenticationFilter(jwtService,
                 userDetailsService());

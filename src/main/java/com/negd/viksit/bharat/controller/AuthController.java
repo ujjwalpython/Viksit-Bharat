@@ -3,6 +3,8 @@ package com.negd.viksit.bharat.controller;
 
 import com.negd.viksit.bharat.dto.UserAuthDto;
 import com.negd.viksit.bharat.service.LoginService;
+import com.negd.viksit.bharat.util.ResponseGenerator;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,7 +21,7 @@ import java.security.spec.InvalidKeySpecException;
 @Slf4j
 @RestController
 
-@RequestMapping("/api/v1/oauth")
+@RequestMapping("/api/v1/auth")
 public class AuthController {
 
 
@@ -30,11 +32,19 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@RequestBody @Valid com.negd.viksit.bharat.dto.UserCredentialDto userCredentials) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        UserAuthDto userAuthDto = loginService.authenticate(userCredentials.email(), userCredentials.password());
-        return new ResponseEntity<>(userAuthDto, HttpStatus.CREATED);
+    public ResponseEntity<?> authenticateUser(
+            @RequestBody @Valid com.negd.viksit.bharat.dto.UserCredentialDto userCredentials,
+            HttpServletRequest request) throws NoSuchAlgorithmException, InvalidKeySpecException {
 
+        UserAuthDto userAuthDto = loginService.authenticate(userCredentials.email(), userCredentials.password());
+
+        return ResponseGenerator.created(
+                userAuthDto,
+                "User authenticated successfully",
+                request
+        );
     }
+
 
 
 }
