@@ -2,6 +2,9 @@ package com.negd.viksit.bharat.exception;
 
 
 
+import com.negd.viksit.bharat.util.ResponseGenerator;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,55 +24,68 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private Map<String, Object> buildResponse(HttpStatus status, String message, String path) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now().toString());
-        body.put("status", status.value());
-        body.put("error", status.getReasonPhrase());
-        body.put("message", message);
-        body.put("path", path);
-        return body;
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex, WebRequest request) {
+    public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex,
+                                                        HttpServletRequest request) {
         Map<String, String> errors = new HashMap<>();
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
             errors.put(error.getField(), error.getDefaultMessage());
         }
 
-        Map<String, Object> body = buildResponse(HttpStatus.BAD_REQUEST, "Validation failed", request.getDescription(false));
-        body.put("errors", errors);
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        return ResponseGenerator.error(
+                HttpStatus.BAD_REQUEST,
+                "Validation failed",
+                request,
+                errors
+        );
     }
 
-    // 🔹 Handle missing parameters
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<?> handleMissingParams(MissingServletRequestParameterException ex, WebRequest request) {
+    public ResponseEntity<?> handleMissingParams(MissingServletRequestParameterException ex,
+                                                 HttpServletRequest request) {
         String message = "Missing parameter: " + ex.getParameterName();
-        return new ResponseEntity<>(buildResponse(HttpStatus.BAD_REQUEST, message, request.getDescription(false)), HttpStatus.BAD_REQUEST);
+        return ResponseGenerator.error(HttpStatus.BAD_REQUEST, message, request);
     }
 
-    // 🔹 Handle bad credentials
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<?> handleBadCredentials(BadCredentialsException ex, WebRequest request) {
-        return new ResponseEntity<>(buildResponse(HttpStatus.UNAUTHORIZED, "Invalid username or password", request.getDescription(false)), HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<?> handleBadCredentials(BadCredentialsException ex,
+                                                  HttpServletRequest request) {
+        return ResponseGenerator.error(HttpStatus.UNAUTHORIZED, "Invalid username or password", request);
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<?> handleUserNotFound(UsernameNotFoundException ex, WebRequest request) {
-        return new ResponseEntity<>(buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request.getDescription(false)), HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> handleUserNotFound(UsernameNotFoundException ex,
+                                                HttpServletRequest request) {
+        return ResponseGenerator.error(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<?> handleUnauthorizedAccess(UnauthorizedException ex,
+                                                      HttpServletRequest request) {
+        return ResponseGenerator.error(HttpStatus.UNAUTHORIZED, ex.getMessage(), request);
     }
 
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<?> handleBusinessException(BadRequestException ex, WebRequest request) {
-        return new ResponseEntity<>(buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getDescription(false)), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<?> handleBusinessException(BadRequestException ex,
+                                                     HttpServletRequest request) {
+        return ResponseGenerator.error(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<?> handleEntityNotFound(EntityNotFoundException ex,
+                                                  HttpServletRequest request) {
+        return ResponseGenerator.error(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(InvalidStatusException.class)
+    public ResponseEntity<?> handleInvalidStatus(InvalidStatusException ex,
+                                                 HttpServletRequest request) {
+        return ResponseGenerator.error(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleAll(Exception ex, WebRequest request) {
-        return new ResponseEntity<>(buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request.getDescription(false)), HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<?> handleAll(Exception ex,
+                                       HttpServletRequest request) {
+        return ResponseGenerator.error(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request);
     }
 }
-

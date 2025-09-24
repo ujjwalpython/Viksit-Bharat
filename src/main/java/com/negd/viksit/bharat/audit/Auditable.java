@@ -13,6 +13,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import static jakarta.persistence.TemporalType.TIMESTAMP;
@@ -22,27 +23,22 @@ import static jakarta.persistence.TemporalType.TIMESTAMP;
 @ToString
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public abstract class Auditable<T> {
+public abstract class Auditable<U> {
 
-	@Column(name = "created_on", updatable = false)
-	@Temporal(TIMESTAMP)
-	@CreatedDate
-	protected Date created_on;
+    @CreatedDate
+    @Column(name = "created_on", updatable = false, nullable = false)
+    private LocalDateTime createdOn;
 
-	@Column(name = "updated_on")
-	@LastModifiedDate
-	@Temporal(TIMESTAMP)
-	protected Date updated_on;
+    @LastModifiedDate
+    @Column(name = "updated_on")
+    private LocalDateTime updatedOn;
 
-	@CreatedBy
-	@Column(name = "created_by", updatable = false)
-	protected T created_by;
+    @CreatedBy
+    @Column(name = "created_by", updatable = false)
+    private U createdBy;
 
-	@LastModifiedBy
-	@Column(name = "updated_by")
-	protected T updated_by;
-
-//	@Version
-	protected Integer vers;
+    @LastModifiedBy
+    @Column(name = "updated_by")
+    private U updatedBy;
 
 }

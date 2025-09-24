@@ -6,10 +6,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
+@EnableJpaAuditing(auditorAwareRef = "springSecurityAuditorAware")
 @SpringBootApplication
 public class ViksitBharatApplication {
 
@@ -33,12 +35,14 @@ public class ViksitBharatApplication {
                         .firstName("Ujjwal")
                         .lastName("Dhiman")
                         .email("ujjwalDhiman@gmail.com")
-                        .password(passwordEncoder.encode("password@123"))
+                                .isActive(true)
+                                .password(passwordEncoder.encode("password@123"))
                         .build(),
                         User.builder()
                                 .firstName("Test")
                                 .lastName("User")
                                 .email("testuser@gmail.com")
+                                .isActive(true)
                                 .password(passwordEncoder.encode("test@123"))
                                 .build());
                 userRepository.saveAll(pools);

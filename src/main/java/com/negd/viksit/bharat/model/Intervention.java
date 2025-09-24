@@ -1,5 +1,6 @@
 package com.negd.viksit.bharat.model;
 
+import com.negd.viksit.bharat.audit.Auditable;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -8,7 +9,7 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "interventions")
-public class Intervention {
+public class Intervention extends Auditable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

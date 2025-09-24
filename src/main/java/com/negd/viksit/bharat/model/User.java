@@ -26,79 +26,68 @@ import java.util.List;
 @Entity
 @Table(name = "user_entity", schema = "authentication")
 @Inheritance(strategy = InheritanceType.JOINED)
-public class User extends Auditable<Integer> implements Serializable, UserDetails {
+public class User extends Auditable<Long> implements Serializable, UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long entityid;
 
-    @Column(length = 50, nullable = true)
+    @Column(length = 50)
     private String firstName;
 
-    @Column(length = 50, nullable = true)
+    @Column(length = 50)
     private String middleName;
 
-    @Column(length = 50, nullable = true)
+    @Column(length = 50)
     private String lastName;
 
-    @Column(name = "address", length = 1000)
+    @Column(length = 1000)
     private String address;
 
-    @Column(name = "email", unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
 
     @Column(name = "mno")
     private String mobileNumber;
 
-    @Column(name = "state", nullable = true)
     private String state;
 
-    @Column(name = "district", nullable = true)
     private String district;
 
-    @Column(name = "pincode", nullable = true)
-    // @Pattern(regexp = "^[1-9]{1}[0-9]{2}[0-9]{3}$")
     private String pincode;
 
-    @Column(name = "password", nullable = true)
+    @Column(nullable = false)
     private String password;
 
-    @Column(name = "user_type", nullable = true)
-    private String user_type;
-
-    @JsonIgnore
-    @Column(name = "usertype", nullable = true)
+    @Column(name = "user_type")
     private String userType;
 
     @JsonIgnore
-    @Column(name = "status", nullable = true)
     private String status;
 
     @JsonIgnore
-    @Column(name = "ip_address", nullable = true)
-    private String ip_address;
+    @Column(name = "ip_address")
+    private String ipAddress;
 
-
-    @Column(nullable = true)
-    @JsonProperty(access = Access.READ_ONLY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer failedAttemptCount;
 
-
     @Column(name = "is_active")
-    private Boolean is_active;
+    private Boolean isActive;
 
     @Column(name = "is_delete")
-    private Boolean is_delete;
+    private Boolean isDelete;
 
-    @Column(name = "security_question", nullable = true)
-    private String security_question;
+    @Column(name = "security_question")
+    private String securityQuestion;
 
-    @Column(name = "security_answer", nullable = true)
-    private String security_answer;
+    @Column(name = "security_answer")
+    private String securityAnswer;
 
-    @Column(name = "lastpasswordresetdate", nullable = true)
+    @Column(name = "lastpasswordresetdate")
     private Long lastPasswordResetDate;
 
+    // ----------------- Spring Security -----------------
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
@@ -126,8 +115,7 @@ public class User extends Auditable<Integer> implements Serializable, UserDetail
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return Boolean.TRUE.equals(isActive);
     }
-
 }
 

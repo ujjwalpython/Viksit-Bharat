@@ -3,9 +3,11 @@ package com.negd.viksit.bharat.service;
 import com.negd.viksit.bharat.dto.GoalDto;
 import com.negd.viksit.bharat.dto.GoalRespDto;
 import com.negd.viksit.bharat.dto.InterventionDto;
+import com.negd.viksit.bharat.exception.InvalidStatusException;
 import com.negd.viksit.bharat.model.Goal;
 import com.negd.viksit.bharat.model.Intervention;
 import com.negd.viksit.bharat.repository.GoalRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -25,7 +27,7 @@ public class GoalService {
     public GoalRespDto createGoal(GoalDto goalDto) {
         Goal goal = mapToEntity(goalDto);
         Goal saved = goalRepository.save(goal);
-        return new GoalRespDto(goal.getId(),goal.getStatus());
+        return new GoalRespDto(saved.getId(),saved.getStatus());
     }
 
     public List<GoalDto> getAllGoals() {
@@ -104,6 +106,7 @@ public class GoalService {
         GoalDto dto = new GoalDto();
         dto.setMinistryId(goal.getMinistryId());
         dto.setGoalDescription(goal.getGoalDescription());
+        dto.setStatus(goal.getStatus());
 
         List<InterventionDto> interventionDtos = goal.getInterventions()
                 .stream()
@@ -116,10 +119,49 @@ public class GoalService {
                     iDto.setTarget2030Value(intervention.getTarget2030Value());
                     iDto.setTarget2047Value(intervention.getTarget2047Value());
                     iDto.setSortOrder(intervention.getSortOrder());
+                    iDto.setSortOrder(intervention.getSortOrder());
                     return iDto;
                 }).collect(Collectors.toList());
 
         dto.setInterventions(interventionDtos);
         return dto;
+    }
+
+    public GoalDto updateStatus(UUID id, String status) {
+        Goal goal = goalRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Goal not found with id: " + id));
+
+        String newStatus = status.toUpperCase();
+        switch (newStatus) {
+            case "DRAFT":
+            case "SUBMITTED":
+            case "APPROVED":
+            case "REJECTED":
+                goal.setStatus(newStatus);
+                break;
+            default:
+                throw new InvalidStatusException("Invalid status: " + newStatus);
+        }
+
+        Goal saved = goalRepository.save(goal);
+        return mapToDto(saved);
+    }
+
+    public List<GoalDto> filterGoals(Long entityid, String status, String goalDescription) {
+
+        List<Goal> goals;
+        if (status == null && goalDescription == null) {
+            goals = goalRepository.findByCreatedBy(entityid);
+        } else if (status != null && goalDescription == null) {
+            goals = goalRepository.findByCreatedByAndStatusIgnoreCase(entityid, status);
+        } else if (status == null) {
+            goals = goalRepository.findByCreatedByAndGoalDescriptionContainingIgnoreCase(entityid, goalDescription);
+        } else {
+            goals = goalRepository.findByCreatedByAndStatusIgnoreCaseAndGoalDescriptionContainingIgnoreCase(
+                    entityid, status, goalDescription
+            );
+        }
+
+        return goals.stream().map(goal ->mapToDto(goal)).toList();
     }
 }

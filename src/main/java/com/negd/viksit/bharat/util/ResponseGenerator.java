@@ -1,46 +1,42 @@
 package com.negd.viksit.bharat.util;
 
 
-import com.negd.viksit.bharat.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ResponseGenerator {
 
-    public static <T> ResponseEntity<ApiResponse<T>> success(T data, String message, HttpServletRequest request) {
-        ApiResponse<T> response = ApiResponse.<T>builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.OK.value())
-                .message(message)
-                .path(request != null ? request.getRequestURI() : null)
-                .data(data)
-                .build();
-        return ResponseEntity.ok(response);
+    public static ResponseEntity<?> success(Object data, String message, HttpServletRequest request) {
+        return buildResponse(HttpStatus.OK, message, request, data);
     }
 
-    public static <T> ResponseEntity<ApiResponse<T>> created(T data, String message, HttpServletRequest request) {
-        ApiResponse<T> response = ApiResponse.<T>builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.CREATED.value())
-                .message(message)
-                .path(request != null ? request.getRequestURI() : null)
-                .data(data)
-                .build();
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public static ResponseEntity<?> created(Object data, String message, HttpServletRequest request) {
+        return buildResponse(HttpStatus.CREATED, message, request, data);
     }
 
-    public static ResponseEntity<ApiResponse<Void>> error(HttpStatus status, String message, String error, HttpServletRequest request) {
-        ApiResponse<Void> response = ApiResponse.<Void>builder()
-                .timestamp(LocalDateTime.now())
-                .status(status.value())
-                .error(error)
-                .message(message)
-                .path(request != null ? request.getRequestURI() : null)
-                .build();
-        return ResponseEntity.status(status).body(response);
+    public static ResponseEntity<?> error(HttpStatus status, String message, HttpServletRequest request) {
+        return buildResponse(status, message, request, null);
+    }
+
+    public static ResponseEntity<?> error(HttpStatus status, String message, HttpServletRequest request, Object errors) {
+        return buildResponse(status, message, request, errors);
+    }
+
+    private static ResponseEntity<?> buildResponse(HttpStatus status, String message,
+                                                   HttpServletRequest request, Object data) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now().toString());
+        body.put("status", status.value());
+        body.put("error", status.getReasonPhrase());
+        body.put("message", message);
+        body.put("path", request.getRequestURI());
+        body.put("data", data);
+        return new ResponseEntity<>(body, status);
     }
 }
 

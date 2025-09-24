@@ -2,8 +2,10 @@ package com.negd.viksit.bharat.controller;
 
 import com.negd.viksit.bharat.dto.GoalDto;
 import com.negd.viksit.bharat.dto.GoalRespDto;
+import com.negd.viksit.bharat.model.User;
 import com.negd.viksit.bharat.service.GoalService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/goals")
+@RequestMapping("/api/v1/goals")
 public class GoalController {
 
     private final GoalService goalService;
@@ -29,7 +31,7 @@ public class GoalController {
 
     // CREATE
     @PostMapping
-    public ResponseEntity<?> createGoal(@RequestBody GoalDto goalDto, HttpServletRequest request) {
+    public ResponseEntity<?> createGoal( @RequestBody GoalDto goalDto, HttpServletRequest request) {
         GoalRespDto createdGoal = goalService.createGoal(goalDto);
         return ResponseGenerator.created(createdGoal, "Goal created successfully", request);
     }
@@ -61,5 +63,28 @@ public class GoalController {
         goalService.deleteGoal(id);
         return ResponseGenerator.success(null, "Goal deleted successfully", request);
     }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<?> updateGoalStatus(
+            @PathVariable UUID id,
+            @RequestParam String status,
+            HttpServletRequest request) {
+
+        GoalDto updatedGoal = goalService.updateStatus(id, status);
+        return ResponseGenerator.success(updatedGoal, "Goal status updated successfully", request);
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<?> filterGoals(@AuthenticationPrincipal User user,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String goalDescription,
+            HttpServletRequest request) {
+
+        List<GoalDto> goals = goalService.filterGoals(user.getEntityid(),status, goalDescription);
+        return ResponseGenerator.success(goals, "Goals fetched successfully", request);
+    }
+
+
 }
+
 
