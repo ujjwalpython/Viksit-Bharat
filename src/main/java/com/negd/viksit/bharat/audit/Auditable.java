@@ -41,4 +41,5 @@ public abstract class Auditable<U> {
     @Column(name = "updated_by")
     private U updatedBy;
 
+
 }

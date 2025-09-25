@@ -40,7 +40,7 @@ public class GoalService {
     public GoalDto getGoalById(String id) {
         return goalRepository.findById(id)
                 .map(this::mapToDto)
-                .orElseThrow(() -> new RuntimeException("Goal not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Goal not found"));
     }
 
     public GoalDto updateGoal(String id, GoalDto goalDto) {
@@ -74,7 +74,7 @@ public class GoalService {
 
     public void deleteGoal(String id) {
         Goal goal = goalRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Goal not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Goal not found"));
         goalRepository.delete(goal);
     }
 

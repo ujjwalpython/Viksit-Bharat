@@ -17,7 +17,7 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "five_year_plan_inputform")
+@Table(name = "target_interventions",schema = "vb_core")
 public class TargetIntervention extends Auditable<Long> {
 
 	@Id

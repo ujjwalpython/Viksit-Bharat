@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Data
 @Entity
-@Table(name = "goals")
+@Table(name = "vb_goals",schema = "vb_core")
 public class Goal extends Auditable<Long> {
 
     @Id

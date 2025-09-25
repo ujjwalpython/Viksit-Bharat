@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Data
 @Entity
-@Table(name = "interventions")
+@Table(name = "vb_goal_interventions",schema = "vb_core")
 public class Intervention extends Auditable<Long> {
 
     @Id
