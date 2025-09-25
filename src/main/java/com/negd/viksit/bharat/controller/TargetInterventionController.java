@@ -1,0 +1,58 @@
+package com.negd.viksit.bharat.controller;
+
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import com.negd.viksit.bharat.dto.TargetInterventionDto;
+import com.negd.viksit.bharat.service.TargetInterventionService;
+import com.negd.viksit.bharat.util.ResponseGenerator;
+
+import jakarta.servlet.http.HttpServletRequest;
+
+@RestController
+@RequestMapping("/api/five-year-plan")
+public class TargetInterventionController {
+
+    private final TargetInterventionService service;
+
+    public TargetInterventionController(TargetInterventionService service) {
+        this.service = service;
+    }
+
+    // CREATE
+    @PostMapping("/create")
+    public ResponseEntity<?> create(@RequestBody TargetInterventionDto dto, HttpServletRequest request) {
+        TargetInterventionDto saved = service.save(dto);
+        return ResponseGenerator.created(saved, "Target / Intervention created successfully", request);
+    }
+
+    // READ ALL
+    @GetMapping("/getList")
+    public ResponseEntity<?> getAll(HttpServletRequest request) {
+        List<TargetInterventionDto> list = service.findAll();
+        return ResponseGenerator.success(list, "Target / Intervention fetched successfully", request);
+    }
+
+    // READ ONE
+    @GetMapping("/getById/{id}")
+    public ResponseEntity<?> getById(@PathVariable Long id, HttpServletRequest request) {
+        TargetInterventionDto dto = service.findById(id);
+        return ResponseGenerator.success(dto, "Target / Intervention fetched successfully", request);
+    }
+
+    // UPDATE
+    @PutMapping("/updateById/{id}")
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody TargetInterventionDto dto, HttpServletRequest request) {
+        TargetInterventionDto updated = service.update(id, dto);
+        return ResponseGenerator.success(updated, "Target / Intervention updated successfully", request);
+    }
+
+    // DELETE
+    @DeleteMapping("/deleteById/{id}")
+    public ResponseEntity<?> delete(@PathVariable Long id, HttpServletRequest request) {
+        service.delete(id);
+        return ResponseGenerator.success(null, "Target / Intervention deleted successfully", request);
+    }
+}
