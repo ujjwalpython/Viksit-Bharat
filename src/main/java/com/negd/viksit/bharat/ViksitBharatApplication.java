@@ -9,26 +9,32 @@ import com.negd.viksit.bharat.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
-@EnableJpaAuditing(auditorAwareRef = "springSecurityAuditorAware")
 @SpringBootApplication
-public class ViksitBharatApplication {
+@EnableJpaAuditing(auditorAwareRef = "springSecurityAuditorAware")
+public class ViksitBharatApplication extends SpringBootServletInitializer {
+
+    private final UserRepository userRepository;
 
     public ViksitBharatApplication(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     public static void main(String[] args) {
-		SpringApplication.run(ViksitBharatApplication.class, args);
-	}
+        SpringApplication.run(ViksitBharatApplication.class, args);
+    }
 
-
-    private final UserRepository userRepository;
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(ViksitBharatApplication.class);
+    }
 
     @Bean
     CommandLineRunner commandLineRunner(PasswordEncoder passwordEncoder,
@@ -38,7 +44,7 @@ public class ViksitBharatApplication {
         return (args) -> {
             // Seed Users
             if (userRepository.findAll().isEmpty()) {
-                List<User> pools = List.of(
+                List<User> users = List.of(
                         User.builder()
                                 .firstName("Ujjwal")
                                 .lastName("Dhiman")
@@ -54,7 +60,7 @@ public class ViksitBharatApplication {
                                 .password(passwordEncoder.encode("test@123"))
                                 .build()
                 );
-                userRepository.saveAll(pools);
+                userRepository.saveAll(users);
             }
 
             // Seed Ministries
@@ -85,5 +91,4 @@ public class ViksitBharatApplication {
             }
         };
     }
-
 }

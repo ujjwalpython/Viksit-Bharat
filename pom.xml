@@ -11,7 +11,9 @@
 	<groupId>com.example</groupId>
 	<artifactId>viksit-bharat</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>viksit-bharat</name>
+    <packaging>war</packaging>
+
+    <name>viksit-bharat</name>
 	<description>Viksit Bharti portal backend</description>
 	<url/>
 	<licenses>

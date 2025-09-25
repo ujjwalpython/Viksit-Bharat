@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration scan="true" scanPeriod="30 seconds">
+
+    <!-- Log directory -->
+    <property name="APP_LOG" value="/home/application/logs/viksit-bharat" />
+
+    <!-- Console Appender (still keep for Docker/ECS stdout) -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{dd-MMM-yyyy HH:mm:ss.SSS} [%-5level] [%thread] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Single Rolling File Appender -->
+    <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${APP_LOG}/application.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- Rotate every hour -->
+            <fileNamePattern>${APP_LOG}/%d{yyyy-MM-dd_HH}.log</fileNamePattern>
+            <!-- Keep logs for 30 days -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{dd-MMM-yyyy HH:mm:ss.SSS} [%-5level] [%thread] %logger{36} - %msg%ex{short}%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Root logger (uses Spring Boot’s default log level: INFO) -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="ROLLING" />
+    </root>
+
+</configuration>
