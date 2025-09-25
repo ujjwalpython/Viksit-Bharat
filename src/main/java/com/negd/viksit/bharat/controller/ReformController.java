@@ -20,7 +20,7 @@ import com.negd.viksit.bharat.util.ResponseGenerator;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/api/reforms")
+@RequestMapping("/api/institutional-reforms")
 public class ReformController {
 
     private final ReformService service;
