@@ -13,5 +13,9 @@ public class TargetInterventionDto {
 	private String targetDetails;
 	private String actionPoint;
 	private LocalDate targetDate;
+	private String priority; 
+	private String presentStatus; 
+	private String implementationStatus;
+	private String bottlenecks;
 	private List<KeyDeliverableDto> keyDeliverables;
 }

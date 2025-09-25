@@ -27,6 +27,10 @@ public class TargetIntervention extends Auditable<Long> {
 	private String targetDetails;
 	private String actionPoint;
 	private LocalDate targetDate;
+    private String priority; 
+    private String presentStatus; 
+    private String implementationStatus; 
+    private String bottlenecks;
 
 	@OneToMany(mappedBy = "targetIntervention", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<KeyDeliverable> keyDeliverables = new ArrayList<>();
