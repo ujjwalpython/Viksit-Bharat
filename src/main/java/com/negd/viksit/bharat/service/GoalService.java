@@ -37,13 +37,13 @@ public class GoalService {
                 .collect(Collectors.toList());
     }
 
-    public GoalDto getGoalById(UUID id) {
+    public GoalDto getGoalById(String id) {
         return goalRepository.findById(id)
                 .map(this::mapToDto)
                 .orElseThrow(() -> new RuntimeException("Goal not found"));
     }
 
-    public GoalDto updateGoal(UUID id, GoalDto goalDto) {
+    public GoalDto updateGoal(String id, GoalDto goalDto) {
         Goal goal = goalRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Goal not found"));
 
@@ -72,7 +72,7 @@ public class GoalService {
         return mapToDto(updated);
     }
 
-    public void deleteGoal(UUID id) {
+    public void deleteGoal(String id) {
         Goal goal = goalRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Goal not found"));
         goalRepository.delete(goal);
@@ -104,10 +104,11 @@ public class GoalService {
 
     private GoalDto mapToDto(Goal goal) {
         GoalDto dto = new GoalDto();
+        dto.setGoalId(goal.getId());
         dto.setMinistryId(goal.getMinistryId());
         dto.setGoalDescription(goal.getGoalDescription());
         dto.setStatus(goal.getStatus());
-
+        dto.setLastUpdate(goal.getUpdatedOn());
         List<InterventionDto> interventionDtos = goal.getInterventions()
                 .stream()
                 .map(intervention -> {
@@ -127,7 +128,7 @@ public class GoalService {
         return dto;
     }
 
-    public GoalDto updateStatus(UUID id, String status) {
+    public GoalDto updateStatus(String id, String status) {
         Goal goal = goalRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Goal not found with id: " + id));
 

@@ -29,46 +29,36 @@ public class GoalController {
         this.goalService = goalService;
     }
 
-    // CREATE
     @PostMapping
     public ResponseEntity<?> createGoal( @RequestBody GoalDto goalDto, HttpServletRequest request) {
         GoalRespDto createdGoal = goalService.createGoal(goalDto);
         return ResponseGenerator.created(createdGoal, "Goal created successfully", request);
     }
 
-    // READ ALL
-    @GetMapping
-    public ResponseEntity<?> getAllGoals(HttpServletRequest request) {
-        List<GoalDto> goals = goalService.getAllGoals();
-        return ResponseGenerator.success(goals, "Goals fetched successfully", request);
-    }
 
-    // READ ONE
     @GetMapping("/{id}")
-    public ResponseEntity<?> getGoalById(@PathVariable UUID id, HttpServletRequest request) {
+    public ResponseEntity<?> getGoalById(@PathVariable String id, HttpServletRequest request) {
         GoalDto goal = goalService.getGoalById(id);
         return ResponseGenerator.success(goal, "Goal fetched successfully", request);
     }
 
-    // UPDATE
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateGoal(@PathVariable UUID id, @RequestBody GoalDto goalDto, HttpServletRequest request) {
+    public ResponseEntity<?> updateGoal(@PathVariable String id, @RequestBody GoalDto goalDto, HttpServletRequest request) {
         GoalDto updatedGoal = goalService.updateGoal(id, goalDto);
         return ResponseGenerator.success(updatedGoal, "Goal updated successfully", request);
     }
 
-    // DELETE
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteGoal(@PathVariable UUID id, HttpServletRequest request) {
+    public ResponseEntity<?> deleteGoal(@PathVariable String id, HttpServletRequest request) {
         goalService.deleteGoal(id);
         return ResponseGenerator.success(null, "Goal deleted successfully", request);
     }
 
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<?> updateGoalStatus(
-            @PathVariable UUID id,
-            @RequestParam String status,
-            HttpServletRequest request) {
+    @PatchMapping("/{id}/status/{status}")
+    public ResponseEntity<?> updateStatus(
+            @PathVariable String id,
+            @PathVariable String status,
+            HttpServletRequest request){
 
         GoalDto updatedGoal = goalService.updateStatus(id, status);
         return ResponseGenerator.success(updatedGoal, "Goal status updated successfully", request);
@@ -84,6 +74,12 @@ public class GoalController {
         return ResponseGenerator.success(goals, "Goals fetched successfully", request);
     }
 
+
+    @GetMapping
+    public ResponseEntity<?> getAllGoals(HttpServletRequest request) {
+        List<GoalDto> goals = goalService.getAllGoals();
+        return ResponseGenerator.success(goals, "Goals fetched successfully", request);
+    }
 
 }
 
