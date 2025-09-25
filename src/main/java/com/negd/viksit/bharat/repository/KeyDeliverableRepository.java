@@ -6,4 +6,3 @@ import com.negd.viksit.bharat.model.KeyDeliverable;
 
 public interface KeyDeliverableRepository extends JpaRepository<KeyDeliverable, Long> {
 }
-

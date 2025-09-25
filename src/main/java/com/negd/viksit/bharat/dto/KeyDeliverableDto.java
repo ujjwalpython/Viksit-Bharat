@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class KeyDeliverableDto {
 	private String activityDescription;
-	 private LocalDate deadline;
-	 private String progressMade;
-	 private String documentPath;
+	private LocalDate deadline;
+	private String progressMade;
+	private String documentPath;
 }

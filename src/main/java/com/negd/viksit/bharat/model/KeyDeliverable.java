@@ -19,19 +19,18 @@ import lombok.Data;
 @Table(name = "KeyDeliverable")
 public class KeyDeliverable extends Auditable<Long> {
 
- @Id
- @GeneratedValue(strategy = GenerationType.IDENTITY)
- private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
- private String activityDescription;
- private LocalDate deadline;
- private String progressMade;
- private String documentPath;  // uploaded document path
+	private String activityDescription;
+	private LocalDate deadline;
+	private String progressMade;
+	private String documentPath; // uploaded document path
 
- @ManyToOne(fetch = FetchType.LAZY)
- @JoinColumn(name = "target_intervention_id")
- private TargetIntervention targetIntervention;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "target_intervention_id")
+	private TargetIntervention targetIntervention;
 
- // getters and setters
+	// getters and setters
 }
-

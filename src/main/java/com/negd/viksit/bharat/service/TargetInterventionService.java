@@ -14,99 +14,93 @@ import com.negd.viksit.bharat.repository.TargetInterventionRepository;
 @Service
 public class TargetInterventionService {
 
-    private final TargetInterventionRepository repository;
+	private final TargetInterventionRepository repository;
 
-    public TargetInterventionService(TargetInterventionRepository repository) {
-        this.repository = repository;
-    }
+	public TargetInterventionService(TargetInterventionRepository repository) {
+		this.repository = repository;
+	}
 
-    // ----------------- Mapper Methods -----------------
-    private TargetIntervention convertToEntity(TargetInterventionDto dto) {
-        TargetIntervention entity = new TargetIntervention();
-        entity.setTargetDetails(dto.getTargetDetails());
-        entity.setActionPoint(dto.getActionPoint());
-        entity.setTargetDate(dto.getTargetDate());
+	// ----------------- Mapper Methods -----------------
+	private TargetIntervention convertToEntity(TargetInterventionDto dto) {
+		TargetIntervention entity = new TargetIntervention();
+		entity.setTargetDetails(dto.getTargetDetails());
+		entity.setActionPoint(dto.getActionPoint());
+		entity.setTargetDate(dto.getTargetDate());
 
-        if (dto.getKeyDeliverables() != null) {
-            dto.getKeyDeliverables().forEach(kdDto -> {
-                KeyDeliverable kd = new KeyDeliverable();
-                kd.setActivityDescription(kdDto.getActivityDescription());
-                kd.setDeadline(kdDto.getDeadline());
-                kd.setProgressMade(kdDto.getProgressMade());
-                kd.setDocumentPath(kdDto.getDocumentPath());
-                entity.addKeyDeliverable(kd);
-            });
-        }
-        return entity;
-    }
+		if (dto.getKeyDeliverables() != null) {
+			dto.getKeyDeliverables().forEach(kdDto -> {
+				KeyDeliverable kd = new KeyDeliverable();
+				kd.setActivityDescription(kdDto.getActivityDescription());
+				kd.setDeadline(kdDto.getDeadline());
+				kd.setProgressMade(kdDto.getProgressMade());
+				kd.setDocumentPath(kdDto.getDocumentPath());
+				entity.addKeyDeliverable(kd);
+			});
+		}
+		return entity;
+	}
 
-    private TargetInterventionDto convertToDto(TargetIntervention entity) {
-        TargetInterventionDto dto = new TargetInterventionDto();
-        dto.setTargetDetails(entity.getTargetDetails());
-        dto.setActionPoint(entity.getActionPoint());
-        dto.setTargetDate(entity.getTargetDate());
+	private TargetInterventionDto convertToDto(TargetIntervention entity) {
+		TargetInterventionDto dto = new TargetInterventionDto();
+		dto.setTargetDetails(entity.getTargetDetails());
+		dto.setActionPoint(entity.getActionPoint());
+		dto.setTargetDate(entity.getTargetDate());
 
-        if (entity.getKeyDeliverables() != null) {
-            List<KeyDeliverableDto> kdDtos = entity.getKeyDeliverables().stream()
-                    .map(kd -> {
-                        KeyDeliverableDto kdDto = new KeyDeliverableDto();
-                        kdDto.setActivityDescription(kd.getActivityDescription());
-                        kdDto.setDeadline(kd.getDeadline());
-                        kdDto.setProgressMade(kd.getProgressMade());
-                        kdDto.setDocumentPath(kd.getDocumentPath());
-                        return kdDto;
-                    }).collect(Collectors.toList());
-            dto.setKeyDeliverables(kdDtos);
-        }
-        return dto;
-    }
+		if (entity.getKeyDeliverables() != null) {
+			List<KeyDeliverableDto> kdDtos = entity.getKeyDeliverables().stream().map(kd -> {
+				KeyDeliverableDto kdDto = new KeyDeliverableDto();
+				kdDto.setActivityDescription(kd.getActivityDescription());
+				kdDto.setDeadline(kd.getDeadline());
+				kdDto.setProgressMade(kd.getProgressMade());
+				kdDto.setDocumentPath(kd.getDocumentPath());
+				return kdDto;
+			}).collect(Collectors.toList());
+			dto.setKeyDeliverables(kdDtos);
+		}
+		return dto;
+	}
 
-    // ----------------- Business Methods -----------------
+	// ----------------- Business Methods -----------------
 
-    public TargetInterventionDto save(TargetInterventionDto dto) {
-        TargetIntervention entity = convertToEntity(dto);
-        TargetIntervention saved = repository.save(entity);
-        return convertToDto(saved);
-    }
+	public TargetInterventionDto save(TargetInterventionDto dto) {
+		TargetIntervention entity = convertToEntity(dto);
+		TargetIntervention saved = repository.save(entity);
+		return convertToDto(saved);
+	}
 
-    public List<TargetInterventionDto> findAll() {
-        return repository.findAll()
-                .stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-    }
+	public List<TargetInterventionDto> findAll() {
+		return repository.findAll().stream().map(this::convertToDto).collect(Collectors.toList());
+	}
 
-    public TargetInterventionDto findById(Long id) {
-        TargetIntervention entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not Found"));
-        return convertToDto(entity);
-    }
+	public TargetInterventionDto findById(Long id) {
+		TargetIntervention entity = repository.findById(id).orElseThrow(() -> new RuntimeException("Not Found"));
+		return convertToDto(entity);
+	}
 
-    public TargetInterventionDto update(Long id, TargetInterventionDto dto) {
-        TargetIntervention existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not Found"));
+	public TargetInterventionDto update(Long id, TargetInterventionDto dto) {
+		TargetIntervention existing = repository.findById(id).orElseThrow(() -> new RuntimeException("Not Found"));
 
-        existing.setTargetDetails(dto.getTargetDetails());
-        existing.setActionPoint(dto.getActionPoint());
-        existing.setTargetDate(dto.getTargetDate());
+		existing.setTargetDetails(dto.getTargetDetails());
+		existing.setActionPoint(dto.getActionPoint());
+		existing.setTargetDate(dto.getTargetDate());
 
-        existing.getKeyDeliverables().clear();
-        if (dto.getKeyDeliverables() != null) {
-            dto.getKeyDeliverables().forEach(kdDto -> {
-                KeyDeliverable kd = new KeyDeliverable();
-                kd.setActivityDescription(kdDto.getActivityDescription());
-                kd.setDeadline(kdDto.getDeadline());
-                kd.setProgressMade(kdDto.getProgressMade());
-                kd.setDocumentPath(kdDto.getDocumentPath());
-                existing.addKeyDeliverable(kd);
-            });
-        }
+		existing.getKeyDeliverables().clear();
+		if (dto.getKeyDeliverables() != null) {
+			dto.getKeyDeliverables().forEach(kdDto -> {
+				KeyDeliverable kd = new KeyDeliverable();
+				kd.setActivityDescription(kdDto.getActivityDescription());
+				kd.setDeadline(kdDto.getDeadline());
+				kd.setProgressMade(kdDto.getProgressMade());
+				kd.setDocumentPath(kdDto.getDocumentPath());
+				existing.addKeyDeliverable(kd);
+			});
+		}
 
-        TargetIntervention updated = repository.save(existing);
-        return convertToDto(updated);
-    }
+		TargetIntervention updated = repository.save(existing);
+		return convertToDto(updated);
+	}
 
-    public void delete(Long id) {
-        repository.deleteById(id);
-    }
+	public void delete(Long id) {
+		repository.deleteById(id);
+	}
 }

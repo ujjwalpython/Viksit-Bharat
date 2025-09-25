@@ -6,4 +6,3 @@ import com.negd.viksit.bharat.model.TargetIntervention;
 
 public interface TargetInterventionRepository extends JpaRepository<TargetIntervention, Long> {
 }
-

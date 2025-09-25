@@ -20,27 +20,26 @@ import lombok.Data;
 @Table(name = "five_year_plan_inputform")
 public class TargetIntervention extends Auditable<Long> {
 
- @Id
- @GeneratedValue(strategy = GenerationType.IDENTITY)
- private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
- private String targetDetails;
- private String actionPoint;
- private LocalDate targetDate;
+	private String targetDetails;
+	private String actionPoint;
+	private LocalDate targetDate;
 
- @OneToMany(mappedBy = "targetIntervention", cascade = CascadeType.ALL, orphanRemoval = true)
- private List<KeyDeliverable> keyDeliverables = new ArrayList<>();
+	@OneToMany(mappedBy = "targetIntervention", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<KeyDeliverable> keyDeliverables = new ArrayList<>();
 
- // Getters and Setters
- public void addKeyDeliverable(KeyDeliverable deliverable) {
-     deliverable.setTargetIntervention(this);
-     this.keyDeliverables.add(deliverable);
- }
+	// Getters and Setters
+	public void addKeyDeliverable(KeyDeliverable deliverable) {
+		deliverable.setTargetIntervention(this);
+		this.keyDeliverables.add(deliverable);
+	}
 
- public void removeKeyDeliverable(KeyDeliverable deliverable) {
-     deliverable.setTargetIntervention(null);
-     this.keyDeliverables.remove(deliverable);
- }
+	public void removeKeyDeliverable(KeyDeliverable deliverable) {
+		deliverable.setTargetIntervention(null);
+		this.keyDeliverables.remove(deliverable);
+	}
 
 }
-

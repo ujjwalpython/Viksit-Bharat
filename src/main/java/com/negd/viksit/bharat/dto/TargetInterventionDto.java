@@ -13,5 +13,5 @@ public class TargetInterventionDto {
 	private String targetDetails;
 	private String actionPoint;
 	private LocalDate targetDate;
-	private List<KeyDeliverableDto> keyDeliverables; 
+	private List<KeyDeliverableDto> keyDeliverables;
 }
