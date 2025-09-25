@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import com.negd.viksit.bharat.audit.Auditable;
 
 @Entity
-@Table(name = "proposals", schema = "vb_core")
+@Table(name = "other_proposals", schema = "vb_core")
 @Getter
 @Setter
 @NoArgsConstructor

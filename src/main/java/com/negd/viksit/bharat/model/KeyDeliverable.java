@@ -16,7 +16,7 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "key_deliverables",schema = "vb_core")
+@Table(name = "target_interventions_sub_table",schema = "vb_core")
 public class KeyDeliverable extends Auditable<Long> {
 
 	@Id

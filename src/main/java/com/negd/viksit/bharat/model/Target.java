@@ -13,7 +13,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "target", schema = "vb_core")
+@Table(name = "institutional_reform_sub_table", schema = "vb_core")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
