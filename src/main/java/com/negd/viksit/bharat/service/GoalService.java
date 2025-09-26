@@ -5,13 +5,12 @@ import com.negd.viksit.bharat.dto.GoalRespDto;
 import com.negd.viksit.bharat.dto.InterventionDto;
 import com.negd.viksit.bharat.exception.InvalidStatusException;
 import com.negd.viksit.bharat.model.Goal;
-import com.negd.viksit.bharat.model.Intervention;
+import com.negd.viksit.bharat.model.GoalIntervention;
 import com.negd.viksit.bharat.repository.GoalRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,18 +48,26 @@ public class GoalService {
 
         goal.setMinistryId(goalDto.getMinistryId());
         goal.setGoalDescription(goalDto.getGoalDescription());
-
+        goal.setStatus(goal.getStatus());
         goal.getInterventions().clear();
-        List<Intervention> interventions = goalDto.getInterventions()
+
+        List<GoalIntervention> interventions = goalDto.getInterventions()
                 .stream()
                 .map(iDto -> {
-                    Intervention intervention = new Intervention();
+                    GoalIntervention intervention = new GoalIntervention();
                     intervention.setTargetDescriptionId(iDto.getTargetDescriptionId());
                     intervention.setTargetDescription(iDto.getTargetDescription());
+
                     intervention.setPresentValue(iDto.getPresentValue());
+                    intervention.setPresentUnit(iDto.getPresentUnit());
                     intervention.setPresentYear(iDto.getPresentYear());
+
                     intervention.setTarget2030Value(iDto.getTarget2030Value());
+                    intervention.setTarget2030Unit(iDto.getTarget2030Unit());
+
                     intervention.setTarget2047Value(iDto.getTarget2047Value());
+                    intervention.setTarget2047Unit(iDto.getTarget2047Unit());
+
                     intervention.setSortOrder(iDto.getSortOrder());
                     intervention.setGoal(goal);
                     return intervention;
@@ -83,16 +90,20 @@ public class GoalService {
         goal.setMinistryId(dto.getMinistryId());
         goal.setGoalDescription(dto.getGoalDescription());
         goal.setStatus(dto.getStatus());
-        List<Intervention> interventions = dto.getInterventions()
+
+        List<GoalIntervention> interventions = dto.getInterventions()
                 .stream()
                 .map(iDto -> {
-                    Intervention intervention = new Intervention();
+                    GoalIntervention intervention = new GoalIntervention();
                     intervention.setTargetDescriptionId(iDto.getTargetDescriptionId());
                     intervention.setTargetDescription(iDto.getTargetDescription());
                     intervention.setPresentValue(iDto.getPresentValue());
+                    intervention.setPresentUnit(iDto.getPresentUnit());
                     intervention.setPresentYear(iDto.getPresentYear());
                     intervention.setTarget2030Value(iDto.getTarget2030Value());
+                    intervention.setTarget2030Unit(iDto.getTarget2030Unit());
                     intervention.setTarget2047Value(iDto.getTarget2047Value());
+                    intervention.setTarget2047Unit(iDto.getTarget2047Unit());
                     intervention.setSortOrder(iDto.getSortOrder());
                     intervention.setGoal(goal);
                     return intervention;
@@ -109,17 +120,24 @@ public class GoalService {
         dto.setGoalDescription(goal.getGoalDescription());
         dto.setStatus(goal.getStatus());
         dto.setLastUpdate(goal.getUpdatedOn());
+
         List<InterventionDto> interventionDtos = goal.getInterventions()
                 .stream()
                 .map(intervention -> {
                     InterventionDto iDto = new InterventionDto();
                     iDto.setTargetDescriptionId(intervention.getTargetDescriptionId());
                     iDto.setTargetDescription(intervention.getTargetDescription());
+
                     iDto.setPresentValue(intervention.getPresentValue());
+                    iDto.setPresentUnit(intervention.getPresentUnit());
                     iDto.setPresentYear(intervention.getPresentYear());
+
                     iDto.setTarget2030Value(intervention.getTarget2030Value());
+                    iDto.setTarget2030Unit(intervention.getTarget2030Unit());
+
                     iDto.setTarget2047Value(intervention.getTarget2047Value());
-                    iDto.setSortOrder(intervention.getSortOrder());
+                    iDto.setTarget2047Unit(intervention.getTarget2047Unit());
+
                     iDto.setSortOrder(intervention.getSortOrder());
                     return iDto;
                 }).collect(Collectors.toList());

@@ -7,11 +7,18 @@ import java.util.UUID;
 public class InterventionDto {
     private UUID targetDescriptionId;
     private String targetDescription;
-    private Double presentValue;
-    private Integer presentYear;
-    private Double target2030Value;
-    private Double target2047Value;
-    private Integer sortOrder;
 
+    private String presentValue;
+    private String presentUnit;
+    private Integer presentYear;
+
+    private String target2030Value;
+    private String target2030Unit;
+
+    private String target2047Value;
+    private String target2047Unit;
+
+    private Integer sortOrder;
 }
+
 
