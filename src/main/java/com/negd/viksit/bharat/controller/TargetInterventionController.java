@@ -90,17 +90,17 @@ public class TargetInterventionController {
 		return ResponseGenerator.success(list, "Target / Intervention filtered successfully", request);
 	}
 
-	// priorities dropdown list
-	@GetMapping("/priorities")
-	public Priority[] getPriorities() {
-		return Priority.values();
-	}
-
-	// present-status dropdown list
-	@GetMapping("/present-status")
-	public PresentStatus[] getPresentStatus() {
-		return PresentStatus.values();
-	}
+//	// priorities dropdown list
+//	@GetMapping("/priorities")
+//	public Priority[] getPriorities() {
+//		return Priority.values();
+//	}
+//
+//	// present-status dropdown list
+//	@GetMapping("/present-status")
+//	public PresentStatus[] getPresentStatus() {
+//		return PresentStatus.values();
+//	}
 
 //	// sub dropdown insite of present_status
 //	@GetMapping("/implementation-status")
