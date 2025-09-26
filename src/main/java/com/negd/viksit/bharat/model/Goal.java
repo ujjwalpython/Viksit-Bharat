@@ -5,7 +5,8 @@ import com.negd.viksit.bharat.audit.Auditable;
 import com.negd.viksit.bharat.util.GoalIdHelper;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,7 +29,7 @@ public class Goal extends Auditable<Long> {
     private String status;
 
     @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Intervention> interventions;
+    private List<GoalIntervention> interventions;
 
     @PrePersist
     public void generateId() {

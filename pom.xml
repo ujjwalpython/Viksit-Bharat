@@ -11,7 +11,7 @@
 	<groupId>com.example</groupId>
 	<artifactId>viksit-bharat</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
+<!--    <packaging>war</packaging>-->
 
     <name>viksit-bharat</name>
 	<description>Viksit Bharti portal backend</description>
@@ -107,7 +107,13 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-s3</artifactId>
+            <version>1.12.767</version>
+        </dependency>
+
+    </dependencies>
 
 	<build>
 		<plugins>

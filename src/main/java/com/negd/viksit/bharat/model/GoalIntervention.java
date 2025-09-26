@@ -9,7 +9,7 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "vb_goal_interventions",schema = "vb_core")
-public class Intervention extends Auditable<Long> {
+public class GoalIntervention extends Auditable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -18,13 +18,16 @@ public class Intervention extends Auditable<Long> {
     @Column(nullable = false)
     private UUID targetDescriptionId;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String targetDescription;
 
-    private Double presentValue;
+    private String presentValue;
+    private String presentUnit;
     private Integer presentYear;
-    private Double target2030Value;
-    private Double target2047Value;
+    private String target2030Value;
+    private String target2030Unit;
+    private String target2047Unit;
+    private String target2047Value;
     private Integer sortOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
