@@ -96,6 +96,7 @@ public class ReformService {
 	    reform.setRulesToBeAmended(dto.getRulesToBeAmended());
 	    reform.setIntendedOutcome(dto.getIntendedOutcome());
 	    reform.setPresentStatus(dto.getPresentStatus());
+	    reform.setStatus(dto.getStatus());
 
 	    if (dto.getTargetId() != null) {
 	        reform.setTarget(targetRepo.findById(dto.getTargetId()).orElse(null));
@@ -113,6 +114,7 @@ public class ReformService {
 	    dto.setRulesToBeAmended(reform.getRulesToBeAmended());
 	    dto.setIntendedOutcome(reform.getIntendedOutcome());
 	    dto.setPresentStatus(reform.getPresentStatus());
+	    dto.setStatus(reform.getStatus());
 
 	    if (reform.getTarget() != null) {
 	        dto.setTargetId(reform.getTarget().getId());
@@ -131,7 +133,7 @@ public class ReformService {
 	        case "SUBMITTED":
 	        case "APPROVED":
 	        case "REJECTED":
-	            reform.setFormStatus(newStatus); 
+	            reform.setStatus(newStatus); 
 	            break;
 	        default:
 	            throw new IllegalArgumentException("Invalid status: " + newStatus);
@@ -140,6 +142,23 @@ public class ReformService {
 	    InstitutionalReform saved = reformRepo.save(reform);
 	    return mapToDto(saved); 
 	}
+	
+	public List<InstitutionalReformDto> filterReforms(Long entityid, String status, String description) {
+	    List<InstitutionalReform> reforms;
+
+	    if (status == null && description == null) {
+	        reforms = reformRepo.findByCreatedBy(entityid);
+	    } else if (status != null && description == null) {
+	        reforms = reformRepo.findByCreatedByAndStatusIgnoreCase(entityid, status);
+	    } else if (status == null) {
+	        reforms = reformRepo.findByCreatedByAndNameContainingIgnoreCase(entityid, description);
+	    } else {
+	        reforms = reformRepo.findByCreatedByAndStatusIgnoreCaseAndNameContainingIgnoreCase(entityid, status, description);
+	    }
+
+	    return reforms.stream().map(this::mapToDto).collect(Collectors.toList());
+	}
+
 
 
 }

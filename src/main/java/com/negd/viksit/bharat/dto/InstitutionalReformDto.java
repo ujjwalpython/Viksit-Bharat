@@ -35,5 +35,5 @@ public class InstitutionalReformDto {
     
     private TargetDto target; 
     
-    private String formStatus;
+    private String status;
 }

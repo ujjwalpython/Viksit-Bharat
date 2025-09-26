@@ -1,6 +1,7 @@
 package com.negd.viksit.bharat.service;
 
 import com.negd.viksit.bharat.dto.ProposalDto;
+import com.negd.viksit.bharat.model.Goal;
 import com.negd.viksit.bharat.model.Proposal;
 import com.negd.viksit.bharat.repository.ProposalRepository;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class ProposalService {
 				.potentialEconomicDevelopment(entity.getPotentialEconomicDevelopment())
 				.potentialEmploymentGeneration(entity.getPotentialEmploymentGeneration())
 				.timelineStart(entity.getTimelineStart()).timelineEnd(entity.getTimelineEnd())
-				.formStatus(entity.getFormStatus()).build();
+				.status(entity.getStatus()).build();
 	}
 
 	private Proposal mapToEntity(ProposalDto dto) {
@@ -31,7 +32,7 @@ public class ProposalService {
 				.proposalDescription(dto.getProposalDescription()).proposalType(dto.getProposalType())
 				.potentialEconomicDevelopment(dto.getPotentialEconomicDevelopment())
 				.potentialEmploymentGeneration(dto.getPotentialEmploymentGeneration())
-				.timelineStart(dto.getTimelineStart()).timelineEnd(dto.getTimelineEnd()).formStatus(dto.getFormStatus())
+				.timelineStart(dto.getTimelineStart()).timelineEnd(dto.getTimelineEnd()).status(dto.getStatus())
 				.build();
 	}
 
@@ -75,7 +76,7 @@ public class ProposalService {
 		case "SUBMITTED":
 		case "APPROVED":
 		case "REJECTED":
-			proposal.setFormStatus(newStatus);
+			proposal.setStatus(newStatus);
 			break;
 		default:
 			throw new IllegalArgumentException("Invalid status: " + newStatus);
@@ -84,5 +85,26 @@ public class ProposalService {
 		Proposal saved = repository.save(proposal);
 		return mapToDto(saved);
 	}
+
+	public List<ProposalDto> filterProposals(Long entityId, String status, String proposalDescription) {
+	    List<Proposal> proposals;
+
+	    if (status == null && proposalDescription == null) {
+	        proposals = repository.findByCreatedBy(entityId);
+	    } else if (status != null && proposalDescription == null) {
+	        proposals = repository.findByCreatedByAndStatusIgnoreCase(entityId, status);
+	    } else if (status == null) {
+	        proposals = repository.findByCreatedByAndProposalDescriptionContainingIgnoreCase(entityId, proposalDescription);
+	    } else {
+	        proposals = repository.findByCreatedByAndStatusIgnoreCaseAndProposalDescriptionContainingIgnoreCase(
+	                entityId, status, proposalDescription
+	        );
+	    }
+
+	    return proposals.stream()
+	            .map(this::mapToDto)   // ✅ better: use method reference
+	            .collect(Collectors.toList()); // ✅ use Collectors for consistency
+	}
+
 
 }

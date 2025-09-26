@@ -3,16 +3,18 @@ package com.negd.viksit.bharat.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.negd.viksit.bharat.dto.TargetInterventionDto;
+import com.negd.viksit.bharat.model.User;
 import com.negd.viksit.bharat.service.TargetInterventionService;
 import com.negd.viksit.bharat.util.ResponseGenerator;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/api/five-year-plan")
+@RequestMapping("/api/v1/five-year-plan")
 public class TargetInterventionController {
 
 	private final TargetInterventionService service;
@@ -64,6 +66,15 @@ public class TargetInterventionController {
 
 		TargetInterventionDto updated = service.updateStatus(id, status);
 		return ResponseGenerator.success(updated, "Target / Intervention status updated successfully", request);
+	}
+
+	// FILTER
+	@GetMapping("/filter")
+	public ResponseEntity<?> filterTargetInterventions(@AuthenticationPrincipal User user, @RequestParam(required = false) String status,
+			@RequestParam(required = false) String targetDetails, HttpServletRequest request) {
+
+		List<TargetInterventionDto> list = service.filterTargetInterventions(user.getEntityid(), status, targetDetails);
+		return ResponseGenerator.success(list, "Target / Intervention filtered successfully", request);
 	}
 
 }

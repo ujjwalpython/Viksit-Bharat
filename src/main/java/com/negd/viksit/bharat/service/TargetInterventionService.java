@@ -32,6 +32,7 @@ public class TargetInterventionService {
 		entity.setPriority(dto.getPriority());
 		entity.setBottlenecks(dto.getBottlenecks());
 		entity.setBottlenecks(dto.getBottlenecks());
+		entity.setStatus(dto.getStatus());
 
 		if (dto.getKeyDeliverables() != null) {
 			dto.getKeyDeliverables().forEach(kdDto -> {
@@ -57,6 +58,7 @@ public class TargetInterventionService {
 		dto.setPriority(entity.getPriority());
 		dto.setBottlenecks(entity.getBottlenecks());
 		dto.setBottlenecks(entity.getBottlenecks());
+		dto.setStatus(entity.getStatus());
 
 		if (entity.getKeyDeliverables() != null) {
 			List<KeyDeliverableDto> kdDtos = entity.getKeyDeliverables().stream().map(kd -> {
@@ -134,7 +136,7 @@ public class TargetInterventionService {
 		case "SUBMITTED":
 		case "APPROVED":
 		case "REJECTED":
-			entity.setFormStatus(newStatus); // entity me formStatus field honi chahiye
+			entity.setStatus(newStatus); // entity me formStatus field honi chahiye
 			break;
 		default:
 			throw new IllegalArgumentException("Invalid status: " + newStatus);
@@ -143,4 +145,21 @@ public class TargetInterventionService {
 		TargetIntervention saved = repository.save(entity);
 		return convertToDto(saved);
 	}
+	
+	public List<TargetInterventionDto> filterTargetInterventions(Long entityId, String status, String targetDetails) {
+	    List<TargetIntervention> entities;
+
+	    if (status == null && targetDetails == null) {
+	        entities = repository.findByCreatedBy(entityId);
+	    } else if (status != null && targetDetails == null) {
+	        entities = repository.findByCreatedByAndStatusIgnoreCase(entityId, status);
+	    } else if (status == null) {
+	        entities = repository.findByCreatedByAndTargetDetailsContainingIgnoreCase(entityId, targetDetails);
+	    } else {
+	        entities = repository.findByCreatedByAndStatusIgnoreCaseAndTargetDetailsContainingIgnoreCase(entityId, status, targetDetails);
+	    }
+
+	    return entities.stream().map(this::convertToDto).collect(Collectors.toList());
+	}
+
 }

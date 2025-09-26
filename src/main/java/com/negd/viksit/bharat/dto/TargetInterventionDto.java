@@ -17,6 +17,6 @@ public class TargetInterventionDto {
 	private String presentStatus; 
 	private String implementationStatus;
 	private String bottlenecks;
-	private String formStatus;
+	private String status;
 	private List<KeyDeliverableDto> keyDeliverables;
 }

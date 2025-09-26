@@ -3,6 +3,7 @@ package com.negd.viksit.bharat.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -11,17 +12,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.negd.viksit.bharat.dto.InstitutionalReformDto;
 import com.negd.viksit.bharat.dto.TargetDto;
+import com.negd.viksit.bharat.model.User;
 import com.negd.viksit.bharat.service.ReformService;
 import com.negd.viksit.bharat.util.ResponseGenerator;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/api/institutional-reforms")
+@RequestMapping("/api/v1/institutional-reforms")
 public class ReformController {
 
 	private final ReformService service;
@@ -81,4 +84,14 @@ public class ReformController {
 		InstitutionalReformDto updated = service.updateStatus(id, status);
 		return ResponseGenerator.success(updated, "Institutional Reform status updated successfully", request);
 	}
+
+	// FILTER
+	@GetMapping("/filter")
+	public ResponseEntity<?> filterReforms(@AuthenticationPrincipal User user, @RequestParam(required = false) String status,
+			@RequestParam(required = false) String description, HttpServletRequest request) {
+
+		List<InstitutionalReformDto> reforms = service.filterReforms(user.getEntityid(), status, description);
+		return ResponseGenerator.success(reforms, "Institutional Reforms filtered successfully", request);
+	}
+
 }

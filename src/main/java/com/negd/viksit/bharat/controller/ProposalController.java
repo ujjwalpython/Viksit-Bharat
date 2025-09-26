@@ -3,6 +3,7 @@ package com.negd.viksit.bharat.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -11,16 +12,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.negd.viksit.bharat.dto.GoalDto;
 import com.negd.viksit.bharat.dto.ProposalDto;
+import com.negd.viksit.bharat.model.User;
 import com.negd.viksit.bharat.service.ProposalService;
 import com.negd.viksit.bharat.util.ResponseGenerator;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/api/other-proposals")
+@RequestMapping("/api/v1/other-proposals")
 public class ProposalController {
 
 	private final ProposalService service;
@@ -72,5 +76,15 @@ public class ProposalController {
 		ProposalDto updated = service.updateStatus(id, status);
 		return ResponseGenerator.success(updated, "Proposal status updated successfully", request);
 	}
+	
+	@GetMapping("/filter")
+    public ResponseEntity<?> filterProposal(@AuthenticationPrincipal User user,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String proposalDescription,
+            HttpServletRequest request) {
+
+        List<ProposalDto> list = service.filterProposals(user.getEntityid(),status, proposalDescription);
+        return ResponseGenerator.success(list, "Goals fetched successfully", request);
+    }
 
 }
