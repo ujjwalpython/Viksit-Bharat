@@ -22,44 +22,44 @@ public class ProposalService {
 	public ProposalService(ProposalRepository repository) {
 		this.repository = repository;
 	}
-	
-	 private static final String ID_PREFIX = "MOCVBIP";
 
-	    @PersistenceContext
-	    private EntityManager entityManager;
+	private static final String ID_PREFIX = "MOCVBIP";
 
-	    @Transactional
-	    public Proposal save(Proposal reform) {
-	        if (reform.getId() == null || reform.getId().isEmpty()) {
-	            reform.setId(generateCustomId());
-	        }
-	        return repository.save(reform);
-	    }
+	@PersistenceContext
+	private EntityManager entityManager;
 
-	    private String generateCustomId() {
-	        // Native query to find last ID starting with prefix ordered descending
-	        String sql = "SELECT ir.id FROM vb_core.institutional_reform ir WHERE ir.id LIKE :prefix ORDER BY ir.id DESC LIMIT 1";
-//	    	String sql = "SELECT ir.id FROM institutional_reform ir WHERE ir.id LIKE :prefix ORDER BY ir.id DESC LIMIT 1";
-	        List<String> result = entityManager.createNativeQuery(sql)
-	                .setParameter("prefix", ID_PREFIX + "%")
-	                .getResultList();
+	@Transactional
+	public Proposal save(Proposal reform) {
+		if (reform.getId() == null || reform.getId().isEmpty()) {
+			reform.setId(generateCustomId());
+		}
+		return repository.save(reform);
+	}
 
-	        int nextNumber = 1;
-	        if (!result.isEmpty()) {
-	            String lastId = result.get(0);
-	            String numberPart = lastId.substring(ID_PREFIX.length());
-	            try {
-	                nextNumber = Integer.parseInt(numberPart) + 1;
-	            } catch (NumberFormatException e) {
-	                nextNumber = 1;
-	            }
-	        }
-	        return ID_PREFIX + String.format("%02d", nextNumber);
-	    }
+	private String generateCustomId() {
+		// Native query to find last ID starting with prefix ordered descending
+		String sql = "SELECT ir.id FROM vb_core.other_proposals ir WHERE ir.id LIKE :prefix ORDER BY ir.id DESC LIMIT 1";
+//		String sql = "SELECT ir.id FROM other_proposals ir WHERE ir.id LIKE :prefix ORDER BY ir.id DESC LIMIT 1";
+		List<String> result = entityManager.createNativeQuery(sql).setParameter("prefix", ID_PREFIX + "%")
+				.getResultList();
+
+		int nextNumber = 1;
+		if (!result.isEmpty()) {
+			String lastId = result.get(0);
+			String numberPart = lastId.substring(ID_PREFIX.length());
+			try {
+				nextNumber = Integer.parseInt(numberPart) + 1;
+			} catch (NumberFormatException e) {
+				nextNumber = 1;
+			}
+		}
+		return ID_PREFIX + String.format("%02d", nextNumber);
+	}
 
 	private ProposalDto mapToDto(Proposal entity) {
-		return ProposalDto.builder().id(entity.getId()).goalId(entity.getGoalId()).ideaProposalTitle(entity.getIdeaProposalTitle())
-				.proposalDescription(entity.getProposalDescription()).proposalType(entity.getProposalType())
+		return ProposalDto.builder().id(entity.getId()).goalId(entity.getGoalId())
+				.ideaProposalTitle(entity.getIdeaProposalTitle()).proposalDescription(entity.getProposalDescription())
+				.proposalType(entity.getProposalType())
 				.potentialEconomicDevelopment(entity.getPotentialEconomicDevelopment())
 				.potentialEmploymentGeneration(entity.getPotentialEmploymentGeneration())
 				.timelineStart(entity.getTimelineStart()).timelineEnd(entity.getTimelineEnd())
@@ -74,12 +74,12 @@ public class ProposalService {
 				.timelineStart(dto.getTimelineStart()).timelineEnd(dto.getTimelineEnd()).status(dto.getStatus())
 				.build();
 	}
-	
-	 public ProposalDto create(ProposalDto dto) {
-	        Proposal entity = mapToEntity(dto);
-	        Proposal saved = save(entity);
-	        return mapToDto(saved);
-	    }
+
+	public ProposalDto create(ProposalDto dto) {
+		Proposal entity = mapToEntity(dto);
+		Proposal saved = save(entity);
+		return mapToDto(saved);
+	}
 
 	public List<ProposalDto> getAll() {
 		return repository.findAll().stream().map(this::mapToDto).collect(Collectors.toList());
@@ -128,24 +128,22 @@ public class ProposalService {
 	}
 
 	public List<ProposalDto> filterProposals(Long entityId, String status, String proposalDescription) {
-	    List<Proposal> proposals;
+		List<Proposal> proposals;
 
-	    if (status == null && proposalDescription == null) {
-	        proposals = repository.findByCreatedBy(entityId);
-	    } else if (status != null && proposalDescription == null) {
-	        proposals = repository.findByCreatedByAndStatusIgnoreCase(entityId, status);
-	    } else if (status == null) {
-	        proposals = repository.findByCreatedByAndProposalDescriptionContainingIgnoreCase(entityId, proposalDescription);
-	    } else {
-	        proposals = repository.findByCreatedByAndStatusIgnoreCaseAndProposalDescriptionContainingIgnoreCase(
-	                entityId, status, proposalDescription
-	        );
-	    }
+		if (status == null && proposalDescription == null) {
+			proposals = repository.findByCreatedBy(entityId);
+		} else if (status != null && proposalDescription == null) {
+			proposals = repository.findByCreatedByAndStatusIgnoreCase(entityId, status);
+		} else if (status == null) {
+			proposals = repository.findByCreatedByAndProposalDescriptionContainingIgnoreCase(entityId,
+					proposalDescription);
+		} else {
+			proposals = repository.findByCreatedByAndStatusIgnoreCaseAndProposalDescriptionContainingIgnoreCase(
+					entityId, status, proposalDescription);
+		}
 
-	    return proposals.stream()
-	            .map(this::mapToDto)   // ✅ better: use method reference
-	            .collect(Collectors.toList()); // ✅ use Collectors for consistency
+		return proposals.stream().map(this::mapToDto) // ✅ better: use method reference
+				.collect(Collectors.toList()); // ✅ use Collectors for consistency
 	}
-
 
 }

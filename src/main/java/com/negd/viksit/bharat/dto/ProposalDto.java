@@ -9,6 +9,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Data
 public class ProposalDto {
     private String id;
     private String goalId;
