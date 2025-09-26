@@ -17,8 +17,7 @@ import com.negd.viksit.bharat.audit.Auditable;
 public class Proposal extends Auditable<Long>{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     @Column(nullable = false)
     private String ideaProposalTitle;
@@ -41,4 +40,5 @@ public class Proposal extends Auditable<Long>{
     
     @Column(name = "status")
     private String status;
+    
 }

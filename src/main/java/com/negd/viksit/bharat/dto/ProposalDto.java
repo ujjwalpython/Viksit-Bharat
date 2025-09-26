@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class ProposalDto {
-    private Long id;
+    private String id;
     private String ideaProposalTitle;
     private String proposalDescription;
     private String proposalType;

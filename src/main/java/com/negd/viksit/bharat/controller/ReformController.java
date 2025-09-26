@@ -49,14 +49,14 @@ public class ReformController {
 
 	// READ ONE
 	@GetMapping("/getById/{id}")
-	public ResponseEntity<?> getById(@PathVariable Long id, HttpServletRequest request) {
+	public ResponseEntity<?> getById(@PathVariable String id, HttpServletRequest request) {
 		InstitutionalReformDto dto = service.getOne(id);
 		return ResponseGenerator.success(dto, "Institutional Reform fetched successfully", request);
 	}
 
 	// UPDATE
 	@PutMapping("/updateById/{id}")
-	public ResponseEntity<?> update(@PathVariable Long id, @RequestBody InstitutionalReformDto dto,
+	public ResponseEntity<?> update(@PathVariable String id, @RequestBody InstitutionalReformDto dto,
 			HttpServletRequest request) {
 		InstitutionalReformDto updated = service.update(id, dto);
 		return ResponseGenerator.success(updated, "Institutional Reform updated successfully", request);
@@ -64,7 +64,7 @@ public class ReformController {
 
 	// DELETE
 	@DeleteMapping("/deleteById/{id}")
-	public ResponseEntity<?> delete(@PathVariable Long id, HttpServletRequest request) {
+	public ResponseEntity<?> delete(@PathVariable String id, HttpServletRequest request) {
 		service.delete(id);
 		return ResponseGenerator.success(null, "Institutional Reform deleted successfully", request);
 	}
@@ -78,7 +78,7 @@ public class ReformController {
 
 	// UPDATE STATUS
 	@PatchMapping("/{id}/status/{status}")
-	public ResponseEntity<?> updateStatus(@PathVariable Long id, @PathVariable String status,
+	public ResponseEntity<?> updateStatus(@PathVariable String id, @PathVariable String status,
 			HttpServletRequest request) {
 
 		InstitutionalReformDto updated = service.updateStatus(id, status);

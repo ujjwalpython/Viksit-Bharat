@@ -1,8 +1,9 @@
 package com.negd.viksit.bharat.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.negd.viksit.bharat.enums.ReformType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,25 +16,23 @@ import lombok.NoArgsConstructor;
 @Builder
 public class InstitutionalReformDto {
 
-    private Long id;
+	private String id;
 
-    private String name;
+	private String institutionalReformName;
 
-    private String description;
+	private String reformDescription;
 
-    private String reformType;
+	private ReformType reformType;
 
-    private LocalDate targetCompletionDate;
+	private LocalDate targetCompletionDate;
 
-    private String rulesToBeAmended;
+	private String rulesToBeAmended;
 
-    private String intendedOutcome;
+	private String intendedOutcome;
 
-    private String presentStatus;
+	private String presentStatus;
 
-    private Long targetId;  
-    
-    private TargetDto target; 
-    
-    private String status;
+	private String status;
+	
+	private List<TargetDto> target;
 }

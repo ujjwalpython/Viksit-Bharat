@@ -1,13 +1,18 @@
 package com.negd.viksit.bharat.service;
 
-import com.negd.viksit.bharat.dto.ProposalDto;
-import com.negd.viksit.bharat.model.Goal;
-import com.negd.viksit.bharat.model.Proposal;
-import com.negd.viksit.bharat.repository.ProposalRepository;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.negd.viksit.bharat.dto.ProposalDto;
+import com.negd.viksit.bharat.model.InstitutionalReform;
+import com.negd.viksit.bharat.model.Proposal;
+import com.negd.viksit.bharat.repository.ProposalRepository;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 
 @Service
 public class ProposalService {
@@ -17,6 +22,40 @@ public class ProposalService {
 	public ProposalService(ProposalRepository repository) {
 		this.repository = repository;
 	}
+	
+	 private static final String ID_PREFIX = "MOCVBIP";
+
+	    @PersistenceContext
+	    private EntityManager entityManager;
+
+	    @Transactional
+	    public Proposal save(Proposal reform) {
+	        if (reform.getId() == null || reform.getId().isEmpty()) {
+	            reform.setId(generateCustomId());
+	        }
+	        return repository.save(reform);
+	    }
+
+	    private String generateCustomId() {
+	        // Native query to find last ID starting with prefix ordered descending
+//	        String sql = "SELECT ir.id FROM vb_core.institutional_reform ir WHERE ir.id LIKE :prefix ORDER BY ir.id DESC LIMIT 1";
+	    	String sql = "SELECT ir.id FROM institutional_reform ir WHERE ir.id LIKE :prefix ORDER BY ir.id DESC LIMIT 1";
+	        List<String> result = entityManager.createNativeQuery(sql)
+	                .setParameter("prefix", ID_PREFIX + "%")
+	                .getResultList();
+
+	        int nextNumber = 1;
+	        if (!result.isEmpty()) {
+	            String lastId = result.get(0);
+	            String numberPart = lastId.substring(ID_PREFIX.length());
+	            try {
+	                nextNumber = Integer.parseInt(numberPart) + 1;
+	            } catch (NumberFormatException e) {
+	                nextNumber = 1;
+	            }
+	        }
+	        return ID_PREFIX + String.format("%02d", nextNumber);
+	    }
 
 	private ProposalDto mapToDto(Proposal entity) {
 		return ProposalDto.builder().id(entity.getId()).ideaProposalTitle(entity.getIdeaProposalTitle())
@@ -45,12 +84,12 @@ public class ProposalService {
 		return repository.findAll().stream().map(this::mapToDto).collect(Collectors.toList());
 	}
 
-	public ProposalDto getOne(Long id) {
+	public ProposalDto getOne(String id) {
 		return repository.findById(id).map(this::mapToDto)
 				.orElseThrow(() -> new RuntimeException("Proposal not found"));
 	}
 
-	public ProposalDto update(Long id, ProposalDto dto) {
+	public ProposalDto update(String id, ProposalDto dto) {
 		Proposal existing = repository.findById(id).orElseThrow(() -> new RuntimeException("Proposal not found"));
 		existing.setIdeaProposalTitle(dto.getIdeaProposalTitle());
 		existing.setProposalDescription(dto.getProposalDescription());
@@ -62,11 +101,11 @@ public class ProposalService {
 		return mapToDto(repository.save(existing));
 	}
 
-	public void delete(Long id) {
+	public void delete(String id) {
 		repository.deleteById(id);
 	}
 
-	public ProposalDto updateStatus(Long id, String status) {
+	public ProposalDto updateStatus(String id, String status) {
 		Proposal proposal = repository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Proposal not found with id: " + id));
 

@@ -11,7 +11,7 @@ import lombok.Data;
 
 @Data
 public class TargetInterventionDto {
-	private Long id;                   
+	private String id;                   
     private String ministry;           
     private LocalDateTime lastUpdated;
 	private String targetDetails;

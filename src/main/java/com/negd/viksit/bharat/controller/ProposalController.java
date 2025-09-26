@@ -49,28 +49,28 @@ public class ProposalController {
 
 	// READ ONE
 	@GetMapping("/getById/{id}")
-	public ResponseEntity<?> getById(@PathVariable Long id, HttpServletRequest request) {
+	public ResponseEntity<?> getById(@PathVariable String id, HttpServletRequest request) {
 		ProposalDto dto = service.getOne(id);
 		return ResponseGenerator.success(dto, "Proposal fetched successfully", request);
 	}
 
 	// UPDATE
 	@PutMapping("/updateById/{id}")
-	public ResponseEntity<?> update(@PathVariable Long id, @RequestBody ProposalDto dto, HttpServletRequest request) {
+	public ResponseEntity<?> update(@PathVariable String id, @RequestBody ProposalDto dto, HttpServletRequest request) {
 		ProposalDto updated = service.update(id, dto);
 		return ResponseGenerator.success(updated, "Proposal updated successfully", request);
 	}
 
 	// DELETE
 	@DeleteMapping("/deleteById/{id}")
-	public ResponseEntity<?> delete(@PathVariable Long id, HttpServletRequest request) {
+	public ResponseEntity<?> delete(@PathVariable String id, HttpServletRequest request) {
 		service.delete(id);
 		return ResponseGenerator.success(null, "Proposal deleted successfully", request);
 	}
 
 	// UPDATE STATUS
 	@PatchMapping("/{id}/status/{status}")
-	public ResponseEntity<?> updateStatus(@PathVariable Long id, @PathVariable String status,
+	public ResponseEntity<?> updateStatus(@PathVariable String id, @PathVariable String status,
 			HttpServletRequest request) {
 
 		ProposalDto updated = service.updateStatus(id, status);

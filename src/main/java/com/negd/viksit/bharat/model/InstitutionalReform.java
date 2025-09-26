@@ -1,16 +1,25 @@
 package com.negd.viksit.bharat.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.negd.viksit.bharat.audit.Auditable;
+import com.negd.viksit.bharat.enums.ReformType;
 
-import jakarta.persistence.Column;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Persistence;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,32 +34,41 @@ import lombok.NoArgsConstructor;
 @Builder
 public class InstitutionalReform extends Auditable<Long> {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+    private String id;
 
-    private String name;
-    private String description;
+    private String institutionalReformName;
+    private String reformDescription;
 
-    @Column(name = "reform_type")
-    private String reformType;
+    @Enumerated(EnumType.STRING)
+    private ReformType reformType;
 
-    @Column(name = "target_completion_date")
     private LocalDate targetCompletionDate;
-
-    @Column(name = "rules_to_be_amended")
+    
     private String rulesToBeAmended;
 
-    @Column(name = "intended_outcome")
     private String intendedOutcome;
 
-    @Column(name = "present_status")
     private String presentStatus;
     
-    @Column(name = "status")
     private String status;
+    
+    @OneToMany(mappedBy = "institutionalReform", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Target> target = new ArrayList<>();
+    
+    public void addTarget(Target deliverable) {
+        deliverable.setInstitutionalReform(this);
+        this.target.add(deliverable);
+    }
 
-    @ManyToOne
-    @JoinColumn(name = "target_id")
-    private Target target;
+    public void removeTarget(Target deliverable) {
+        deliverable.setInstitutionalReform(null);
+        this.target.remove(deliverable);
+    }
+
+//    @ManyToOne
+//    @JoinColumn(name = "target_id")
+//    private Target target;
+    
+  
 }

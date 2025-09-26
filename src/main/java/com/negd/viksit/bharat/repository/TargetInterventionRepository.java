@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.negd.viksit.bharat.model.TargetIntervention;
 
 @Repository
-public interface TargetInterventionRepository extends JpaRepository<TargetIntervention, Long> {
+public interface TargetInterventionRepository extends JpaRepository<TargetIntervention, String> {
 
 	List<TargetIntervention> findByCreatedBy(Long entityId);
 

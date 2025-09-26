@@ -8,14 +8,14 @@ import org.springframework.stereotype.Repository;
 import com.negd.viksit.bharat.model.InstitutionalReform;
 
 @Repository
-public interface InstitutionalReformRepository extends JpaRepository<InstitutionalReform, Long> {
+public interface InstitutionalReformRepository extends JpaRepository<InstitutionalReform, String> {
 
 	List<InstitutionalReform> findByCreatedBy(Long entityid);
 
 	List<InstitutionalReform> findByCreatedByAndStatusIgnoreCase(Long entityid, String status);
 
-	List<InstitutionalReform> findByCreatedByAndNameContainingIgnoreCase(Long entityid, String description);
+	List<InstitutionalReform> findByCreatedByAndReformDescriptionContainingIgnoreCase(Long entityid, String reformDescription);
 
-	List<InstitutionalReform> findByCreatedByAndStatusIgnoreCaseAndNameContainingIgnoreCase(Long entityid,
-			String status, String description);
+	List<InstitutionalReform> findByCreatedByAndStatusIgnoreCaseAndReformDescriptionContainingIgnoreCase(Long entityid,
+			String status, String reformDescription);
 }

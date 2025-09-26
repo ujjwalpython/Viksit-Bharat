@@ -51,14 +51,14 @@ public class TargetInterventionController {
 
 	// READ ONE
 	@GetMapping("/getById/{id}")
-	public ResponseEntity<?> getById(@PathVariable Long id, HttpServletRequest request) {
+	public ResponseEntity<?> getById(@PathVariable String id, HttpServletRequest request) {
 		TargetInterventionDto dto = service.findById(id);
 		return ResponseGenerator.success(dto, "Target / Intervention fetched successfully", request);
 	}
 
 	// UPDATE
 	@PutMapping("/updateById/{id}")
-	public ResponseEntity<?> update(@PathVariable Long id, @RequestBody TargetInterventionDto dto,
+	public ResponseEntity<?> update(@PathVariable String id, @RequestBody TargetInterventionDto dto,
 			HttpServletRequest request) {
 		TargetInterventionDto updated = service.update(id, dto);
 		return ResponseGenerator.success(updated, "Target / Intervention updated successfully", request);
@@ -66,14 +66,14 @@ public class TargetInterventionController {
 
 	// DELETE
 	@DeleteMapping("/deleteById/{id}")
-	public ResponseEntity<?> delete(@PathVariable Long id, HttpServletRequest request) {
+	public ResponseEntity<?> delete(@PathVariable String id, HttpServletRequest request) {
 		service.delete(id);
 		return ResponseGenerator.success(null, "Target / Intervention deleted successfully", request);
 	}
 
 	// updateStatus
 	@PatchMapping("/{id}/status/{status}")
-	public ResponseEntity<?> updateStatus(@PathVariable Long id, @PathVariable String status,
+	public ResponseEntity<?> updateStatus(@PathVariable String id, @PathVariable String status,
 			HttpServletRequest request) {
 
 		TargetInterventionDto updated = service.updateStatus(id, status);
@@ -89,19 +89,19 @@ public class TargetInterventionController {
 		List<TargetInterventionDto> list = service.filterTargetInterventions(user.getEntityid(), status, targetDetails);
 		return ResponseGenerator.success(list, "Target / Intervention filtered successfully", request);
 	}
-	
+
 	// priorities dropdown list
 	@GetMapping("/priorities")
 	public Priority[] getPriorities() {
 		return Priority.values();
 	}
-	
+
 	// present-status dropdown list
 	@GetMapping("/present-status")
 	public PresentStatus[] getPresentStatus() {
 		return PresentStatus.values();
 	}
-	
+
 //	// sub dropdown insite of present_status
 //	@GetMapping("/implementation-status")
 //	public ImplementationStatus[] getImplementationStatus() {

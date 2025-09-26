@@ -11,12 +11,17 @@ import com.negd.viksit.bharat.enums.Priority;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Persistence;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -25,9 +30,8 @@ import lombok.Data;
 @Table(name = "target_interventions", schema = "vb_core")
 public class TargetIntervention extends Auditable<Long> {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+    private String id;
 
     private String targetDetails;
     private String actionPoint;
@@ -57,4 +61,6 @@ public class TargetIntervention extends Auditable<Long> {
         deliverable.setTargetIntervention(null);
         this.keyDeliverables.remove(deliverable);
     }
+    
+   
 }
