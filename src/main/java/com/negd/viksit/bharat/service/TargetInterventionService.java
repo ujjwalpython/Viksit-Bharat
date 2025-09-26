@@ -57,6 +57,9 @@ public class TargetInterventionService {
 //	    dto.setImplementationStatus(entity.getImplementationStatus());
 	    dto.setBottlenecks(entity.getBottlenecks());
 	    dto.setStatus(entity.getStatus());
+	    dto.setLastUpdated(entity.getUpdatedOn());
+	    
+	    dto.setMinistry(entity.getCreatedBy() != null ? entity.getCreatedBy().toString() : "N/A");
 
 	    if (entity.getKeyDeliverables() != null) {
 	        List<KeyDeliverableDto> kdDtos = entity.getKeyDeliverables().stream().map(kd -> {
@@ -65,6 +68,7 @@ public class TargetInterventionService {
 	            kdDto.setDeadline(kd.getDeadline());
 	            kdDto.setProgressMade(kd.getProgressMade());
 	            kdDto.setDocumentPath(kd.getDocumentPath());
+	            kdDto.setId(kd.getId()); 
 	            return kdDto;
 	        }).toList();
 	        dto.setKeyDeliverables(kdDtos);
