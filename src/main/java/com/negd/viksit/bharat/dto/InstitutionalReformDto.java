@@ -34,4 +34,6 @@ public class InstitutionalReformDto {
     private Long targetId;  
     
     private TargetDto target; 
+    
+    private String formStatus;
 }

@@ -56,4 +56,14 @@ public class TargetInterventionController {
 		service.delete(id);
 		return ResponseGenerator.success(null, "Target / Intervention deleted successfully", request);
 	}
+
+	// updateStatus
+	@PatchMapping("/{id}/status/{status}")
+	public ResponseEntity<?> updateStatus(@PathVariable Long id, @PathVariable String status,
+			HttpServletRequest request) {
+
+		TargetInterventionDto updated = service.updateStatus(id, status);
+		return ResponseGenerator.success(updated, "Target / Intervention status updated successfully", request);
+	}
+
 }

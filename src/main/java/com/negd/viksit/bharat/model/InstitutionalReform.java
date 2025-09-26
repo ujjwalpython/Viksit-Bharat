@@ -46,6 +46,9 @@ public class InstitutionalReform extends Auditable<Long> {
 
     @Column(name = "present_status")
     private String presentStatus;
+    
+    @Column(name = "form_status")
+    private String formStatus;
 
     @ManyToOne
     @JoinColumn(name = "target_id")

@@ -18,4 +18,6 @@ public class ProposalDto {
     private String potentialEmploymentGeneration;
     private LocalDate timelineStart;
     private LocalDate timelineEnd;
+    private String formStatus;
+
 }

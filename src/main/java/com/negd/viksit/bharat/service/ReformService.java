@@ -121,4 +121,25 @@ public class ReformService {
 	    return dto;
 	}
 
+	public InstitutionalReformDto updateStatus(Long id, String status) {
+	    InstitutionalReform reform = reformRepo.findById(id)
+	            .orElseThrow(() -> new RuntimeException("Institutional Reform not found with id: " + id));
+
+	    String newStatus = status.toUpperCase();
+	    switch (newStatus) {
+	        case "DRAFT":
+	        case "SUBMITTED":
+	        case "APPROVED":
+	        case "REJECTED":
+	            reform.setFormStatus(newStatus); 
+	            break;
+	        default:
+	            throw new IllegalArgumentException("Invalid status: " + newStatus);
+	    }
+
+	    InstitutionalReform saved = reformRepo.save(reform);
+	    return mapToDto(saved); 
+	}
+
+
 }

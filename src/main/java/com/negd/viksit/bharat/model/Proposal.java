@@ -38,4 +38,7 @@ public class Proposal extends Auditable<Long>{
 
     @Column(nullable = false)
     private LocalDate timelineEnd;
+    
+    @Column(name = "form_status")
+    private String formStatus;
 }
