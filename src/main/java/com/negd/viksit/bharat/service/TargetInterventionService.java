@@ -22,56 +22,54 @@ public class TargetInterventionService {
 
 	// ----------------- Mapper Methods -----------------
 	private TargetIntervention convertToEntity(TargetInterventionDto dto) {
-		TargetIntervention entity = new TargetIntervention();
-		entity.setTargetDetails(dto.getTargetDetails());
-		entity.setActionPoint(dto.getActionPoint());
-		entity.setTargetDate(dto.getTargetDate());
+	    TargetIntervention entity = new TargetIntervention();
+	    entity.setTargetDetails(dto.getTargetDetails());
+	    entity.setActionPoint(dto.getActionPoint());
+	    entity.setTargetDate(dto.getTargetDate());
 
-		entity.setPresentStatus(dto.getPresentStatus());
-		entity.setImplementationStatus(dto.getImplementationStatus());
-		entity.setPriority(dto.getPriority());
-		entity.setBottlenecks(dto.getBottlenecks());
-		entity.setBottlenecks(dto.getBottlenecks());
-		entity.setStatus(dto.getStatus());
+	    entity.setPriority(dto.getPriority());
+	    entity.setPresentStatus(dto.getPresentStatus());
+	    entity.setImplementationStatus(dto.getImplementationStatus());
+	    entity.setBottlenecks(dto.getBottlenecks());
+	    entity.setStatus(dto.getStatus());
 
-		if (dto.getKeyDeliverables() != null) {
-			dto.getKeyDeliverables().forEach(kdDto -> {
-				KeyDeliverable kd = new KeyDeliverable();
-				kd.setActivityDescription(kdDto.getActivityDescription());
-				kd.setDeadline(kdDto.getDeadline());
-				kd.setProgressMade(kdDto.getProgressMade());
-				kd.setDocumentPath(kdDto.getDocumentPath());
-				entity.addKeyDeliverable(kd);
-			});
-		}
-		return entity;
+	    if (dto.getKeyDeliverables() != null) {
+	        dto.getKeyDeliverables().forEach(kdDto -> {
+	            KeyDeliverable kd = new KeyDeliverable();
+	            kd.setActivityDescription(kdDto.getActivityDescription());
+	            kd.setDeadline(kdDto.getDeadline());
+	            kd.setProgressMade(kdDto.getProgressMade());
+	            kd.setDocumentPath(kdDto.getDocumentPath());
+	            entity.addKeyDeliverable(kd);
+	        });
+	    }
+	    return entity;
 	}
 
 	private TargetInterventionDto convertToDto(TargetIntervention entity) {
-		TargetInterventionDto dto = new TargetInterventionDto();
-		dto.setTargetDetails(entity.getTargetDetails());
-		dto.setActionPoint(entity.getActionPoint());
-		dto.setTargetDate(entity.getTargetDate());
+	    TargetInterventionDto dto = new TargetInterventionDto();
+	    dto.setTargetDetails(entity.getTargetDetails());
+	    dto.setActionPoint(entity.getActionPoint());
+	    dto.setTargetDate(entity.getTargetDate());
 
-		dto.setPresentStatus(entity.getPresentStatus());
-		dto.setImplementationStatus(entity.getImplementationStatus());
-		dto.setPriority(entity.getPriority());
-		dto.setBottlenecks(entity.getBottlenecks());
-		dto.setBottlenecks(entity.getBottlenecks());
-		dto.setStatus(entity.getStatus());
+	    dto.setPriority(entity.getPriority());
+	    dto.setPresentStatus(entity.getPresentStatus());
+	    dto.setImplementationStatus(entity.getImplementationStatus());
+	    dto.setBottlenecks(entity.getBottlenecks());
+	    dto.setStatus(entity.getStatus());
 
-		if (entity.getKeyDeliverables() != null) {
-			List<KeyDeliverableDto> kdDtos = entity.getKeyDeliverables().stream().map(kd -> {
-				KeyDeliverableDto kdDto = new KeyDeliverableDto();
-				kdDto.setActivityDescription(kd.getActivityDescription());
-				kdDto.setDeadline(kd.getDeadline());
-				kdDto.setProgressMade(kd.getProgressMade());
-				kdDto.setDocumentPath(kd.getDocumentPath());
-				return kdDto;
-			}).collect(Collectors.toList());
-			dto.setKeyDeliverables(kdDtos);
-		}
-		return dto;
+	    if (entity.getKeyDeliverables() != null) {
+	        List<KeyDeliverableDto> kdDtos = entity.getKeyDeliverables().stream().map(kd -> {
+	            KeyDeliverableDto kdDto = new KeyDeliverableDto();
+	            kdDto.setActivityDescription(kd.getActivityDescription());
+	            kdDto.setDeadline(kd.getDeadline());
+	            kdDto.setProgressMade(kd.getProgressMade());
+	            kdDto.setDocumentPath(kd.getDocumentPath());
+	            return kdDto;
+	        }).toList();
+	        dto.setKeyDeliverables(kdDtos);
+	    }
+	    return dto;
 	}
 
 	// ----------------- Business Methods -----------------
