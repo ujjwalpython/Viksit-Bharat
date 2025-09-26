@@ -29,7 +29,7 @@ public class TargetInterventionService {
 
 	    entity.setPriority(dto.getPriority());
 	    entity.setPresentStatus(dto.getPresentStatus());
-	    entity.setImplementationStatus(dto.getImplementationStatus());
+//	    entity.setImplementationStatus(dto.getImplementationStatus());
 	    entity.setBottlenecks(dto.getBottlenecks());
 	    entity.setStatus(dto.getStatus());
 
@@ -54,7 +54,7 @@ public class TargetInterventionService {
 
 	    dto.setPriority(entity.getPriority());
 	    dto.setPresentStatus(entity.getPresentStatus());
-	    dto.setImplementationStatus(entity.getImplementationStatus());
+//	    dto.setImplementationStatus(entity.getImplementationStatus());
 	    dto.setBottlenecks(entity.getBottlenecks());
 	    dto.setStatus(entity.getStatus());
 
@@ -99,7 +99,7 @@ public class TargetInterventionService {
 		existing.setTargetDate(dto.getTargetDate());
 
 		existing.setPresentStatus(dto.getPresentStatus());
-		existing.setImplementationStatus(dto.getImplementationStatus());
+//		existing.setImplementationStatus(dto.getImplementationStatus());
 		existing.setPriority(dto.getPriority());
 		existing.setBottlenecks(dto.getBottlenecks());
 		existing.setBottlenecks(dto.getBottlenecks());

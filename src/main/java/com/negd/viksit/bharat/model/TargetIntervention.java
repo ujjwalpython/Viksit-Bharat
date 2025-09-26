@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.negd.viksit.bharat.audit.Auditable;
+import com.negd.viksit.bharat.enums.ImplementationStatus;
 import com.negd.viksit.bharat.enums.PresentStatus;
 import com.negd.viksit.bharat.enums.Priority;
 
@@ -38,7 +39,9 @@ public class TargetIntervention extends Auditable<Long> {
     @Enumerated(EnumType.STRING)
     private PresentStatus presentStatus;
 
-    private String implementationStatus;
+//    @Enumerated(EnumType.STRING)
+//    private ImplementationStatus implementationStatus;
+    
     private String bottlenecks;
     private String status;
 

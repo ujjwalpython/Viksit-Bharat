@@ -3,6 +3,7 @@ package com.negd.viksit.bharat.dto;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.negd.viksit.bharat.enums.ImplementationStatus;
 import com.negd.viksit.bharat.enums.PresentStatus;
 import com.negd.viksit.bharat.enums.Priority;
 
@@ -15,7 +16,7 @@ public class TargetInterventionDto {
 	private LocalDate targetDate;
 	private Priority priority;
 	private PresentStatus presentStatus;
-	private String implementationStatus;
+//	private ImplementationStatus implementationStatus;
 	private String bottlenecks;
 	private String status;
 	private List<KeyDeliverableDto> keyDeliverables;
