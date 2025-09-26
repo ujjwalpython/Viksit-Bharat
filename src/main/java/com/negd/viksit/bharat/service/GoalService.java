@@ -48,7 +48,7 @@ public class GoalService {
 
         goal.setMinistryId(goalDto.getMinistryId());
         goal.setGoalDescription(goalDto.getGoalDescription());
-        goal.setStatus(goal.getStatus());
+        goal.setStatus(goalDto.getStatus());
         goal.getInterventions().clear();
 
         List<GoalIntervention> interventions = goalDto.getInterventions()
