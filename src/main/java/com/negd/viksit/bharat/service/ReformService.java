@@ -61,7 +61,7 @@ public class ReformService {
     // CREATE
     public InstitutionalReformDto create(InstitutionalReformDto dto) {
         InstitutionalReform entity = mapToEntity(dto);
-        InstitutionalReform saved = reformRepo.save(entity);
+        InstitutionalReform saved = save(entity);
         return mapToDto(saved);
     }
 

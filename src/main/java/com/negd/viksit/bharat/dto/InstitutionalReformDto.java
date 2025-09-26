@@ -3,8 +3,6 @@ package com.negd.viksit.bharat.dto;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.negd.viksit.bharat.enums.ReformType;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

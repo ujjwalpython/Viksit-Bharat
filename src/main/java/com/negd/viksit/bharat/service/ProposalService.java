@@ -74,11 +74,12 @@ public class ProposalService {
 				.timelineStart(dto.getTimelineStart()).timelineEnd(dto.getTimelineEnd()).status(dto.getStatus())
 				.build();
 	}
-
-	public ProposalDto create(ProposalDto dto) {
-		Proposal saved = repository.save(mapToEntity(dto));
-		return mapToDto(saved);
-	}
+	
+	 public ProposalDto create(ProposalDto dto) {
+	        Proposal entity = mapToEntity(dto);
+	        Proposal saved = save(entity);
+	        return mapToDto(saved);
+	    }
 
 	public List<ProposalDto> getAll() {
 		return repository.findAll().stream().map(this::mapToDto).collect(Collectors.toList());
