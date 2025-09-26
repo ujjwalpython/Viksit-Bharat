@@ -58,7 +58,7 @@ public class ProposalService {
 	    }
 
 	private ProposalDto mapToDto(Proposal entity) {
-		return ProposalDto.builder().id(entity.getId()).ideaProposalTitle(entity.getIdeaProposalTitle())
+		return ProposalDto.builder().id(entity.getId()).goalId(entity.getGoalId()).ideaProposalTitle(entity.getIdeaProposalTitle())
 				.proposalDescription(entity.getProposalDescription()).proposalType(entity.getProposalType())
 				.potentialEconomicDevelopment(entity.getPotentialEconomicDevelopment())
 				.potentialEmploymentGeneration(entity.getPotentialEmploymentGeneration())
@@ -67,7 +67,7 @@ public class ProposalService {
 	}
 
 	private Proposal mapToEntity(ProposalDto dto) {
-		return Proposal.builder().id(dto.getId()).ideaProposalTitle(dto.getIdeaProposalTitle())
+		return Proposal.builder().id(dto.getId()).goalId(dto.getGoalId()).ideaProposalTitle(dto.getIdeaProposalTitle())
 				.proposalDescription(dto.getProposalDescription()).proposalType(dto.getProposalType())
 				.potentialEconomicDevelopment(dto.getPotentialEconomicDevelopment())
 				.potentialEmploymentGeneration(dto.getPotentialEmploymentGeneration())
@@ -92,6 +92,7 @@ public class ProposalService {
 	public ProposalDto update(String id, ProposalDto dto) {
 		Proposal existing = repository.findById(id).orElseThrow(() -> new RuntimeException("Proposal not found"));
 		existing.setIdeaProposalTitle(dto.getIdeaProposalTitle());
+		existing.setGoalId(dto.getGoalId());
 		existing.setProposalDescription(dto.getProposalDescription());
 		existing.setProposalType(dto.getProposalType());
 		existing.setPotentialEconomicDevelopment(dto.getPotentialEconomicDevelopment());

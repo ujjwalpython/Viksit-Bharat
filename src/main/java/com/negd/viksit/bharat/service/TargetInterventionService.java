@@ -62,6 +62,7 @@ public class TargetInterventionService {
     private TargetIntervention convertToEntity(TargetInterventionDto dto) {
         TargetIntervention entity = new TargetIntervention();
         entity.setId(dto.getId());
+        entity.setGoalId(dto.getGoalId());
         entity.setTargetDetails(dto.getTargetDetails());
         entity.setActionPoint(dto.getActionPoint());
         entity.setTargetDate(dto.getTargetDate());
@@ -88,6 +89,7 @@ public class TargetInterventionService {
     private TargetInterventionDto convertToDto(TargetIntervention entity) {
         TargetInterventionDto dto = new TargetInterventionDto();
         dto.setId(entity.getId());
+        dto.setGoalId(entity.getGoalId()); 
         dto.setTargetDetails(entity.getTargetDetails());
         dto.setActionPoint(entity.getActionPoint());
         dto.setTargetDate(entity.getTargetDate());
@@ -137,7 +139,8 @@ public class TargetInterventionService {
     public TargetInterventionDto update(String id, TargetInterventionDto dto) {
         TargetIntervention existing = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Target / Intervention Not Found"));
-
+        
+        existing.setGoalId(dto.getGoalId());
         existing.setTargetDetails(dto.getTargetDetails());
         existing.setActionPoint(dto.getActionPoint());
         existing.setTargetDate(dto.getTargetDate());

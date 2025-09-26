@@ -79,7 +79,8 @@ public class ReformService {
     public InstitutionalReformDto update(String id, InstitutionalReformDto dto) {
         InstitutionalReform existing = reformRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Institutional Reform Not Found"));
-
+        
+        existing.setGoalId(dto.getGoalId());
         existing.setInstitutionalReformName(dto.getInstitutionalReformName());
         existing.setReformDescription(dto.getReformDescription());
         existing.setReformType(dto.getReformType());
@@ -139,6 +140,7 @@ public class ReformService {
     private InstitutionalReform mapToEntity(InstitutionalReformDto dto) {
         InstitutionalReform reform = new InstitutionalReform();
         reform.setId(dto.getId());
+        reform.setGoalId(dto.getGoalId());
         reform.setInstitutionalReformName(dto.getInstitutionalReformName());
         reform.setReformDescription(dto.getReformDescription());
         reform.setReformType(dto.getReformType());
@@ -160,6 +162,7 @@ public class ReformService {
     private InstitutionalReformDto mapToDto(InstitutionalReform reform) {
         InstitutionalReformDto dto = new InstitutionalReformDto();
         dto.setId(reform.getId());
+        dto.setGoalId(reform.getGoalId()); 
         dto.setInstitutionalReformName(reform.getInstitutionalReformName());
         dto.setReformDescription(reform.getReformDescription());
         dto.setReformType(reform.getReformType());
