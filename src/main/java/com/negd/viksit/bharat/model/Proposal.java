@@ -18,7 +18,9 @@ public class Proposal extends Auditable<Long>{
 
     @Id
     private String id;
-
+    
+    private String goalId;
+    
     @Column(nullable = false)
     private String ideaProposalTitle;
 

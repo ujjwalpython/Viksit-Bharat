@@ -32,16 +32,18 @@ public class TargetIntervention extends Auditable<Long> {
 
 	@Id
     private String id;
-
+	private String goalId;
     private String targetDetails;
     private String actionPoint;
     private LocalDate targetDate;
 
-    @Enumerated(EnumType.STRING)
-    private Priority priority;
+//    @Enumerated(EnumType.STRING)
+//    private Priority priority;
+    private String priority;
 
-    @Enumerated(EnumType.STRING)
-    private PresentStatus presentStatus;
+//    @Enumerated(EnumType.STRING)
+//    private PresentStatus presentStatus;
+    private String presentStatus;
 
 //    @Enumerated(EnumType.STRING)
 //    private ImplementationStatus implementationStatus;

@@ -36,12 +36,13 @@ public class InstitutionalReform extends Auditable<Long> {
 
 	@Id
     private String id;
-
+	private String goalId;
     private String institutionalReformName;
     private String reformDescription;
 
-    @Enumerated(EnumType.STRING)
-    private ReformType reformType;
+//    @Enumerated(EnumType.STRING)
+//    private ReformType reformType;
+    private String reformType;
 
     private LocalDate targetCompletionDate;
     

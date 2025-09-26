@@ -11,14 +11,17 @@ import lombok.Data;
 
 @Data
 public class TargetInterventionDto {
-	private String id;                   
+	private String id;
+	private String goalId;
     private String ministry;           
     private LocalDateTime lastUpdated;
 	private String targetDetails;
 	private String actionPoint;
 	private LocalDate targetDate;
-	private Priority priority;
-	private PresentStatus presentStatus;
+	private String priority;
+	private String presentStatus;
+//	private Priority priority;
+//	private PresentStatus presentStatus;
 //	private ImplementationStatus implementationStatus;
 	private String bottlenecks;
 	private String status;

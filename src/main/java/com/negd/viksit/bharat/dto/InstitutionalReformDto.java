@@ -17,12 +17,15 @@ import lombok.NoArgsConstructor;
 public class InstitutionalReformDto {
 
 	private String id;
-
+	
+	private String goalId;
+	
 	private String institutionalReformName;
 
 	private String reformDescription;
 
-	private ReformType reformType;
+//	private ReformType reformType;
+	private String reformType;
 
 	private LocalDate targetCompletionDate;
 
