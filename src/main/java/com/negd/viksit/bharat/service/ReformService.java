@@ -39,8 +39,8 @@ public class ReformService {
 
     private String generateCustomId() {
         // Native query to find last ID starting with prefix ordered descending
-//        String sql = "SELECT id FROM vb_core.institutional_reform WHERE id LIKE :prefix ORDER BY id DESC LIMIT 1";
-    	String sql = "SELECT id FROM institutional_reform WHERE id LIKE :prefix ORDER BY id DESC LIMIT 1";
+        String sql = "SELECT id FROM vb_core.institutional_reform WHERE id LIKE :prefix ORDER BY id DESC LIMIT 1";
+//    	String sql = "SELECT id FROM institutional_reform WHERE id LIKE :prefix ORDER BY id DESC LIMIT 1";
         List<String> result = entityManager.createNativeQuery(sql)
                 .setParameter("prefix", ID_PREFIX + "%")
                 .getResultList();

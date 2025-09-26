@@ -38,8 +38,8 @@ public class ProposalService {
 
 	    private String generateCustomId() {
 	        // Native query to find last ID starting with prefix ordered descending
-//	        String sql = "SELECT ir.id FROM vb_core.institutional_reform ir WHERE ir.id LIKE :prefix ORDER BY ir.id DESC LIMIT 1";
-	    	String sql = "SELECT ir.id FROM institutional_reform ir WHERE ir.id LIKE :prefix ORDER BY ir.id DESC LIMIT 1";
+	        String sql = "SELECT ir.id FROM vb_core.institutional_reform ir WHERE ir.id LIKE :prefix ORDER BY ir.id DESC LIMIT 1";
+//	    	String sql = "SELECT ir.id FROM institutional_reform ir WHERE ir.id LIKE :prefix ORDER BY ir.id DESC LIMIT 1";
 	        List<String> result = entityManager.createNativeQuery(sql)
 	                .setParameter("prefix", ID_PREFIX + "%")
 	                .getResultList();
