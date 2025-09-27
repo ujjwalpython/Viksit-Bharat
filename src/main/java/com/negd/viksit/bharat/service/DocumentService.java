@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URLConnection;
 import java.util.Base64;
 
@@ -68,7 +69,9 @@ public class DocumentService {
                 .orElseThrow(() -> new EntityNotFoundException("Document not found with id: " + documentId));
 
         String fileUrl = document.getFileUrl();
-        String fileKey = document.getFileUrl().substring(fileUrl.indexOf(bucketName) + bucketName.length() + 1);
+        URI uri = URI.create(fileUrl);
+
+        String fileKey = uri.getPath().substring(1);
 
         S3Object s3Object = amazonS3.getObject(bucketName, fileKey);
         try (S3ObjectInputStream inputStream = s3Object.getObjectContent()) {
@@ -79,11 +82,15 @@ public class DocumentService {
     public void deleteFile(UUID id) {
         Document document = documentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("document not found"));
-        String fileUrl = document.getFileUrl();
-        String fileKey = document.getFileUrl().substring(fileUrl.indexOf(bucketName) + bucketName.length() + 1);
 
-        amazonS3.deleteObject(bucketName,fileKey);
+        String fileUrl = document.getFileUrl();
+        URI uri = URI.create(fileUrl);
+
+        String fileKey = uri.getPath().substring(1);
+
+        amazonS3.deleteObject(bucketName, fileKey);
     }
+
     private String getExtensionFromMime(String mimeType) {
         return switch (mimeType) {
             case "image/png" -> ".png";

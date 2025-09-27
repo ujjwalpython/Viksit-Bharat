@@ -16,9 +16,6 @@ public class GoalIntervention extends Auditable<Long> {
     private UUID id;
 
     @Column(nullable = false)
-    private UUID targetDescriptionId;
-
-    @Column(nullable = false)
     private String targetDescription;
 
     private String presentValue;
