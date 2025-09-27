@@ -1,6 +1,7 @@
 package com.negd.viksit.bharat.dto;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -34,6 +35,8 @@ public class InstitutionalReformDto {
 	private String presentStatus;
 
 	private String status;
+	
+	private LocalDateTime lastUpdated;
 	
 	private List<TargetDto> target;
 }

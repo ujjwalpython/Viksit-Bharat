@@ -63,7 +63,7 @@ public class ProposalService {
 				.potentialEconomicDevelopment(entity.getPotentialEconomicDevelopment())
 				.potentialEmploymentGeneration(entity.getPotentialEmploymentGeneration())
 				.timelineStart(entity.getTimelineStart()).timelineEnd(entity.getTimelineEnd())
-				.status(entity.getStatus()).build();
+				.status(entity.getStatus()).lastUpdated(entity.getUpdatedOn()).build();
 	}
 
 	private Proposal mapToEntity(ProposalDto dto) {

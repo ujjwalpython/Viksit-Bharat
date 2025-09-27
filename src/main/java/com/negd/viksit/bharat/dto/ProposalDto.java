@@ -3,6 +3,7 @@ package com.negd.viksit.bharat.dto;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -20,6 +21,7 @@ public class ProposalDto {
     private String potentialEmploymentGeneration;
     private LocalDate timelineStart;
     private LocalDate timelineEnd;
+    private LocalDateTime lastUpdated;
     private String status;
 
 }
