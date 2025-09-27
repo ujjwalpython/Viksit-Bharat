@@ -1,12 +1,15 @@
 package com.negd.viksit.bharat.service;
 
 import com.negd.viksit.bharat.dto.GoalDto;
-import com.negd.viksit.bharat.dto.GoalRespDto;
+import com.negd.viksit.bharat.dto.GoalResponseDto;
+import com.negd.viksit.bharat.dto.GoalStatusRespDto;
 import com.negd.viksit.bharat.dto.InterventionDto;
 import com.negd.viksit.bharat.exception.InvalidStatusException;
 import com.negd.viksit.bharat.model.Goal;
 import com.negd.viksit.bharat.model.GoalIntervention;
+import com.negd.viksit.bharat.model.master.Ministry;
 import com.negd.viksit.bharat.repository.GoalRepository;
+import com.negd.viksit.bharat.repository.MinistryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,35 +21,44 @@ import java.util.stream.Collectors;
 public class GoalService {
 
     private final GoalRepository goalRepository;
+    private final MinistryRepository ministryRepository;
 
-    public GoalService(GoalRepository goalRepository) {
+
+    public GoalService(GoalRepository goalRepository, MinistryRepository ministryRepository) {
         this.goalRepository = goalRepository;
+        this.ministryRepository = ministryRepository;
     }
 
-    public GoalRespDto createGoal(GoalDto goalDto) {
+    public GoalStatusRespDto createGoal(GoalDto goalDto) {
         Goal goal = mapToEntity(goalDto);
+        Ministry ministry = ministryRepository.findById(goalDto.getMinistryId())
+                .orElseThrow(() -> new RuntimeException("Ministry not found"));
+        goal.setMinistry(ministry);
         Goal saved = goalRepository.save(goal);
-        return new GoalRespDto(saved.getId(),saved.getStatus());
+        return new GoalStatusRespDto(saved.getId(),saved.getStatus());
     }
 
-    public List<GoalDto> getAllGoals() {
+    public List<GoalResponseDto> getAllGoals() {
         return goalRepository.findAll()
                 .stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
-    public GoalDto getGoalById(String id) {
+    public GoalResponseDto getGoalById(String id) {
         return goalRepository.findById(id)
                 .map(this::mapToDto)
                 .orElseThrow(() -> new EntityNotFoundException("Goal not found"));
     }
 
-    public GoalDto updateGoal(String id, GoalDto goalDto) {
+    public GoalResponseDto updateGoal(String id, GoalDto goalDto) {
         Goal goal = goalRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Goal not found"));
 
-        goal.setMinistryId(goalDto.getMinistryId());
+        Ministry ministry = ministryRepository.findById(goalDto.getMinistryId())
+                .orElseThrow(() -> new RuntimeException("Ministry not found"));
+
+        goal.setMinistry(ministry);
         goal.setGoalDescription(goalDto.getGoalDescription());
         goal.setStatus(goalDto.getStatus());
         goal.getInterventions().clear();
@@ -55,7 +67,6 @@ public class GoalService {
                 .stream()
                 .map(iDto -> {
                     GoalIntervention intervention = new GoalIntervention();
-                    intervention.setTargetDescriptionId(iDto.getTargetDescriptionId());
                     intervention.setTargetDescription(iDto.getTargetDescription());
 
                     intervention.setPresentValue(iDto.getPresentValue());
@@ -86,8 +97,8 @@ public class GoalService {
     }
 
     private Goal mapToEntity(GoalDto dto) {
+
         Goal goal = new Goal();
-        goal.setMinistryId(dto.getMinistryId());
         goal.setGoalDescription(dto.getGoalDescription());
         goal.setStatus(dto.getStatus());
 
@@ -95,7 +106,6 @@ public class GoalService {
                 .stream()
                 .map(iDto -> {
                     GoalIntervention intervention = new GoalIntervention();
-                    intervention.setTargetDescriptionId(iDto.getTargetDescriptionId());
                     intervention.setTargetDescription(iDto.getTargetDescription());
                     intervention.setPresentValue(iDto.getPresentValue());
                     intervention.setPresentUnit(iDto.getPresentUnit());
@@ -113,10 +123,10 @@ public class GoalService {
         return goal;
     }
 
-    private GoalDto mapToDto(Goal goal) {
-        GoalDto dto = new GoalDto();
+    private GoalResponseDto mapToDto(Goal goal) {
+        GoalResponseDto dto = new GoalResponseDto();
         dto.setGoalId(goal.getId());
-        dto.setMinistryId(goal.getMinistryId());
+        dto.setMinistryId(goal.getMinistry().getName());
         dto.setGoalDescription(goal.getGoalDescription());
         dto.setStatus(goal.getStatus());
         dto.setLastUpdate(goal.getUpdatedOn());
@@ -125,7 +135,6 @@ public class GoalService {
                 .stream()
                 .map(intervention -> {
                     InterventionDto iDto = new InterventionDto();
-                    iDto.setTargetDescriptionId(intervention.getTargetDescriptionId());
                     iDto.setTargetDescription(intervention.getTargetDescription());
 
                     iDto.setPresentValue(intervention.getPresentValue());
@@ -146,7 +155,7 @@ public class GoalService {
         return dto;
     }
 
-    public GoalDto updateStatus(String id, String status) {
+    public GoalResponseDto updateStatus(String id, String status) {
         Goal goal = goalRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Goal not found with id: " + id));
 
@@ -166,7 +175,7 @@ public class GoalService {
         return mapToDto(saved);
     }
 
-    public List<GoalDto> filterGoals(Long entityid, String status, String goalDescription) {
+    public List<GoalResponseDto> filterGoals(Long entityid, String status, String goalDescription) {
 
         List<Goal> goals;
         if (status == null && goalDescription == null) {

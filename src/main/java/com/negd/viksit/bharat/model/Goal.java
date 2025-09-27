@@ -2,6 +2,7 @@ package com.negd.viksit.bharat.model;
 
 
 import com.negd.viksit.bharat.audit.Auditable;
+import com.negd.viksit.bharat.model.master.Ministry;
 import com.negd.viksit.bharat.util.GoalIdHelper;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -13,14 +14,17 @@ import java.util.UUID;
 
 @Data
 @Entity
+@SQLDelete(sql = "UPDATE vb_core.vb_goals SET deleted_at = now() WHERE id = ?")
+@Where(clause = "deleted_at IS NULL")
 @Table(name = "vb_goals",schema = "vb_core")
 public class Goal extends Auditable<Long> {
 
     @Id
     private String id;
 
-    @Column(nullable = false)
-    private UUID ministryId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ministry_id")
+    private Ministry ministry;
 
     @Column(length = 500)
     private String goalDescription;

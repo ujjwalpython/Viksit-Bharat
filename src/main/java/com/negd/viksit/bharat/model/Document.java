@@ -29,9 +29,9 @@ public class Document extends Auditable<Long> {
     @Column(nullable = false)
     private Long size;
 
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     private String referenceType;
 
-    @Column(nullable = false)
+    @Column
     private Long referenceId;
 }

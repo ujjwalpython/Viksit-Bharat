@@ -17,12 +17,14 @@ public class UserAuthDto {
     private Set<String> roles;
     private String email;
     private String authToken;
+    private String ministry;
 
     public UserAuthDto(User user, String token) {
         this.userId = user.getEntityid();
         this.firstName = user.getFirstName();
         this.email = user.getEmail();
         this.authToken = token;
+        this.ministry = user.getMinistry().getName();
 
         this.roles = user.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)

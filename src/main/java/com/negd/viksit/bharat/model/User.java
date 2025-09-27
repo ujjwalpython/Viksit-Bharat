@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.negd.viksit.bharat.audit.Auditable;
+import com.negd.viksit.bharat.model.master.Ministry;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -49,6 +50,10 @@ public class User extends Auditable<Long> implements Serializable, UserDetails {
 
     @Column(name = "mno")
     private String mobileNumber;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ministry_id", nullable = true)
+    private Ministry ministry;
 
     private String state;
 

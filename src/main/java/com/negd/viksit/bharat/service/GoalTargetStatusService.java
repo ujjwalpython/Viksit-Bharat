@@ -145,8 +145,6 @@ public class GoalTargetStatusService {
         doc.setFileType(dto.getFileType());
         doc.setFileUrl(dto.getFileUrl());
         doc.setSize(dto.getSize());
-        doc.setReferenceType(dto.getReferenceType());
-        doc.setReferenceId(dto.getReferenceId());
         return doc;
     }
 
@@ -157,8 +155,6 @@ public class GoalTargetStatusService {
         dto.setFileType(entity.getFileType());
         dto.setFileUrl(entity.getFileUrl());
         dto.setSize(entity.getSize());
-        dto.setReferenceType(entity.getReferenceType());
-        dto.setReferenceId(entity.getReferenceId());
         return dto;
     }
 

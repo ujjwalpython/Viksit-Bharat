@@ -41,5 +41,10 @@ public abstract class Auditable<U> {
     @Column(name = "updated_by")
     private U updatedBy;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @Column(name = "is_active", nullable = false)
+    private boolean isActive = true;
 
 }
