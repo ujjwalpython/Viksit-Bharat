@@ -80,6 +80,7 @@ public class ReformService {
 				.orElseThrow(() -> new RuntimeException("Institutional Reform Not Found"));
 
 		// Update main fields
+		existing.setMinistry(dto.getMinistry());
 		existing.setInstitutionalReformName(dto.getInstitutionalReformName());
 		existing.setReformDescription(dto.getReformDescription());
 		existing.setReformType(dto.getReformType());
@@ -154,6 +155,7 @@ public class ReformService {
 		InstitutionalReform reform = new InstitutionalReform();
 		reform.setId(dto.getId());
 //        reform.setGoalId(dto.getGoalId());
+		reform.setMinistry(dto.getMinistry());
 		reform.setInstitutionalReformName(dto.getInstitutionalReformName());
 		reform.setReformDescription(dto.getReformDescription());
 		reform.setReformType(dto.getReformType());

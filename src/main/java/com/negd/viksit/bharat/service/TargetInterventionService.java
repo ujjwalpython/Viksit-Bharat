@@ -62,6 +62,7 @@ public class TargetInterventionService {
 	private TargetIntervention convertToEntity(TargetInterventionDto dto) {
 		TargetIntervention entity = new TargetIntervention();
 		entity.setId(dto.getId());
+		entity.setMinistry(dto.getMinistry());
 		entity.setGoalId(dto.getGoalId());
 		entity.setTargetDetails(dto.getTargetDetails());
 		entity.setActionPoint(dto.getActionPoint());
@@ -143,6 +144,7 @@ public class TargetInterventionService {
 	    
 	    // Update main TargetIntervention fields
 	    existing.setGoalId(dto.getGoalId());
+	    existing.setMinistry(dto.getMinistry());
 	    existing.setTargetDetails(dto.getTargetDetails());
 	    existing.setActionPoint(dto.getActionPoint());
 	    existing.setTargetDate(dto.getTargetDate());

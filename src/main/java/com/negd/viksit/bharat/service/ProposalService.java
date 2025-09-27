@@ -67,7 +67,7 @@ public class ProposalService {
 	}
 
 	private Proposal mapToEntity(ProposalDto dto) {
-		return Proposal.builder().id(dto.getId()).ideaProposalTitle(dto.getIdeaProposalTitle())
+		return Proposal.builder().id(dto.getId()).ministry(dto.getMinistry()).ideaProposalTitle(dto.getIdeaProposalTitle())
 				.proposalDescription(dto.getProposalDescription()).proposalType(dto.getProposalType())
 				.potentialEconomicDevelopment(dto.getPotentialEconomicDevelopment())
 				.potentialEmploymentGeneration(dto.getPotentialEmploymentGeneration())
@@ -94,6 +94,7 @@ public class ProposalService {
 		Proposal existing = repository.findById(id).orElseThrow(() -> new RuntimeException("Proposal not found"));
 		existing.setIdeaProposalTitle(dto.getIdeaProposalTitle());
 //		existing.setGoalId(dto.getGoalId());
+		existing.setMinistry(dto.getMinistry());
 		existing.setProposalDescription(dto.getProposalDescription());
 		existing.setProposalType(dto.getProposalType());
 		existing.setPotentialEconomicDevelopment(dto.getPotentialEconomicDevelopment());

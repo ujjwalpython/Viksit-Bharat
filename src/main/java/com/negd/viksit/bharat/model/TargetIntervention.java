@@ -33,6 +33,7 @@ public class TargetIntervention extends Auditable<Long> {
 	@Id
     private String id;
 	private String goalId;
+	private String ministry;
     private String targetDetails;
     private String actionPoint;
     private LocalDate targetDate;
