@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 
 import com.negd.viksit.bharat.dto.KeyDeliverableDto;
 import com.negd.viksit.bharat.dto.TargetInterventionDto;
+import com.negd.viksit.bharat.model.Document;
 import com.negd.viksit.bharat.model.KeyDeliverable;
 import com.negd.viksit.bharat.model.TargetIntervention;
+import com.negd.viksit.bharat.repository.DocumentRepository;
 import com.negd.viksit.bharat.repository.TargetInterventionRepository;
 
 import jakarta.persistence.EntityManager;
@@ -21,8 +23,11 @@ public class TargetInterventionService {
 
 	private final TargetInterventionRepository repository;
 
-	public TargetInterventionService(TargetInterventionRepository repository) {
+	private final DocumentRepository documentRepository;
+
+	public TargetInterventionService(TargetInterventionRepository repository, DocumentRepository documentRepository) {
 		this.repository = repository;
+		this.documentRepository = documentRepository;
 	}
 
 	private static final String ID_PREFIX = "MOCVBGA";
@@ -81,6 +86,11 @@ public class TargetInterventionService {
 				kd.setDeadline(kdDto.getDeadline());
 //                kd.setProgressMade(kdDto.getProgressMade());
 				kd.setDocumentPath(kdDto.getDocumentPath());
+				if (kdDto.getDocumentId() != null) {
+					Document doc = documentRepository.findById(kdDto.getDocumentId())
+							.orElseThrow(() -> new RuntimeException("Document not found: " + kdDto.getDocumentId()));
+					kd.setDocument(doc);
+				}
 				entity.addKeyDeliverable(kd);
 			});
 		}
@@ -112,6 +122,8 @@ public class TargetInterventionService {
 				kdDto.setDeadline(kd.getDeadline());
 //                kdDto.setProgressMade(kd.getProgressMade());
 				kdDto.setDocumentPath(kd.getDocumentPath());
+				kdDto.setDocumentId(kd.getDocument() != null ? kd.getDocument().getId() : null);
+				kdDto.setDocumentUrl(kd.getDocument() != null ? kd.getDocument().getFileUrl() : null);
 				kdDto.setId(kd.getId());
 				return kdDto;
 			}).toList();
@@ -138,58 +150,115 @@ public class TargetInterventionService {
 		return convertToDto(entity);
 	}
 
+//	public TargetInterventionDto update(String id, TargetInterventionDto dto) {
+//	    TargetIntervention existing = repository.findById(id)
+//	            .orElseThrow(() -> new RuntimeException("Target / Intervention Not Found"));
+//	    
+//	    // Update main TargetIntervention fields
+//	    existing.setGoalId(dto.getGoalId());
+//	    existing.setMinistry(dto.getMinistry());
+//	    existing.setTargetDetails(dto.getTargetDetails());
+//	    existing.setActionPoint(dto.getActionPoint());
+//	    existing.setTargetDate(dto.getTargetDate());
+//
+//	    existing.setPresentStatus(dto.getPresentStatus());
+//	    // existing.setImplementationStatus(dto.getImplementationStatus()); // Uncomment if you use it
+//	    existing.setPriority(dto.getPriority());
+//	    existing.setBottlenecks(dto.getBottlenecks());
+//
+//	    // Handle KeyDeliverables update and addition
+//	    if (dto.getKeyDeliverables() != null) {
+//	        // Map existing KeyDeliverables by their Long ID
+//	        Map<Long, KeyDeliverable> existingKdsMap = existing.getKeyDeliverables().stream()
+//	                .filter(kd -> kd.getId() != null)
+//	                .collect(Collectors.toMap(KeyDeliverable::getId, kd -> kd));
+//
+//	        // Clear current list to replace with updated/new deliverables
+//	        existing.getKeyDeliverables().clear();
+//
+//	        for (KeyDeliverableDto kdDto : dto.getKeyDeliverables()) {
+//	            KeyDeliverable kd;
+//
+//	            if (kdDto.getId() != null && existingKdsMap.containsKey(kdDto.getId())) {
+//	                // Update existing KeyDeliverable
+//	                kd = existingKdsMap.get(kdDto.getId());
+//	            } else {
+//	                // Create new KeyDeliverable if no ID present or not found
+//	                kd = new KeyDeliverable();
+//	            }
+//
+//	            kd.setActivityDescription(kdDto.getActivityDescription());
+//	            kd.setDeadline(kdDto.getDeadline());
+//	            // kd.setProgressMade(kdDto.getProgressMade()); // Uncomment if you track progress
+//	            kd.setDocumentPath(kdDto.getDocumentPath());
+//
+//	            existing.addKeyDeliverable(kd);
+//	        }
+//	    } else {
+//	        // If null in DTO, clear all existing KeyDeliverables
+//	        existing.getKeyDeliverables().clear();
+//	    }
+//
+//	    // Save and return updated entity as DTO
+//	    TargetIntervention updated = repository.save(existing);
+//	    return convertToDto(updated);
+//	}
 	public TargetInterventionDto update(String id, TargetInterventionDto dto) {
-	    TargetIntervention existing = repository.findById(id)
-	            .orElseThrow(() -> new RuntimeException("Target / Intervention Not Found"));
-	    
-	    // Update main TargetIntervention fields
-	    existing.setGoalId(dto.getGoalId());
-	    existing.setMinistry(dto.getMinistry());
-	    existing.setTargetDetails(dto.getTargetDetails());
-	    existing.setActionPoint(dto.getActionPoint());
-	    existing.setTargetDate(dto.getTargetDate());
+		TargetIntervention existing = repository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Target / Intervention Not Found"));
 
-	    existing.setPresentStatus(dto.getPresentStatus());
-	    // existing.setImplementationStatus(dto.getImplementationStatus()); // Uncomment if you use it
-	    existing.setPriority(dto.getPriority());
-	    existing.setBottlenecks(dto.getBottlenecks());
+		// 🔹 Update main TargetIntervention fields
+		existing.setGoalId(dto.getGoalId());
+		existing.setMinistry(dto.getMinistry());
+		existing.setTargetDetails(dto.getTargetDetails());
+		existing.setActionPoint(dto.getActionPoint());
+		existing.setTargetDate(dto.getTargetDate());
+		existing.setPresentStatus(dto.getPresentStatus());
+		existing.setPriority(dto.getPriority());
+		existing.setBottlenecks(dto.getBottlenecks());
 
-	    // Handle KeyDeliverables update and addition
-	    if (dto.getKeyDeliverables() != null) {
-	        // Map existing KeyDeliverables by their Long ID
-	        Map<Long, KeyDeliverable> existingKdsMap = existing.getKeyDeliverables().stream()
-	                .filter(kd -> kd.getId() != null)
-	                .collect(Collectors.toMap(KeyDeliverable::getId, kd -> kd));
+		// 🔹 Handle KeyDeliverables update and addition
+		if (dto.getKeyDeliverables() != null) {
+			// Map existing KeyDeliverables by their ID
+			Map<Long, KeyDeliverable> existingKdsMap = existing.getKeyDeliverables().stream()
+					.filter(kd -> kd.getId() != null).collect(Collectors.toMap(KeyDeliverable::getId, kd -> kd));
 
-	        // Clear current list to replace with updated/new deliverables
-	        existing.getKeyDeliverables().clear();
+			// Clear current list so we can re-add updated/new deliverables
+			existing.getKeyDeliverables().clear();
 
-	        for (KeyDeliverableDto kdDto : dto.getKeyDeliverables()) {
-	            KeyDeliverable kd;
+			for (KeyDeliverableDto kdDto : dto.getKeyDeliverables()) {
+				KeyDeliverable kd;
 
-	            if (kdDto.getId() != null && existingKdsMap.containsKey(kdDto.getId())) {
-	                // Update existing KeyDeliverable
-	                kd = existingKdsMap.get(kdDto.getId());
-	            } else {
-	                // Create new KeyDeliverable if no ID present or not found
-	                kd = new KeyDeliverable();
-	            }
+				if (kdDto.getId() != null && existingKdsMap.containsKey(kdDto.getId())) {
+					// 🔹 Existing KeyDeliverable → Update
+					kd = existingKdsMap.get(kdDto.getId());
+				} else {
+					// 🔹 New KeyDeliverable → Create
+					kd = new KeyDeliverable();
+				}
 
-	            kd.setActivityDescription(kdDto.getActivityDescription());
-	            kd.setDeadline(kdDto.getDeadline());
-	            // kd.setProgressMade(kdDto.getProgressMade()); // Uncomment if you track progress
-	            kd.setDocumentPath(kdDto.getDocumentPath());
+				kd.setActivityDescription(kdDto.getActivityDescription());
+				kd.setDeadline(kdDto.getDeadline());
 
-	            existing.addKeyDeliverable(kd);
-	        }
-	    } else {
-	        // If null in DTO, clear all existing KeyDeliverables
-	        existing.getKeyDeliverables().clear();
-	    }
+				// 🔗 Document linking
+				if (kdDto.getDocumentId() != null) {
+					Document doc = documentRepository.findById(kdDto.getDocumentId())
+							.orElseThrow(() -> new RuntimeException("Document not found: " + kdDto.getDocumentId()));
+					kd.setDocument(doc);
+				} else {
+					kd.setDocument(null); // अगर frontend null भेजे तो unlink कर देंगे
+				}
 
-	    // Save and return updated entity as DTO
-	    TargetIntervention updated = repository.save(existing);
-	    return convertToDto(updated);
+				existing.addKeyDeliverable(kd);
+			}
+		} else {
+			// अगर frontend null भेजे → सभी deliverables हटा देंगे
+			existing.getKeyDeliverables().clear();
+		}
+
+		// 🔹 Save and return updated entity as DTO
+		TargetIntervention updated = repository.save(existing);
+		return convertToDto(updated);
 	}
 
 	public void delete(String id) {
