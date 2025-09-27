@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class ProposalDto {
     private String id;
 //    private String goalId;
+    private String ministry;
     private String ideaProposalTitle;
     private String proposalDescription;
     private String proposalType;

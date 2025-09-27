@@ -57,13 +57,13 @@ public class ProposalService {
 	}
 
 	private ProposalDto mapToDto(Proposal entity) {
-		return ProposalDto.builder().id(entity.getId())
-				.ideaProposalTitle(entity.getIdeaProposalTitle()).proposalDescription(entity.getProposalDescription())
-				.proposalType(entity.getProposalType())
+		return ProposalDto.builder().id(entity.getId()).ideaProposalTitle(entity.getIdeaProposalTitle())
+				.proposalDescription(entity.getProposalDescription()).proposalType(entity.getProposalType())
 				.potentialEconomicDevelopment(entity.getPotentialEconomicDevelopment())
 				.potentialEmploymentGeneration(entity.getPotentialEmploymentGeneration())
 				.timelineStart(entity.getTimelineStart()).timelineEnd(entity.getTimelineEnd())
-				.status(entity.getStatus()).lastUpdated(entity.getUpdatedOn()).build();
+				.status(entity.getStatus()).lastUpdated(entity.getUpdatedOn())
+				.ministry(entity.getCreatedBy() != null ? entity.getCreatedBy().toString() : "N/A").build();
 	}
 
 	private Proposal mapToEntity(ProposalDto dto) {

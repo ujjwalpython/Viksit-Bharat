@@ -19,6 +19,8 @@ public class InstitutionalReformDto {
 	
 //	private String goalId;
 	
+	private String ministry;
+	
 	private String institutionalReformName;
 
 	private String reformDescription;

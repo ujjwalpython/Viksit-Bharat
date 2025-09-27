@@ -185,6 +185,7 @@ public class ReformService {
 		dto.setPresentStatus(reform.getPresentStatus());
 		dto.setStatus(reform.getStatus());
 		dto.setLastUpdated(reform.getUpdatedOn());
+		dto.setMinistry(reform.getCreatedBy() != null ? reform.getCreatedBy().toString() : "N/A");
 
 		if (reform.getTarget() != null) {
 			dto.setTarget(reform.getTarget().stream().map(this::toDto).collect(Collectors.toList()));
