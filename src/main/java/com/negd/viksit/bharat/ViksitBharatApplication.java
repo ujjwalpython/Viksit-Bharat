@@ -42,29 +42,9 @@ public class ViksitBharatApplication extends SpringBootServletInitializer {
                                         MinistryRepository ministryRepository,
                                         TargetIndicatorRepository targetIndicatorRepository) {
         return (args) -> {
-            // Seed Users
-            if (userRepository.findAll().isEmpty()) {
-                List<User> users = List.of(
-                        User.builder()
-                                .firstName("Ujjwal")
-                                .lastName("Dhiman")
-                                .email("ujjwalDhiman@gmail.com")
-                                .isActive(true)
-                                .password(passwordEncoder.encode("password@123"))
-                                .build(),
-                        User.builder()
-                                .firstName("Test")
-                                .lastName("User")
-                                .email("testuser@gmail.com")
-                                .isActive(true)
-                                .password(passwordEncoder.encode("test@123"))
-                                .build()
-                );
-                userRepository.saveAll(users);
-            }
-
-            // Seed Ministries
-            if (ministryRepository.findAll().isEmpty()) {
+            // Seed Ministries first
+            List<Ministry> savedMinistries = ministryRepository.findAll();
+            if (savedMinistries.isEmpty()) {
                 List<Ministry> ministries = List.of(
                         Ministry.builder().code("MOA").name("Ministry of Agriculture & Farmers Welfare").isActive(true).isDeleted(false).build(),
                         Ministry.builder().code("COM").name("Ministry of Commerce & Industry").isActive(true).isDeleted(false).build(),
@@ -76,10 +56,32 @@ public class ViksitBharatApplication extends SpringBootServletInitializer {
                         Ministry.builder().code("MOR").name("Ministry of Rural Development").isActive(true).isDeleted(false).build(),
                         Ministry.builder().code("MOS").name("Ministry of Science & Technology").isActive(true).isDeleted(false).build()
                 );
-                ministryRepository.saveAll(ministries);
+                savedMinistries = ministryRepository.saveAll(ministries);
             }
 
-            // Seed Target Indicators
+            // Seed Users
+            if (userRepository.findAll().isEmpty()) {
+                List<User> users = List.of(
+                        User.builder()
+                                .firstName("Ujjwal")
+                                .lastName("Dhiman")
+                                .email("ujjwalDhiman@gmail.com")
+                                .isActive(true)
+                                .password(passwordEncoder.encode("password@123"))
+                                .ministry(savedMinistries.get(0))
+                                .build(),
+                        User.builder()
+                                .firstName("Test")
+                                .lastName("User")
+                                .email("testuser@gmail.com")
+                                .isActive(true)
+                                .password(passwordEncoder.encode("test@123"))
+                                .ministry(savedMinistries.get(1))
+                                .build()
+                );
+                userRepository.saveAll(users);
+            }
+
             if (targetIndicatorRepository.findAll().isEmpty()) {
                 List<TargetIndicator> indicators = List.of(
                         TargetIndicator.builder().code("GDP").name("GDP Growth Rate").isActive(true).isDeleted(false).build(),
@@ -90,5 +92,6 @@ public class ViksitBharatApplication extends SpringBootServletInitializer {
                 targetIndicatorRepository.saveAll(indicators);
             }
         };
+
     }
 }

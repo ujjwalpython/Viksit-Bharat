@@ -2,6 +2,7 @@ package com.negd.viksit.bharat.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.negd.viksit.bharat.dto.DocumentDto;
+import com.negd.viksit.bharat.dto.FileDownloadResponse;
 import com.negd.viksit.bharat.model.Document;
 import com.negd.viksit.bharat.model.Milestone;
 import lombok.RequiredArgsConstructor;
@@ -64,7 +65,7 @@ public class DocumentService {
 
         return new DocumentDto(documentRepository.save(document));
     }
-    public byte[] downloadFile(UUID documentId) throws IOException {
+    public FileDownloadResponse downloadFile(UUID documentId) throws IOException {
         Document document = documentRepository.findById(documentId)
                 .orElseThrow(() -> new EntityNotFoundException("Document not found with id: " + documentId));
 
@@ -74,9 +75,17 @@ public class DocumentService {
         String fileKey = uri.getPath().substring(1);
 
         S3Object s3Object = amazonS3.getObject(bucketName, fileKey);
+        byte[] fileBytes;
+
         try (S3ObjectInputStream inputStream = s3Object.getObjectContent()) {
-            return inputStream.readAllBytes();
+            fileBytes = inputStream.readAllBytes();
         }
+
+        String originalFileName = fileKey.substring(fileKey.lastIndexOf('/') + 1);
+
+        return new FileDownloadResponse(fileBytes, originalFileName);
+
+
     }
 
     public void deleteFile(UUID id) {
