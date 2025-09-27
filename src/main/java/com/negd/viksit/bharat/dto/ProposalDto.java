@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Data
 public class ProposalDto {
     private String id;
-    private String goalId;
+//    private String goalId;
     private String ideaProposalTitle;
     private String proposalDescription;
     private String proposalType;

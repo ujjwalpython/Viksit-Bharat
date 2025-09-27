@@ -69,7 +69,7 @@ public class TargetInterventionService {
 
         entity.setPriority(dto.getPriority());
         entity.setPresentStatus(dto.getPresentStatus());
-        // entity.setImplementationStatus(dto.getImplementationStatus()); // commented out in your code
+        // entity.setImplementationStatus(dto.getImplementationStatus()); 
         entity.setBottlenecks(dto.getBottlenecks());
         entity.setStatus(dto.getStatus());
 
@@ -78,7 +78,7 @@ public class TargetInterventionService {
                 KeyDeliverable kd = new KeyDeliverable();
                 kd.setActivityDescription(kdDto.getActivityDescription());
                 kd.setDeadline(kdDto.getDeadline());
-                kd.setProgressMade(kdDto.getProgressMade());
+//                kd.setProgressMade(kdDto.getProgressMade());
                 kd.setDocumentPath(kdDto.getDocumentPath());
                 entity.addKeyDeliverable(kd);
             });
@@ -108,7 +108,7 @@ public class TargetInterventionService {
                 KeyDeliverableDto kdDto = new KeyDeliverableDto();
                 kdDto.setActivityDescription(kd.getActivityDescription());
                 kdDto.setDeadline(kd.getDeadline());
-                kdDto.setProgressMade(kd.getProgressMade());
+//                kdDto.setProgressMade(kd.getProgressMade());
                 kdDto.setDocumentPath(kd.getDocumentPath());
                 kdDto.setId(kd.getId());
                 return kdDto;
@@ -146,7 +146,7 @@ public class TargetInterventionService {
         existing.setTargetDate(dto.getTargetDate());
 
         existing.setPresentStatus(dto.getPresentStatus());
-        // existing.setImplementationStatus(dto.getImplementationStatus()); // commented out in your code
+        // existing.setImplementationStatus(dto.getImplementationStatus());
         existing.setPriority(dto.getPriority());
         existing.setBottlenecks(dto.getBottlenecks());
 
@@ -156,7 +156,7 @@ public class TargetInterventionService {
                 KeyDeliverable kd = new KeyDeliverable();
                 kd.setActivityDescription(kdDto.getActivityDescription());
                 kd.setDeadline(kdDto.getDeadline());
-                kd.setProgressMade(kdDto.getProgressMade());
+//                kd.setProgressMade(kdDto.getProgressMade());
                 kd.setDocumentPath(kdDto.getDocumentPath());
                 existing.addKeyDeliverable(kd);
             });

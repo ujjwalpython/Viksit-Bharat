@@ -25,7 +25,7 @@ public class KeyDeliverable extends Auditable<Long> {
 
 	private String activityDescription;
 	private LocalDate deadline;
-	private String progressMade;
+//	private String progressMade;
 	private String documentPath; // uploaded document path
 
 	@ManyToOne(fetch = FetchType.LAZY)

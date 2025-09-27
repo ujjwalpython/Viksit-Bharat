@@ -9,7 +9,7 @@ public class KeyDeliverableDto {
 	private Long id;  
 	private String activityDescription;
 	private LocalDate deadline;
-	private String progressMade;
+//	private String progressMade;
 	private String documentPath;
 	
 }

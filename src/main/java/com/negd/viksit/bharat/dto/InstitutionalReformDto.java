@@ -16,7 +16,7 @@ public class InstitutionalReformDto {
 
 	private String id;
 	
-	private String goalId;
+//	private String goalId;
 	
 	private String institutionalReformName;
 
