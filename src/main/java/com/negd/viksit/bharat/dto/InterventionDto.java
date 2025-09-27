@@ -5,7 +5,6 @@ import java.util.UUID;
 
 @Data
 public class InterventionDto {
-    private UUID targetDescriptionId;
     private String targetDescription;
 
     private String presentValue;
