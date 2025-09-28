@@ -7,21 +7,19 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.negd.viksit.bharat.enums.PresentStatus;
-import com.negd.viksit.bharat.enums.Priority;
 
 import lombok.Data;
 
 @Data
-public class TargetInterventionDto {
+public class TargetInterventionResponseDto {
 	private String id;
 	private String goalId;
-	private UUID ministryId;
+	private String ministryId;
 
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	@JsonFormat(pattern = "dd MMM yyyy, HH:mm")
 	private LocalDateTime lastUpdated;
-	
+
 	private String targetDetails;
 	private String actionPoint;
 	private LocalDate targetDate;

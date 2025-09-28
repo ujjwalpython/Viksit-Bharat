@@ -16,9 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.negd.viksit.bharat.dto.TargetInterventionDto;
-import com.negd.viksit.bharat.enums.ImplementationStatus;
-import com.negd.viksit.bharat.enums.PresentStatus;
-import com.negd.viksit.bharat.enums.Priority;
+import com.negd.viksit.bharat.dto.TargetInterventionResponseDto;
 import com.negd.viksit.bharat.model.User;
 import com.negd.viksit.bharat.service.TargetInterventionService;
 import com.negd.viksit.bharat.util.ResponseGenerator;
@@ -38,21 +36,21 @@ public class TargetInterventionController {
 	// CREATE
 	@PostMapping("/create")
 	public ResponseEntity<?> create(@RequestBody TargetInterventionDto dto, HttpServletRequest request) {
-		TargetInterventionDto saved = service.save(dto);
+		TargetInterventionResponseDto saved = service.save(dto);
 		return ResponseGenerator.created(saved, "Target / Intervention created successfully", request);
 	}
 
 	// READ ALL
 	@GetMapping("/getList")
 	public ResponseEntity<?> getAll(HttpServletRequest request) {
-		List<TargetInterventionDto> list = service.findAll();
+		List<TargetInterventionResponseDto> list = service.findAll();
 		return ResponseGenerator.success(list, "Target / Intervention fetched successfully", request);
 	}
 
 	// READ ONE
 	@GetMapping("/getById/{id}")
 	public ResponseEntity<?> getById(@PathVariable String id, HttpServletRequest request) {
-		TargetInterventionDto dto = service.findById(id);
+		TargetInterventionResponseDto dto = service.findById(id);
 		return ResponseGenerator.success(dto, "Target / Intervention fetched successfully", request);
 	}
 
@@ -60,7 +58,7 @@ public class TargetInterventionController {
 	@PutMapping("/updateById/{id}")
 	public ResponseEntity<?> update(@PathVariable String id, @RequestBody TargetInterventionDto dto,
 			HttpServletRequest request) {
-		TargetInterventionDto updated = service.update(id, dto);
+		TargetInterventionResponseDto updated = service.update(id, dto);
 		return ResponseGenerator.success(updated, "Target / Intervention updated successfully", request);
 	}
 
@@ -76,7 +74,7 @@ public class TargetInterventionController {
 	public ResponseEntity<?> updateStatus(@PathVariable String id, @PathVariable String status,
 			HttpServletRequest request) {
 
-		TargetInterventionDto updated = service.updateStatus(id, status);
+		TargetInterventionResponseDto updated = service.updateStatus(id, status);
 		return ResponseGenerator.success(updated, "Target / Intervention status updated successfully", request);
 	}
 
@@ -86,7 +84,7 @@ public class TargetInterventionController {
 			@RequestParam(required = false) String status, @RequestParam(required = false) String targetDetails,
 			HttpServletRequest request) {
 
-		List<TargetInterventionDto> list = service.filterTargetInterventions(user.getEntityid(), status, targetDetails);
+		List<TargetInterventionResponseDto> list = service.filterTargetInterventions(user.getEntityid(), status, targetDetails);
 		return ResponseGenerator.success(list, "Target / Intervention filtered successfully", request);
 	}
 

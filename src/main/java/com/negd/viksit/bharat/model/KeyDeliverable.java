@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import com.negd.viksit.bharat.audit.Auditable;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -24,17 +25,18 @@ public class KeyDeliverable extends Auditable<Long> {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@Column(nullable = false)
 	private String activityDescription;
 	private LocalDate deadline;
 //	private String progressMade;
 	private String documentPath; // uploaded document path
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "target_intervention_id")
+	@JoinColumn(name = "target_intervention_id", nullable = false)
 	private TargetIntervention targetIntervention;
 	
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinColumn(name = "document_id")
+	@JoinColumn(name = "document_id", nullable = false)
 	private Document document;
 
 	// getters and setters

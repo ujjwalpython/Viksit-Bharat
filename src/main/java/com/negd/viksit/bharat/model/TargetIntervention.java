@@ -25,7 +25,11 @@ public class TargetIntervention extends Auditable<Long> {
 	@Id
 	private String id;
 	private String goalId;
-	private String ministryName;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ministry_id")
+    private Ministry ministry;
+	
 	private String targetDetails;
 	private String actionPoint;
 	private LocalDate targetDate;
@@ -43,10 +47,6 @@ public class TargetIntervention extends Auditable<Long> {
 
 	private String bottlenecks;
 	private String status;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "ministry_id")
-	private Ministry ministry;
 
 	@OneToMany(mappedBy = "targetIntervention", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<KeyDeliverable> keyDeliverables = new ArrayList<>();

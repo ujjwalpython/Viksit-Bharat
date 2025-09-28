@@ -13,6 +13,6 @@ public class KeyDeliverableDto {
 //	private String progressMade;
 	private String documentPath;
 
-	private UUID documentId; // <-- Document का reference
-	private String documentUrl; // Optional convenience field
+	private UUID documentId;
+	private String documentUrl;
 }

@@ -2,13 +2,13 @@ package com.negd.viksit.bharat.service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.negd.viksit.bharat.dto.KeyDeliverableDto;
 import com.negd.viksit.bharat.dto.TargetInterventionDto;
+import com.negd.viksit.bharat.dto.TargetInterventionResponseDto;
 import com.negd.viksit.bharat.model.Document;
 import com.negd.viksit.bharat.model.KeyDeliverable;
 import com.negd.viksit.bharat.model.TargetIntervention;
@@ -51,8 +51,8 @@ public class TargetInterventionService {
 
 	private String generateCustomId() {
 		// Fixed table name to target_interventions for ID generation
-		String sql = "SELECT ti.id FROM vb_core.target_interventions ti WHERE ti.id LIKE :prefix ORDER BY ti.id DESC LIMIT 1";
-//    	String sql = "SELECT ti.id FROM target_interventions ti WHERE ti.id LIKE :prefix ORDER BY ti.id DESC LIMIT 1";
+//		String sql = "SELECT ti.id FROM vb_core.target_interventions ti WHERE ti.id LIKE :prefix ORDER BY ti.id DESC LIMIT 1";
+    	String sql = "SELECT ti.id FROM target_interventions ti WHERE ti.id LIKE :prefix ORDER BY ti.id DESC LIMIT 1";
 		List<String> result = entityManager.createNativeQuery(sql).setParameter("prefix", ID_PREFIX + "%")
 				.getResultList();
 
@@ -73,8 +73,6 @@ public class TargetInterventionService {
 	private TargetIntervention convertToEntity(TargetInterventionDto dto) {
 		TargetIntervention entity = new TargetIntervention();
 		entity.setId(dto.getId());
-		entity.setMinistryName(dto.getMinistryName());
-		entity.setMinistryName(dto.getMinistryName());
 		entity.setGoalId(dto.getGoalId());
 		entity.setTargetDetails(dto.getTargetDetails());
 		entity.setActionPoint(dto.getActionPoint());
@@ -104,10 +102,11 @@ public class TargetInterventionService {
 		return entity;
 	}
 
-	private TargetInterventionDto convertToDto(TargetIntervention entity) {
-		TargetInterventionDto dto = new TargetInterventionDto();
+	private TargetInterventionResponseDto convertToDto(TargetIntervention entity) {
+		TargetInterventionResponseDto dto = new TargetInterventionResponseDto();
 		dto.setId(entity.getId());
 		dto.setGoalId(entity.getGoalId());
+		 dto.setMinistryId(entity.getMinistry().getName());
 		dto.setTargetDetails(entity.getTargetDetails());
 		dto.setActionPoint(entity.getActionPoint());
 		dto.setTargetDate(entity.getTargetDate());
@@ -119,11 +118,6 @@ public class TargetInterventionService {
 		dto.setBottlenecks(entity.getBottlenecks());
 		dto.setStatus(entity.getStatus());
 		dto.setLastUpdated(entity.getUpdatedOn());
-
-		if (entity.getMinistry() != null) {
-	        dto.setMinistryId(entity.getMinistry().getId().toString());
-	        dto.setMinistryName(entity.getMinistry().getName());
-	    }
 
 		if (entity.getKeyDeliverables() != null) {
 			List<KeyDeliverableDto> kdDtos = entity.getKeyDeliverables().stream().map(kd -> {
@@ -144,23 +138,23 @@ public class TargetInterventionService {
 
 	// ----------------- Business Methods -----------------
 
-	public TargetInterventionDto save(TargetInterventionDto dto) {
+	public TargetInterventionResponseDto save(TargetInterventionDto dto) {
 		TargetIntervention entity = convertToEntity(dto);
 		TargetIntervention saved = save(entity); // Use the save with ID generation
 		return convertToDto(saved);
 	}
 
-	public List<TargetInterventionDto> findAll() {
+	public List<TargetInterventionResponseDto> findAll() {
 		return repository.findAll().stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
-	public TargetInterventionDto findById(String id) {
+	public TargetInterventionResponseDto findById(String id) {
 		TargetIntervention entity = repository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Target / Intervention Not Found"));
 		return convertToDto(entity);
 	}
 
-//	public TargetInterventionDto update(String id, TargetInterventionDto dto) {
+//	public TargetInterventionResponseDto update(String id, TargetInterventionResponseDto dto) {
 //	    TargetIntervention existing = repository.findById(id)
 //	            .orElseThrow(() -> new RuntimeException("Target / Intervention Not Found"));
 //	    
@@ -213,7 +207,7 @@ public class TargetInterventionService {
 //	    TargetIntervention updated = repository.save(existing);
 //	    return convertToDto(updated);
 //	}
-//	public TargetInterventionDto update(String id, TargetInterventionDto dto) {
+//	public TargetInterventionResponseDto update(String id, TargetInterventionResponseDto dto) {
 //		TargetIntervention existing = repository.findById(id)
 //				.orElseThrow(() -> new RuntimeException("Target / Intervention Not Found"));
 //
@@ -270,16 +264,15 @@ public class TargetInterventionService {
 //		TargetIntervention updated = repository.save(existing);
 //		return convertToDto(updated);
 //	}
-	public TargetInterventionDto update(String id, TargetInterventionDto dto) {
+	public TargetInterventionResponseDto update(String id, TargetInterventionDto dto) {
 	    TargetIntervention existing = repository.findById(id)
 	            .orElseThrow(() -> new RuntimeException("Target / Intervention Not Found"));
 
 	    // 🔹 Ministry fetch karo id se
-	    if (dto.getMinistryId() != null) {
-	        Ministry ministry = ministryRepository.findById(UUID.fromString(dto.getMinistryId()))
-	                .orElseThrow(() -> new RuntimeException("Ministry not found: " + dto.getMinistryId()));
-	        existing.setMinistry(ministry);
-	    }
+	    Ministry ministry = ministryRepository.findById(dto.getMinistryId())
+                .orElseThrow(() -> new RuntimeException("Ministry not found"));
+
+	    existing.setMinistry(ministry);
 
 	    // 🔹 Update main fields
 	    existing.setGoalId(dto.getGoalId());
@@ -333,7 +326,7 @@ public class TargetInterventionService {
 		repository.deleteById(id);
 	}
 
-	public TargetInterventionDto updateStatus(String id, String status) {
+	public TargetInterventionResponseDto updateStatus(String id, String status) {
 		TargetIntervention entity = repository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Target / Intervention Not Found"));
 
@@ -353,7 +346,7 @@ public class TargetInterventionService {
 		return convertToDto(saved);
 	}
 
-	public List<TargetInterventionDto> filterTargetInterventions(Long entityId, String status, String targetDetails) {
+	public List<TargetInterventionResponseDto> filterTargetInterventions(Long entityId, String status, String targetDetails) {
 		List<TargetIntervention> entities;
 
 		if (status == null && targetDetails == null) {
