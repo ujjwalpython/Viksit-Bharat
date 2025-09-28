@@ -1,6 +1,7 @@
 package com.negd.viksit.bharat.controller;
 
 import com.negd.viksit.bharat.dto.DocumentDto;
+import com.negd.viksit.bharat.dto.FileDownloadResponse;
 import com.negd.viksit.bharat.model.Document;
 import com.negd.viksit.bharat.service.DocumentService;
 import com.negd.viksit.bharat.util.ResponseGenerator;
@@ -33,11 +34,12 @@ public class DocumentController {
 
     @GetMapping("/{id}/download")
     public ResponseEntity<?> downloadDocument(@PathVariable UUID id) throws IOException {
-        byte[] fileBytes = documentService.downloadFile(id);
+        FileDownloadResponse fileBytes = documentService.downloadFile(id);
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + id)
-                .body(fileBytes);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileBytes.getFileName() + "\"")
+                .contentLength(fileBytes.getFileBytes().length)
+                .body(fileBytes.getFileBytes());
     }
 
     @DeleteMapping("/{id}")
