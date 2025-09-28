@@ -77,12 +77,18 @@ public class TargetInterventionService {
 		entity.setTargetDetails(dto.getTargetDetails());
 		entity.setActionPoint(dto.getActionPoint());
 		entity.setTargetDate(dto.getTargetDate());
-
 		entity.setPriority(dto.getPriority());
 		entity.setPresentStatus(dto.getPresentStatus());
 		// entity.setImplementationStatus(dto.getImplementationStatus());
 		entity.setBottlenecks(dto.getBottlenecks());
 		entity.setStatus(dto.getStatus());
+		
+		 // ✅ Ministry mapping add karo
+	    if (dto.getMinistryId() != null) {
+	        Ministry ministry = ministryRepository.findById(dto.getMinistryId())
+	            .orElseThrow(() -> new RuntimeException("Ministry not found with id: " + dto.getMinistryId()));
+	        entity.setMinistry(ministry);
+	    }
 
 		if (dto.getKeyDeliverables() != null) {
 			dto.getKeyDeliverables().forEach(kdDto -> {
