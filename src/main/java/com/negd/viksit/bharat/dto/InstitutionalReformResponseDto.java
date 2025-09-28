@@ -14,32 +14,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class InstitutionalReformDto {
-
+public class InstitutionalReformResponseDto {
 	private String id;
-
 //	private String goalId;
-
-	private UUID ministryId;
-
+	private String ministryId;
 	private String institutionalReformName;
-
 	private String reformDescription;
-
 //	private ReformType reformType;
 	private String reformType;
-
 	private LocalDate targetCompletionDate;
-
 	private String rulesToBeAmended;
-
 	private String intendedOutcome;
-
 	private String presentStatus;
-
 	private String status;
-
 	private LocalDateTime lastUpdated;
-
 	private List<TargetDto> target;
 }

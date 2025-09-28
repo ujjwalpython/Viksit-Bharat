@@ -16,41 +16,42 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.negd.viksit.bharat.dto.InstitutionalReformDto;
+import com.negd.viksit.bharat.dto.InstitutionalReformResponseDto;
 import com.negd.viksit.bharat.dto.TargetDto;
 import com.negd.viksit.bharat.model.User;
-import com.negd.viksit.bharat.service.ReformService;
+import com.negd.viksit.bharat.service.InstitutionalReformService;
 import com.negd.viksit.bharat.util.ResponseGenerator;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/v1/institutional-reforms")
-public class ReformController {
+public class InstitutionalReformController {
 
-	private final ReformService service;
+	private final InstitutionalReformService service;
 
-	public ReformController(ReformService service) {
+	public InstitutionalReformController(InstitutionalReformService service) {
 		this.service = service;
 	}
 
 	// CREATE
 	@PostMapping("/create")
 	public ResponseEntity<?> create(@RequestBody InstitutionalReformDto dto, HttpServletRequest request) {
-		InstitutionalReformDto saved = service.create(dto);
+		InstitutionalReformResponseDto saved = service.create(dto);
 		return ResponseGenerator.created(saved, "Institutional Reform created successfully", request);
 	}
 
 	// READ ALL
 	@GetMapping("/getList")
 	public ResponseEntity<?> getAll(HttpServletRequest request) {
-		List<InstitutionalReformDto> list = service.getAll();
+		List<InstitutionalReformResponseDto> list = service.getAll();
 		return ResponseGenerator.success(list, "Institutional Reforms fetched successfully", request);
 	}
 
 	// READ ONE
 	@GetMapping("/getById/{id}")
 	public ResponseEntity<?> getById(@PathVariable String id, HttpServletRequest request) {
-		InstitutionalReformDto dto = service.getOne(id);
+		InstitutionalReformResponseDto dto = service.getOne(id);
 		return ResponseGenerator.success(dto, "Institutional Reform fetched successfully", request);
 	}
 
@@ -58,7 +59,7 @@ public class ReformController {
 	@PutMapping("/updateById/{id}")
 	public ResponseEntity<?> update(@PathVariable String id, @RequestBody InstitutionalReformDto dto,
 			HttpServletRequest request) {
-		InstitutionalReformDto updated = service.update(id, dto);
+		InstitutionalReformResponseDto updated = service.update(id, dto);
 		return ResponseGenerator.success(updated, "Institutional Reform updated successfully", request);
 	}
 
@@ -81,7 +82,7 @@ public class ReformController {
 	public ResponseEntity<?> updateStatus(@PathVariable String id, @PathVariable String status,
 			HttpServletRequest request) {
 
-		InstitutionalReformDto updated = service.updateStatus(id, status);
+		InstitutionalReformResponseDto updated = service.updateStatus(id, status);
 		return ResponseGenerator.success(updated, "Institutional Reform status updated successfully", request);
 	}
 
@@ -90,7 +91,7 @@ public class ReformController {
 	public ResponseEntity<?> filterReforms(@AuthenticationPrincipal User user, @RequestParam(required = false) String status,
 			@RequestParam(required = false) String description, HttpServletRequest request) {
 
-		List<InstitutionalReformDto> reforms = service.filterReforms(user.getEntityid(), status, description);
+		List<InstitutionalReformResponseDto> reforms = service.filterReforms(user.getEntityid(), status, description);
 		return ResponseGenerator.success(reforms, "Institutional Reforms filtered successfully", request);
 	}
 

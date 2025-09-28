@@ -6,10 +6,13 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.negd.viksit.bharat.dto.InstitutionalReformDto;
+import com.negd.viksit.bharat.dto.InstitutionalReformResponseDto;
 import com.negd.viksit.bharat.dto.TargetDto;
 import com.negd.viksit.bharat.model.InstitutionalReform;
 import com.negd.viksit.bharat.model.Target;
+import com.negd.viksit.bharat.model.master.Ministry;
 import com.negd.viksit.bharat.repository.InstitutionalReformRepository;
+import com.negd.viksit.bharat.repository.MinistryRepository;
 import com.negd.viksit.bharat.repository.TargetRepository;
 
 import jakarta.persistence.EntityManager;
@@ -19,10 +22,11 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class ReformService {
+public class InstitutionalReformService {
 
 	private final InstitutionalReformRepository reformRepo;
 	private final TargetRepository targetRepo;
+	private final MinistryRepository ministryRepository;
 
 	private static final String ID_PREFIX = "MOCVBIR";
 
@@ -40,7 +44,7 @@ public class ReformService {
 	private String generateCustomId() {
 		// Native query to find last ID starting with prefix ordered descending
 		String sql = "SELECT id FROM vb_core.institutional_reform WHERE id LIKE :prefix ORDER BY id DESC LIMIT 1";
-//    	String sql = "SELECT id FROM institutional_reform WHERE id LIKE :prefix ORDER BY id DESC LIMIT 1";
+//		String sql = "SELECT id FROM institutional_reform WHERE id LIKE :prefix ORDER BY id DESC LIMIT 1";
 		List<String> result = entityManager.createNativeQuery(sql).setParameter("prefix", ID_PREFIX + "%")
 				.getResultList();
 
@@ -58,29 +62,34 @@ public class ReformService {
 	}
 
 	// CREATE
-	public InstitutionalReformDto create(InstitutionalReformDto dto) {
+	public InstitutionalReformResponseDto create(InstitutionalReformDto dto) {
 		InstitutionalReform entity = mapToEntity(dto);
 		InstitutionalReform saved = save(entity);
 		return mapToDto(saved);
 	}
 
 	// READ ALL
-	public List<InstitutionalReformDto> getAll() {
+	public List<InstitutionalReformResponseDto> getAll() {
 		return reformRepo.findAll().stream().map(this::mapToDto).collect(Collectors.toList());
 	}
 
 	// READ ONE
-	public InstitutionalReformDto getOne(String id) {
+	public InstitutionalReformResponseDto getOne(String id) {
 		return mapToDto(reformRepo.findById(id).orElseThrow());
 	}
 
 	// UPDATE
-	public InstitutionalReformDto update(String id, InstitutionalReformDto dto) {
+	public InstitutionalReformResponseDto update(String id, InstitutionalReformDto dto) {
 		InstitutionalReform existing = reformRepo.findById(id)
 				.orElseThrow(() -> new RuntimeException("Institutional Reform Not Found"));
 
+		// 🔹 Ministry fetch karo id se
+		Ministry ministry = ministryRepository.findById(dto.getMinistryId())
+				.orElseThrow(() -> new RuntimeException("Ministry not found"));
+
+		existing.setMinistry(ministry);
+
 		// Update main fields
-		existing.setMinistry(dto.getMinistry());
 		existing.setInstitutionalReformName(dto.getInstitutionalReformName());
 		existing.setReformDescription(dto.getReformDescription());
 		existing.setReformType(dto.getReformType());
@@ -155,7 +164,14 @@ public class ReformService {
 		InstitutionalReform reform = new InstitutionalReform();
 		reform.setId(dto.getId());
 //        reform.setGoalId(dto.getGoalId());
-		reform.setMinistry(dto.getMinistry());
+
+		// ✅ Ministry mapping add karo
+		if (dto.getMinistryId() != null) {
+			Ministry ministry = ministryRepository.findById(dto.getMinistryId())
+					.orElseThrow(() -> new RuntimeException("Ministry not found with id: " + dto.getMinistryId()));
+			reform.setMinistry(ministry);
+		}
+
 		reform.setInstitutionalReformName(dto.getInstitutionalReformName());
 		reform.setReformDescription(dto.getReformDescription());
 		reform.setReformType(dto.getReformType());
@@ -174,8 +190,8 @@ public class ReformService {
 		return reform;
 	}
 
-	private InstitutionalReformDto mapToDto(InstitutionalReform reform) {
-		InstitutionalReformDto dto = new InstitutionalReformDto();
+	private InstitutionalReformResponseDto mapToDto(InstitutionalReform reform) {
+		InstitutionalReformResponseDto dto = new InstitutionalReformResponseDto();
 		dto.setId(reform.getId());
 //        dto.setGoalId(reform.getGoalId()); 
 		dto.setInstitutionalReformName(reform.getInstitutionalReformName());
@@ -187,7 +203,7 @@ public class ReformService {
 		dto.setPresentStatus(reform.getPresentStatus());
 		dto.setStatus(reform.getStatus());
 		dto.setLastUpdated(reform.getUpdatedOn());
-		dto.setMinistry(reform.getCreatedBy() != null ? reform.getCreatedBy().toString() : "N/A");
+		dto.setMinistryId(reform.getMinistry().getName());
 
 		if (reform.getTarget() != null) {
 			dto.setTarget(reform.getTarget().stream().map(this::toDto).collect(Collectors.toList()));
@@ -196,7 +212,7 @@ public class ReformService {
 	}
 
 	// Update only status
-	public InstitutionalReformDto updateStatus(String id, String status) {
+	public InstitutionalReformResponseDto updateStatus(String id, String status) {
 		InstitutionalReform reform = reformRepo.findById(id)
 				.orElseThrow(() -> new RuntimeException("Institutional Reform not found with id: " + id));
 
@@ -217,7 +233,7 @@ public class ReformService {
 	}
 
 	// Filters
-	public List<InstitutionalReformDto> filterReforms(Long entityid, String status, String reformDescription) {
+	public List<InstitutionalReformResponseDto> filterReforms(Long entityid, String status, String reformDescription) {
 		List<InstitutionalReform> reforms;
 
 		if (status == null && reformDescription == null) {

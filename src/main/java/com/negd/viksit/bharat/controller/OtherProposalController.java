@@ -15,49 +15,49 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.negd.viksit.bharat.dto.GoalDto;
-import com.negd.viksit.bharat.dto.ProposalDto;
+import com.negd.viksit.bharat.dto.OtherProposalDto;
+import com.negd.viksit.bharat.dto.OtherProposalResponseDto;
 import com.negd.viksit.bharat.model.User;
-import com.negd.viksit.bharat.service.ProposalService;
+import com.negd.viksit.bharat.service.OtherProposalService;
 import com.negd.viksit.bharat.util.ResponseGenerator;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/v1/other-proposals")
-public class ProposalController {
+public class OtherProposalController {
 
-	private final ProposalService service;
+	private final OtherProposalService service;
 
-	public ProposalController(ProposalService service) {
+	public OtherProposalController(OtherProposalService service) {
 		this.service = service;
 	}
 
 	// CREATE
 	@PostMapping("/create")
-	public ResponseEntity<?> create(@RequestBody ProposalDto dto, HttpServletRequest request) {
-		ProposalDto saved = service.create(dto);
+	public ResponseEntity<?> create(@RequestBody OtherProposalDto dto, HttpServletRequest request) {
+		OtherProposalResponseDto saved = service.create(dto);
 		return ResponseGenerator.created(saved, "Proposal created successfully", request);
 	}
 
 	// READ ALL
 	@GetMapping("/getList")
 	public ResponseEntity<?> getAll(HttpServletRequest request) {
-		List<ProposalDto> list = service.getAll();
+		List<OtherProposalResponseDto> list = service.getAll();
 		return ResponseGenerator.success(list, "Proposals fetched successfully", request);
 	}
 
 	// READ ONE
 	@GetMapping("/getById/{id}")
 	public ResponseEntity<?> getById(@PathVariable String id, HttpServletRequest request) {
-		ProposalDto dto = service.getOne(id);
+		OtherProposalResponseDto dto = service.getOne(id);
 		return ResponseGenerator.success(dto, "Proposal fetched successfully", request);
 	}
 
 	// UPDATE
 	@PutMapping("/updateById/{id}")
-	public ResponseEntity<?> update(@PathVariable String id, @RequestBody ProposalDto dto, HttpServletRequest request) {
-		ProposalDto updated = service.update(id, dto);
+	public ResponseEntity<?> update(@PathVariable String id, @RequestBody OtherProposalDto dto, HttpServletRequest request) {
+		OtherProposalResponseDto updated = service.update(id, dto);
 		return ResponseGenerator.success(updated, "Proposal updated successfully", request);
 	}
 
@@ -73,7 +73,7 @@ public class ProposalController {
 	public ResponseEntity<?> updateStatus(@PathVariable String id, @PathVariable String status,
 			HttpServletRequest request) {
 
-		ProposalDto updated = service.updateStatus(id, status);
+		OtherProposalResponseDto updated = service.updateStatus(id, status);
 		return ResponseGenerator.success(updated, "Proposal status updated successfully", request);
 	}
 	
@@ -83,7 +83,7 @@ public class ProposalController {
             @RequestParam(required = false) String proposalDescription,
             HttpServletRequest request) {
 
-        List<ProposalDto> list = service.filterProposals(user.getEntityid(),status, proposalDescription);
+        List<OtherProposalResponseDto> list = service.filterProposals(user.getEntityid(),status, proposalDescription);
         return ResponseGenerator.success(list, "Goals fetched successfully", request);
     }
 

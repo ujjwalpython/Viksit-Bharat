@@ -6,6 +6,7 @@ import lombok.*;
 import java.time.LocalDate;
 
 import com.negd.viksit.bharat.audit.Auditable;
+import com.negd.viksit.bharat.model.master.Ministry;
 
 @Entity
 @Data
@@ -15,13 +16,14 @@ import com.negd.viksit.bharat.audit.Auditable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Proposal extends Auditable<Long>{
+public class OtherProposal extends Auditable<Long>{
 
     @Id
     private String id;
     
-//    private String goalId;
-    private String ministry;
+	@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ministry_id")
+    private Ministry ministry;
     
     @Column(nullable = false)
     private String ideaProposalTitle;

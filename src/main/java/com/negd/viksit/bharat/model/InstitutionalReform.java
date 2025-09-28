@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.negd.viksit.bharat.audit.Auditable;
 import com.negd.viksit.bharat.enums.ReformType;
+import com.negd.viksit.bharat.model.master.Ministry;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -13,9 +14,12 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Persistence;
@@ -37,8 +41,12 @@ public class InstitutionalReform extends Auditable<Long> {
 	@Id
     private String id;
 //	private String goalId;
-	private String ministry;
-    private String institutionalReformName;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ministry_id")
+    private Ministry ministry;
+    
+	private String institutionalReformName;
     private String reformDescription;
 
 //    @Enumerated(EnumType.STRING)

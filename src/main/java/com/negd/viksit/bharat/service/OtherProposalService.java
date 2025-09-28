@@ -5,9 +5,11 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.negd.viksit.bharat.dto.ProposalDto;
-import com.negd.viksit.bharat.model.InstitutionalReform;
-import com.negd.viksit.bharat.model.Proposal;
+import com.negd.viksit.bharat.dto.OtherProposalDto;
+import com.negd.viksit.bharat.dto.OtherProposalResponseDto;
+import com.negd.viksit.bharat.model.OtherProposal;
+import com.negd.viksit.bharat.model.master.Ministry;
+import com.negd.viksit.bharat.repository.MinistryRepository;
 import com.negd.viksit.bharat.repository.ProposalRepository;
 
 import jakarta.persistence.EntityManager;
@@ -15,12 +17,15 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
 @Service
-public class ProposalService {
+public class OtherProposalService {
 
 	private final ProposalRepository repository;
+	
+	private final MinistryRepository ministryRepository;
 
-	public ProposalService(ProposalRepository repository) {
+	public OtherProposalService(ProposalRepository repository, MinistryRepository ministryRepository) {
 		this.repository = repository;
+		this.ministryRepository = ministryRepository;
 	}
 
 	private static final String ID_PREFIX = "MOCVBIP";
@@ -29,7 +34,7 @@ public class ProposalService {
 	private EntityManager entityManager;
 
 	@Transactional
-	public Proposal save(Proposal reform) {
+	public OtherProposal save(OtherProposal reform) {
 		if (reform.getId() == null || reform.getId().isEmpty()) {
 			reform.setId(generateCustomId());
 		}
@@ -56,18 +61,25 @@ public class ProposalService {
 		return ID_PREFIX + String.format("%02d", nextNumber);
 	}
 
-	private ProposalDto mapToDto(Proposal entity) {
-		return ProposalDto.builder().id(entity.getId()).ideaProposalTitle(entity.getIdeaProposalTitle())
+	private OtherProposalResponseDto mapToDto(OtherProposal entity) {
+		return OtherProposalResponseDto.builder().id(entity.getId()).ideaProposalTitle(entity.getIdeaProposalTitle())
 				.proposalDescription(entity.getProposalDescription()).proposalType(entity.getProposalType())
 				.potentialEconomicDevelopment(entity.getPotentialEconomicDevelopment())
 				.potentialEmploymentGeneration(entity.getPotentialEmploymentGeneration())
 				.timelineStart(entity.getTimelineStart()).timelineEnd(entity.getTimelineEnd())
 				.status(entity.getStatus()).lastUpdated(entity.getUpdatedOn())
-				.ministry(entity.getCreatedBy() != null ? entity.getCreatedBy().toString() : "N/A").build();
+				.ministryId(entity.getMinistry().getName()).build();
 	}
 
-	private Proposal mapToEntity(ProposalDto dto) {
-		return Proposal.builder().id(dto.getId()).ministry(dto.getMinistry()).ideaProposalTitle(dto.getIdeaProposalTitle())
+	private OtherProposal mapToEntity(OtherProposalDto dto) {
+		
+		// ✅ Ministry mapping add karo
+		   Ministry ministry = null;
+		    if (dto.getMinistryId() != null) {
+		        ministry = ministryRepository.findById(dto.getMinistryId())
+		            .orElseThrow(() -> new RuntimeException("Ministry not found with id: " + dto.getMinistryId()));
+		    }
+		return OtherProposal.builder().id(dto.getId()).ministry(ministry).ideaProposalTitle(dto.getIdeaProposalTitle())
 				.proposalDescription(dto.getProposalDescription()).proposalType(dto.getProposalType())
 				.potentialEconomicDevelopment(dto.getPotentialEconomicDevelopment())
 				.potentialEmploymentGeneration(dto.getPotentialEmploymentGeneration())
@@ -75,26 +87,32 @@ public class ProposalService {
 				.build();
 	}
 
-	public ProposalDto create(ProposalDto dto) {
-		Proposal entity = mapToEntity(dto);
-		Proposal saved = save(entity);
+	public OtherProposalResponseDto create(OtherProposalDto dto) {
+		OtherProposal entity = mapToEntity(dto);
+		OtherProposal saved = save(entity);
 		return mapToDto(saved);
 	}
 
-	public List<ProposalDto> getAll() {
+	public List<OtherProposalResponseDto> getAll() {
 		return repository.findAll().stream().map(this::mapToDto).collect(Collectors.toList());
 	}
 
-	public ProposalDto getOne(String id) {
+	public OtherProposalResponseDto getOne(String id) {
 		return repository.findById(id).map(this::mapToDto)
 				.orElseThrow(() -> new RuntimeException("Proposal not found"));
 	}
 
-	public ProposalDto update(String id, ProposalDto dto) {
-		Proposal existing = repository.findById(id).orElseThrow(() -> new RuntimeException("Proposal not found"));
+	public OtherProposalResponseDto update(String id, OtherProposalDto dto) {
+		OtherProposal existing = repository.findById(id).orElseThrow(() -> new RuntimeException("Proposal not found"));
 		existing.setIdeaProposalTitle(dto.getIdeaProposalTitle());
 //		existing.setGoalId(dto.getGoalId());
-		existing.setMinistry(dto.getMinistry());
+
+		// 🔹 Ministry fetch karo id se
+		Ministry ministry = ministryRepository.findById(dto.getMinistryId())
+				.orElseThrow(() -> new RuntimeException("Ministry not found"));
+
+		existing.setMinistry(ministry);
+		
 		existing.setProposalDescription(dto.getProposalDescription());
 		existing.setProposalType(dto.getProposalType());
 		existing.setPotentialEconomicDevelopment(dto.getPotentialEconomicDevelopment());
@@ -108,8 +126,8 @@ public class ProposalService {
 		repository.deleteById(id);
 	}
 
-	public ProposalDto updateStatus(String id, String status) {
-		Proposal proposal = repository.findById(id)
+	public OtherProposalResponseDto updateStatus(String id, String status) {
+		OtherProposal proposal = repository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Proposal not found with id: " + id));
 
 		String newStatus = status.toUpperCase();
@@ -124,12 +142,12 @@ public class ProposalService {
 			throw new IllegalArgumentException("Invalid status: " + newStatus);
 		}
 
-		Proposal saved = repository.save(proposal);
+		OtherProposal saved = repository.save(proposal);
 		return mapToDto(saved);
 	}
 
-	public List<ProposalDto> filterProposals(Long entityId, String status, String proposalDescription) {
-		List<Proposal> proposals;
+	public List<OtherProposalResponseDto> filterProposals(Long entityId, String status, String proposalDescription) {
+		List<OtherProposal> proposals;
 
 		if (status == null && proposalDescription == null) {
 			proposals = repository.findByCreatedBy(entityId);
