@@ -11,6 +11,7 @@ import com.negd.viksit.bharat.dto.TargetDto;
 import com.negd.viksit.bharat.model.InstitutionalReform;
 import com.negd.viksit.bharat.model.Target;
 import com.negd.viksit.bharat.model.master.Ministry;
+import com.negd.viksit.bharat.repository.DocumentRepository;
 import com.negd.viksit.bharat.repository.InstitutionalReformRepository;
 import com.negd.viksit.bharat.repository.MinistryRepository;
 import com.negd.viksit.bharat.repository.TargetRepository;
@@ -27,6 +28,7 @@ public class InstitutionalReformService {
 	private final InstitutionalReformRepository reformRepo;
 	private final TargetRepository targetRepo;
 	private final MinistryRepository ministryRepository;
+	private final DocumentRepository documentRepository;
 
 	private static final String ID_PREFIX = "MOCVBIR";
 
@@ -42,7 +44,6 @@ public class InstitutionalReformService {
 	}
 
 	private String generateCustomId() {
-		// Native query to find last ID starting with prefix ordered descending
 		String sql = "SELECT id FROM vb_core.institutional_reform WHERE id LIKE :prefix ORDER BY id DESC LIMIT 1";
 //		String sql = "SELECT id FROM institutional_reform WHERE id LIKE :prefix ORDER BY id DESC LIMIT 1";
 		List<String> result = entityManager.createNativeQuery(sql).setParameter("prefix", ID_PREFIX + "%")
@@ -61,103 +62,28 @@ public class InstitutionalReformService {
 		return ID_PREFIX + String.format("%02d", nextNumber);
 	}
 
-	// CREATE
-	public InstitutionalReformResponseDto create(InstitutionalReformDto dto) {
-		InstitutionalReform entity = mapToEntity(dto);
-		InstitutionalReform saved = save(entity);
-		return mapToDto(saved);
-	}
-
-	// READ ALL
-	public List<InstitutionalReformResponseDto> getAll() {
-		return reformRepo.findAll().stream().map(this::mapToDto).collect(Collectors.toList());
-	}
-
-	// READ ONE
-	public InstitutionalReformResponseDto getOne(String id) {
-		return mapToDto(reformRepo.findById(id).orElseThrow());
-	}
-
-	// UPDATE
-	public InstitutionalReformResponseDto update(String id, InstitutionalReformDto dto) {
-		InstitutionalReform existing = reformRepo.findById(id)
-				.orElseThrow(() -> new RuntimeException("Institutional Reform Not Found"));
-
-		// 🔹 Ministry fetch karo id se
-		Ministry ministry = ministryRepository.findById(dto.getMinistryId())
-				.orElseThrow(() -> new RuntimeException("Ministry not found"));
-
-		existing.setMinistry(ministry);
-
-		// Update main fields
-		existing.setInstitutionalReformName(dto.getInstitutionalReformName());
-		existing.setReformDescription(dto.getReformDescription());
-		existing.setReformType(dto.getReformType());
-		existing.setTargetCompletionDate(dto.getTargetCompletionDate());
-		existing.setRulesToBeAmended(dto.getRulesToBeAmended());
-		existing.setIntendedOutcome(dto.getIntendedOutcome());
-		existing.setPresentStatus(dto.getPresentStatus());
-		existing.setStatus(dto.getStatus());
-
-		// Handle Targets update and addition
-		if (dto.getTarget() != null) {
-			// Map existing Targets by their ID
-			var existingTargetsMap = existing.getTarget().stream().filter(t -> t.getId() != null)
-					.collect(Collectors.toMap(Target::getId, t -> t));
-
-			// Clear current list to replace with updated/new targets
-			existing.getTarget().clear();
-
-			for (TargetDto tDto : dto.getTarget()) {
-				Target target;
-
-				if (tDto.getId() != null && existingTargetsMap.containsKey(tDto.getId())) {
-					// Update existing Target
-					target = existingTargetsMap.get(tDto.getId());
-				} else {
-					// Create new Target if no ID present or not found
-					target = new Target();
-				}
-
-				target.setActivityDescription(tDto.getActivityDescription());
-				target.setDeadline(tDto.getDeadline());
-				target.setDocumentPath(tDto.getDocumentPath());
-
-				existing.addTarget(target);
-			}
-		} else {
-			// If null in DTO, clear all existing Targets
-			existing.getTarget().clear();
-		}
-
-		InstitutionalReform updated = reformRepo.save(existing);
-		return mapToDto(updated);
-	}
-
-	// DELETE
-	public void delete(String id) {
-		reformRepo.deleteById(id);
-	}
-
-	// TARGET LIST
-	public List<TargetDto> listTargets() {
-		return targetRepo.findAll().stream().map(this::toDto).collect(Collectors.toList());
-	}
-
 	// ----------------- Mapping Methods -----------------
 
 	private Target toEntity(TargetDto dto) {
 		if (dto == null)
 			return null;
-		return Target.builder().activityDescription(dto.getActivityDescription()).deadline(dto.getDeadline())
+		Target target = Target.builder().activityDescription(dto.getActivityDescription()).deadline(dto.getDeadline())
 				.documentPath(dto.getDocumentPath()).build();
+
+		if (dto.getDocumentId() != null) {
+			target.setDocument(documentRepository.findById(dto.getDocumentId())
+					.orElseThrow(() -> new RuntimeException("Document not found: " + dto.getDocumentId())));
+		}
+		return target;
 	}
 
 	private TargetDto toDto(Target t) {
 		if (t == null)
 			return null;
 		return TargetDto.builder().id(t.getId()).activityDescription(t.getActivityDescription())
-				.deadline(t.getDeadline()).documentPath(t.getDocumentPath()).build();
+				.deadline(t.getDeadline()).documentPath(t.getDocumentPath())
+				.documentId(t.getDocument() != null ? t.getDocument().getId() : null)
+				.documentUrl(t.getDocument() != null ? t.getDocument().getFileUrl() : null).build();
 	}
 
 	private InstitutionalReform mapToEntity(InstitutionalReformDto dto) {
@@ -165,7 +91,6 @@ public class InstitutionalReformService {
 		reform.setId(dto.getId());
 //        reform.setGoalId(dto.getGoalId());
 
-		// ✅ Ministry mapping add karo
 		if (dto.getMinistryId() != null) {
 			Ministry ministry = ministryRepository.findById(dto.getMinistryId())
 					.orElseThrow(() -> new RuntimeException("Ministry not found with id: " + dto.getMinistryId()));
@@ -209,6 +134,89 @@ public class InstitutionalReformService {
 			dto.setTarget(reform.getTarget().stream().map(this::toDto).collect(Collectors.toList()));
 		}
 		return dto;
+	}
+
+	// ----------------- Business Methods -----------------
+	// CREATE
+	public InstitutionalReformResponseDto create(InstitutionalReformDto dto) {
+		InstitutionalReform entity = mapToEntity(dto);
+		InstitutionalReform saved = save(entity);
+		return mapToDto(saved);
+	}
+
+	// READ ALL
+	public List<InstitutionalReformResponseDto> getAll() {
+		return reformRepo.findAll().stream().map(this::mapToDto).collect(Collectors.toList());
+	}
+
+	// READ ONE
+	public InstitutionalReformResponseDto getOne(String id) {
+		return mapToDto(reformRepo.findById(id).orElseThrow());
+	}
+
+	// UPDATE
+	public InstitutionalReformResponseDto update(String id, InstitutionalReformDto dto) {
+		InstitutionalReform existing = reformRepo.findById(id)
+				.orElseThrow(() -> new RuntimeException("Institutional Reform Not Found"));
+
+		Ministry ministry = ministryRepository.findById(dto.getMinistryId())
+				.orElseThrow(() -> new RuntimeException("Ministry not found"));
+
+		existing.setMinistry(ministry);
+
+		existing.setInstitutionalReformName(dto.getInstitutionalReformName());
+		existing.setReformDescription(dto.getReformDescription());
+		existing.setReformType(dto.getReformType());
+		existing.setTargetCompletionDate(dto.getTargetCompletionDate());
+		existing.setRulesToBeAmended(dto.getRulesToBeAmended());
+		existing.setIntendedOutcome(dto.getIntendedOutcome());
+		existing.setPresentStatus(dto.getPresentStatus());
+		existing.setStatus(dto.getStatus());
+
+		if (dto.getTarget() != null) {
+			var existingTargetsMap = existing.getTarget().stream().filter(t -> t.getId() != null)
+					.collect(Collectors.toMap(Target::getId, t -> t));
+
+			existing.getTarget().clear();
+
+			for (TargetDto tDto : dto.getTarget()) {
+				Target target;
+
+				if (tDto.getId() != null && existingTargetsMap.containsKey(tDto.getId())) {
+					target = existingTargetsMap.get(tDto.getId());
+				} else {
+					target = new Target();
+				}
+
+				target.setActivityDescription(tDto.getActivityDescription());
+				target.setDeadline(tDto.getDeadline());
+				target.setDocumentPath(tDto.getDocumentPath());
+
+				if (tDto.getDocumentId() != null) {
+					target.setDocument(documentRepository.findById(tDto.getDocumentId())
+							.orElseThrow(() -> new RuntimeException("Document not found: " + tDto.getDocumentId())));
+				} else {
+					target.setDocument(null);
+				}
+
+				existing.addTarget(target);
+			}
+		} else {
+			existing.getTarget().clear();
+		}
+
+		InstitutionalReform updated = reformRepo.save(existing);
+		return mapToDto(updated);
+	}
+
+	// DELETE
+	public void delete(String id) {
+		reformRepo.deleteById(id);
+	}
+
+	// TARGET LIST
+	public List<TargetDto> listTargets() {
+		return targetRepo.findAll().stream().map(this::toDto).collect(Collectors.toList());
 	}
 
 	// Update only status

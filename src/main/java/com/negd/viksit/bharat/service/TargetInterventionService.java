@@ -51,7 +51,6 @@ public class TargetInterventionService {
 	}
 
 	private String generateCustomId() {
-		// Fixed table name to target_interventions for ID generation
 		String sql = "SELECT ti.id FROM vb_core.target_interventions ti WHERE ti.id LIKE :prefix ORDER BY ti.id DESC LIMIT 1";
 //    	String sql = "SELECT ti.id FROM target_interventions ti WHERE ti.id LIKE :prefix ORDER BY ti.id DESC LIMIT 1";
 		List<String> result = entityManager.createNativeQuery(sql).setParameter("prefix", ID_PREFIX + "%")
@@ -84,7 +83,6 @@ public class TargetInterventionService {
 		entity.setBottlenecks(dto.getBottlenecks());
 		entity.setStatus(dto.getStatus());
 
-		// ✅ Ministry mapping add karo
 		if (dto.getMinistryId() != null) {
 			Ministry ministry = ministryRepository.findById(dto.getMinistryId())
 					.orElseThrow(() -> new RuntimeException("Ministry not found with id: " + dto.getMinistryId()));
@@ -120,8 +118,7 @@ public class TargetInterventionService {
 
 		dto.setPriority(entity.getPriority());
 		dto.setPresentStatus(entity.getPresentStatus());
-		// dto.setImplementationStatus(entity.getImplementationStatus()); // commented
-		// out in your code
+		// dto.setImplementationStatus(entity.getImplementationStatus());
 		dto.setBottlenecks(entity.getBottlenecks());
 		dto.setStatus(entity.getStatus());
 		dto.setLastUpdated(entity.getUpdatedOn());
@@ -144,144 +141,35 @@ public class TargetInterventionService {
 	}
 
 	// ----------------- Business Methods -----------------
-
+    // Create
 	public TargetInterventionResponseDto save(TargetInterventionDto dto) {
 		TargetIntervention entity = convertToEntity(dto);
 		TargetIntervention saved = save(entity); // Use the save with ID generation
 		return convertToDto(saved);
 	}
 
+	// Get All List
 	public List<TargetInterventionResponseDto> findAll() {
 		return repository.findAll().stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
+	// Get List By Id
 	public TargetInterventionResponseDto findById(String id) {
 		TargetIntervention entity = repository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Target / Intervention Not Found"));
 		return convertToDto(entity);
 	}
 
-//	public TargetInterventionResponseDto update(String id, TargetInterventionResponseDto dto) {
-//	    TargetIntervention existing = repository.findById(id)
-//	            .orElseThrow(() -> new RuntimeException("Target / Intervention Not Found"));
-//	    
-//	    // Update main TargetIntervention fields
-//	    existing.setGoalId(dto.getGoalId());
-//	    existing.setMinistry(dto.getMinistry());
-//	    existing.setTargetDetails(dto.getTargetDetails());
-//	    existing.setActionPoint(dto.getActionPoint());
-//	    existing.setTargetDate(dto.getTargetDate());
-//
-//	    existing.setPresentStatus(dto.getPresentStatus());
-//	    // existing.setImplementationStatus(dto.getImplementationStatus()); // Uncomment if you use it
-//	    existing.setPriority(dto.getPriority());
-//	    existing.setBottlenecks(dto.getBottlenecks());
-//
-//	    // Handle KeyDeliverables update and addition
-//	    if (dto.getKeyDeliverables() != null) {
-//	        // Map existing KeyDeliverables by their Long ID
-//	        Map<Long, KeyDeliverable> existingKdsMap = existing.getKeyDeliverables().stream()
-//	                .filter(kd -> kd.getId() != null)
-//	                .collect(Collectors.toMap(KeyDeliverable::getId, kd -> kd));
-//
-//	        // Clear current list to replace with updated/new deliverables
-//	        existing.getKeyDeliverables().clear();
-//
-//	        for (KeyDeliverableDto kdDto : dto.getKeyDeliverables()) {
-//	            KeyDeliverable kd;
-//
-//	            if (kdDto.getId() != null && existingKdsMap.containsKey(kdDto.getId())) {
-//	                // Update existing KeyDeliverable
-//	                kd = existingKdsMap.get(kdDto.getId());
-//	            } else {
-//	                // Create new KeyDeliverable if no ID present or not found
-//	                kd = new KeyDeliverable();
-//	            }
-//
-//	            kd.setActivityDescription(kdDto.getActivityDescription());
-//	            kd.setDeadline(kdDto.getDeadline());
-//	            // kd.setProgressMade(kdDto.getProgressMade()); // Uncomment if you track progress
-//	            kd.setDocumentPath(kdDto.getDocumentPath());
-//
-//	            existing.addKeyDeliverable(kd);
-//	        }
-//	    } else {
-//	        // If null in DTO, clear all existing KeyDeliverables
-//	        existing.getKeyDeliverables().clear();
-//	    }
-//
-//	    // Save and return updated entity as DTO
-//	    TargetIntervention updated = repository.save(existing);
-//	    return convertToDto(updated);
-//	}
-//	public TargetInterventionResponseDto update(String id, TargetInterventionResponseDto dto) {
-//		TargetIntervention existing = repository.findById(id)
-//				.orElseThrow(() -> new RuntimeException("Target / Intervention Not Found"));
-//
-//		// 🔹 Update main TargetIntervention fields
-//		existing.setGoalId(dto.getGoalId());
-//		existing.setMinistryName(dto.getMinistryName());
-//		existing.setTargetDetails(dto.getTargetDetails());
-//		existing.setActionPoint(dto.getActionPoint());
-//		existing.setTargetDate(dto.getTargetDate());
-//		existing.setPresentStatus(dto.getPresentStatus());
-//		existing.setPriority(dto.getPriority());
-//		existing.setBottlenecks(dto.getBottlenecks());
-//
-//		// 🔹 Handle KeyDeliverables update and addition
-//		if (dto.getKeyDeliverables() != null) {
-//			// Map existing KeyDeliverables by their ID
-//			Map<Long, KeyDeliverable> existingKdsMap = existing.getKeyDeliverables().stream()
-//					.filter(kd -> kd.getId() != null).collect(Collectors.toMap(KeyDeliverable::getId, kd -> kd));
-//
-//			// Clear current list so we can re-add updated/new deliverables
-//			existing.getKeyDeliverables().clear();
-//
-//			for (KeyDeliverableDto kdDto : dto.getKeyDeliverables()) {
-//				KeyDeliverable kd;
-//
-//				if (kdDto.getId() != null && existingKdsMap.containsKey(kdDto.getId())) {
-//					// 🔹 Existing KeyDeliverable → Update
-//					kd = existingKdsMap.get(kdDto.getId());
-//				} else {
-//					// 🔹 New KeyDeliverable → Create
-//					kd = new KeyDeliverable();
-//				}
-//
-//				kd.setActivityDescription(kdDto.getActivityDescription());
-//				kd.setDeadline(kdDto.getDeadline());
-//
-//				// 🔗 Document linking
-//				if (kdDto.getDocumentId() != null) {
-//					Document doc = documentRepository.findById(kdDto.getDocumentId())
-//							.orElseThrow(() -> new RuntimeException("Document not found: " + kdDto.getDocumentId()));
-//					kd.setDocument(doc);
-//				} else {
-//					kd.setDocument(null); // अगर frontend null भेजे तो unlink कर देंगे
-//				}
-//
-//				existing.addKeyDeliverable(kd);
-//			}
-//		} else {
-//			// अगर frontend null भेजे → सभी deliverables हटा देंगे
-//			existing.getKeyDeliverables().clear();
-//		}
-//
-//		// 🔹 Save and return updated entity as DTO
-//		TargetIntervention updated = repository.save(existing);
-//		return convertToDto(updated);
-//	}
+    // Update By Id
 	public TargetInterventionResponseDto update(String id, TargetInterventionDto dto) {
 		TargetIntervention existing = repository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Target / Intervention Not Found"));
 
-		// 🔹 Ministry fetch karo id se
 		Ministry ministry = ministryRepository.findById(dto.getMinistryId())
 				.orElseThrow(() -> new RuntimeException("Ministry not found"));
 
 		existing.setMinistry(ministry);
 
-		// 🔹 Update main fields
 		existing.setGoalId(dto.getGoalId());
 		existing.setTargetDetails(dto.getTargetDetails());
 		existing.setActionPoint(dto.getActionPoint());
@@ -290,7 +178,6 @@ public class TargetInterventionService {
 		existing.setPriority(dto.getPriority());
 		existing.setBottlenecks(dto.getBottlenecks());
 
-		// 🔹 KeyDeliverables handle
 		if (dto.getKeyDeliverables() != null) {
 			Map<Long, KeyDeliverable> existingKdsMap = existing.getKeyDeliverables().stream()
 					.filter(kd -> kd.getId() != null).collect(Collectors.toMap(KeyDeliverable::getId, kd -> kd));
@@ -326,11 +213,13 @@ public class TargetInterventionService {
 		TargetIntervention updated = repository.save(existing);
 		return convertToDto(updated);
 	}
-
+ 
+	// Delete By Id
 	public void delete(String id) {
 		repository.deleteById(id);
 	}
 
+	// Update Status By Id
 	public TargetInterventionResponseDto updateStatus(String id, String status) {
 		TargetIntervention entity = repository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Target / Intervention Not Found"));
@@ -351,6 +240,7 @@ public class TargetInterventionService {
 		return convertToDto(saved);
 	}
 
+	// Filter
 	public List<TargetInterventionResponseDto> filterTargetInterventions(Long entityId, String status,
 			String targetDetails) {
 		List<TargetIntervention> entities;

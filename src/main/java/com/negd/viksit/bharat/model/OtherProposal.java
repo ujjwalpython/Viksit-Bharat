@@ -30,7 +30,7 @@ public class OtherProposal extends Auditable<Long>{
 
     private String proposalDescription;
 
-    private String proposalType; // Policy / Technology
+    private String proposalType;
 
     @Column(nullable = false, length = 2000)
     private String potentialEconomicDevelopment;

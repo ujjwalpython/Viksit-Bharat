@@ -20,7 +20,7 @@ import jakarta.transaction.Transactional;
 public class OtherProposalService {
 
 	private final ProposalRepository repository;
-	
+
 	private final MinistryRepository ministryRepository;
 
 	public OtherProposalService(ProposalRepository repository, MinistryRepository ministryRepository) {
@@ -42,7 +42,6 @@ public class OtherProposalService {
 	}
 
 	private String generateCustomId() {
-		// Native query to find last ID starting with prefix ordered descending
 		String sql = "SELECT ir.id FROM vb_core.other_proposals ir WHERE ir.id LIKE :prefix ORDER BY ir.id DESC LIMIT 1";
 //		String sql = "SELECT ir.id FROM other_proposals ir WHERE ir.id LIKE :prefix ORDER BY ir.id DESC LIMIT 1";
 		List<String> result = entityManager.createNativeQuery(sql).setParameter("prefix", ID_PREFIX + "%")
@@ -61,6 +60,7 @@ public class OtherProposalService {
 		return ID_PREFIX + String.format("%02d", nextNumber);
 	}
 
+	// ----------------- Mapping Methods -----------------
 	private OtherProposalResponseDto mapToDto(OtherProposal entity) {
 		return OtherProposalResponseDto.builder().id(entity.getId()).ideaProposalTitle(entity.getIdeaProposalTitle())
 				.proposalDescription(entity.getProposalDescription()).proposalType(entity.getProposalType())
@@ -72,13 +72,11 @@ public class OtherProposalService {
 	}
 
 	private OtherProposal mapToEntity(OtherProposalDto dto) {
-		
-		// ✅ Ministry mapping add karo
-		   Ministry ministry = null;
-		    if (dto.getMinistryId() != null) {
-		        ministry = ministryRepository.findById(dto.getMinistryId())
-		            .orElseThrow(() -> new RuntimeException("Ministry not found with id: " + dto.getMinistryId()));
-		    }
+		Ministry ministry = null;
+		if (dto.getMinistryId() != null) {
+			ministry = ministryRepository.findById(dto.getMinistryId())
+					.orElseThrow(() -> new RuntimeException("Ministry not found with id: " + dto.getMinistryId()));
+		}
 		return OtherProposal.builder().id(dto.getId()).ministry(ministry).ideaProposalTitle(dto.getIdeaProposalTitle())
 				.proposalDescription(dto.getProposalDescription()).proposalType(dto.getProposalType())
 				.potentialEconomicDevelopment(dto.getPotentialEconomicDevelopment())
@@ -87,32 +85,36 @@ public class OtherProposalService {
 				.build();
 	}
 
+	// ----------------- Business Methods -----------------
+	// Create
 	public OtherProposalResponseDto create(OtherProposalDto dto) {
 		OtherProposal entity = mapToEntity(dto);
 		OtherProposal saved = save(entity);
 		return mapToDto(saved);
 	}
 
+	// GetAllList
 	public List<OtherProposalResponseDto> getAll() {
 		return repository.findAll().stream().map(this::mapToDto).collect(Collectors.toList());
 	}
 
+	// GetListById
 	public OtherProposalResponseDto getOne(String id) {
 		return repository.findById(id).map(this::mapToDto)
 				.orElseThrow(() -> new RuntimeException("Proposal not found"));
 	}
 
+	// UpdateById
 	public OtherProposalResponseDto update(String id, OtherProposalDto dto) {
 		OtherProposal existing = repository.findById(id).orElseThrow(() -> new RuntimeException("Proposal not found"));
 		existing.setIdeaProposalTitle(dto.getIdeaProposalTitle());
 //		existing.setGoalId(dto.getGoalId());
 
-		// 🔹 Ministry fetch karo id se
 		Ministry ministry = ministryRepository.findById(dto.getMinistryId())
 				.orElseThrow(() -> new RuntimeException("Ministry not found"));
 
 		existing.setMinistry(ministry);
-		
+
 		existing.setProposalDescription(dto.getProposalDescription());
 		existing.setProposalType(dto.getProposalType());
 		existing.setPotentialEconomicDevelopment(dto.getPotentialEconomicDevelopment());
@@ -122,10 +124,12 @@ public class OtherProposalService {
 		return mapToDto(repository.save(existing));
 	}
 
+	// DeleteById
 	public void delete(String id) {
 		repository.deleteById(id);
 	}
 
+	// UpdateStatusById
 	public OtherProposalResponseDto updateStatus(String id, String status) {
 		OtherProposal proposal = repository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Proposal not found with id: " + id));
@@ -146,6 +150,7 @@ public class OtherProposalService {
 		return mapToDto(saved);
 	}
 
+	// Filter
 	public List<OtherProposalResponseDto> filterProposals(Long entityId, String status, String proposalDescription) {
 		List<OtherProposal> proposals;
 
@@ -160,9 +165,7 @@ public class OtherProposalService {
 			proposals = repository.findByCreatedByAndStatusIgnoreCaseAndProposalDescriptionContainingIgnoreCase(
 					entityId, status, proposalDescription);
 		}
-
-		return proposals.stream().map(this::mapToDto) // ✅ better: use method reference
-				.collect(Collectors.toList()); // ✅ use Collectors for consistency
+		return proposals.stream().map(this::mapToDto).collect(Collectors.toList());
 	}
 
 }

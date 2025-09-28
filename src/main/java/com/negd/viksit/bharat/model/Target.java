@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import com.negd.viksit.bharat.audit.Auditable;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -36,4 +37,8 @@ public class Target extends Auditable<Long> {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "institutional_reform_id")
 	private InstitutionalReform institutionalReform;
+	
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name = "document_id", nullable = false)
+	private Document document;
 }

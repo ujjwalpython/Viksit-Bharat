@@ -39,46 +39,42 @@ import lombok.NoArgsConstructor;
 public class InstitutionalReform extends Auditable<Long> {
 
 	@Id
-    private String id;
+	private String id;
 //	private String goalId;
-	
+
 	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ministry_id")
-    private Ministry ministry;
-    
+	@JoinColumn(name = "ministry_id")
+	private Ministry ministry;
+
 	private String institutionalReformName;
-    private String reformDescription;
+	private String reformDescription;
 
 //    @Enumerated(EnumType.STRING)
 //    private ReformType reformType;
-    private String reformType;
+	
+	private String reformType;
 
-    private LocalDate targetCompletionDate;
-    
-    private String rulesToBeAmended;
+	private LocalDate targetCompletionDate;
 
-    private String intendedOutcome;
+	private String rulesToBeAmended;
 
-    private String presentStatus;
-    
-    private String status;
-    
-    @OneToMany(mappedBy = "institutionalReform", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Target> target = new ArrayList<>();
-    
-    public void addTarget(Target deliverable) {
-        deliverable.setInstitutionalReform(this);
-        this.target.add(deliverable);
-    }
+	private String intendedOutcome;
 
-    public void removeTarget(Target deliverable) {
-        deliverable.setInstitutionalReform(null);
-        this.target.remove(deliverable);
-    }
+	private String presentStatus;
 
-//    @ManyToOne
-//    @JoinColumn(name = "target_id")
-//    private Target target;
-    
-  
+	private String status;
+
+	@OneToMany(mappedBy = "institutionalReform", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Target> target = new ArrayList<>();
+
+	public void addTarget(Target deliverable) {
+		deliverable.setInstitutionalReform(this);
+		this.target.add(deliverable);
+	}
+
+	public void removeTarget(Target deliverable) {
+		deliverable.setInstitutionalReform(null);
+		this.target.remove(deliverable);
+	}
+
 }
