@@ -51,8 +51,8 @@ public class TargetInterventionService {
 	}
 
 	private String generateCustomId() {
-//		String sql = "SELECT ti.id FROM vb_core.target_interventions ti WHERE ti.id LIKE :prefix ORDER BY ti.id DESC LIMIT 1";
-    	String sql = "SELECT ti.id FROM target_interventions ti WHERE ti.id LIKE :prefix ORDER BY ti.id DESC LIMIT 1";
+		String sql = "SELECT ti.id FROM vb_core.target_interventions ti WHERE ti.id LIKE :prefix ORDER BY ti.id DESC LIMIT 1";
+//    	String sql = "SELECT ti.id FROM target_interventions ti WHERE ti.id LIKE :prefix ORDER BY ti.id DESC LIMIT 1";
 		List<String> result = entityManager.createNativeQuery(sql).setParameter("prefix", ID_PREFIX + "%")
 				.getResultList();
 
