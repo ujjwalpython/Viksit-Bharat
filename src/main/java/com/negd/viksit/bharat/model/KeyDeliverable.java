@@ -29,14 +29,14 @@ public class KeyDeliverable extends Auditable<Long> {
 	private String activityDescription;
 	private LocalDate deadline;
 //	private String progressMade;
-	private String documentPath; 
+//	private String documentPath; 
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "target_intervention_id", nullable = false)
+	@JoinColumn(name = "target_intervention_id")
 	private TargetIntervention targetIntervention;
 	
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinColumn(name = "document_id", nullable = false)
+	@JoinColumn(name = "document_id")
 	private Document document;
 
 }

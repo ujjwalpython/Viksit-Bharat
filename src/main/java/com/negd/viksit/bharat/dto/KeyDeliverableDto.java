@@ -11,7 +11,7 @@ public class KeyDeliverableDto {
 	private String activityDescription;
 	private LocalDate deadline;
 //	private String progressMade;
-	private String documentPath;
+//	private String documentPath;
 
 	private UUID documentId;
 	private String documentUrl;
