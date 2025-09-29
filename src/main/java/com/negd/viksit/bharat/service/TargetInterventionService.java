@@ -73,7 +73,7 @@ public class TargetInterventionService {
 	private TargetIntervention convertToEntity(TargetInterventionDto dto) {
 		TargetIntervention entity = new TargetIntervention();
 		entity.setId(dto.getId());
-		entity.setGoalId(dto.getGoalId());
+//		entity.setGoalId(dto.getGoalId());
 		entity.setTargetDetails(dto.getTargetDetails());
 		entity.setActionPoint(dto.getActionPoint());
 		entity.setTargetDate(dto.getTargetDate());
@@ -110,7 +110,7 @@ public class TargetInterventionService {
 	private TargetInterventionResponseDto convertToDto(TargetIntervention entity) {
 		TargetInterventionResponseDto dto = new TargetInterventionResponseDto();
 		dto.setId(entity.getId());
-		dto.setGoalId(entity.getGoalId());
+//		dto.setGoalId(entity.getGoalId());
 		dto.setMinistryId(entity.getMinistry().getName());
 		dto.setTargetDetails(entity.getTargetDetails());
 		dto.setActionPoint(entity.getActionPoint());
@@ -170,7 +170,7 @@ public class TargetInterventionService {
 
 		existing.setMinistry(ministry);
 		existing.setStatus(dto.getStatus());
-		existing.setGoalId(dto.getGoalId());
+//		existing.setGoalId(dto.getGoalId());
 		existing.setTargetDetails(dto.getTargetDetails());
 		existing.setActionPoint(dto.getActionPoint());
 		existing.setTargetDate(dto.getTargetDate());

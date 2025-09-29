@@ -24,7 +24,7 @@ public class TargetIntervention extends Auditable<Long> {
 
 	@Id
 	private String id;
-	private String goalId;
+//	private String goalId;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ministry_id")

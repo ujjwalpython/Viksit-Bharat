@@ -15,7 +15,7 @@ import lombok.Data;
 @Data
 public class TargetInterventionDto {
 	private String id;
-	private String goalId;
+//	private String goalId;
 	private UUID ministryId;
 
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)

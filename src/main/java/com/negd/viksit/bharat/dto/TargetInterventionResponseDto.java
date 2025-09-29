@@ -13,7 +13,7 @@ import lombok.Data;
 @Data
 public class TargetInterventionResponseDto {
 	private String id;
-	private String goalId;
+//	private String goalId;
 	private String ministryId;
 
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)

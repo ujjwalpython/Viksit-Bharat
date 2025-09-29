@@ -62,28 +62,45 @@ public class OtherProposalService {
 
 	// ----------------- Mapping Methods -----------------
 	private OtherProposalResponseDto mapToDto(OtherProposal entity) {
-		return OtherProposalResponseDto.builder().id(entity.getId()).ideaProposalTitle(entity.getIdeaProposalTitle())
-				.proposalDescription(entity.getProposalDescription()).proposalType(entity.getProposalType())
-				.potentialEconomicDevelopment(entity.getPotentialEconomicDevelopment())
-				.potentialEmploymentGeneration(entity.getPotentialEmploymentGeneration())
-				.timelineStart(entity.getTimelineStart()).timelineEnd(entity.getTimelineEnd())
-				.status(entity.getStatus()).lastUpdated(entity.getUpdatedOn())
-				.ministryId(entity.getMinistry().getName()).build();
+	    OtherProposalResponseDto dto = new OtherProposalResponseDto();
+
+	    dto.setId(entity.getId());
+	    dto.setMinistryId(entity.getMinistry().getName());
+	    dto.setIdeaProposalTitle(entity.getIdeaProposalTitle());
+	    dto.setProposalDescription(entity.getProposalDescription());
+	    dto.setProposalType(entity.getProposalType());
+	    dto.setPotentialEconomicDevelopment(entity.getPotentialEconomicDevelopment());
+	    dto.setPotentialEmploymentGeneration(entity.getPotentialEmploymentGeneration());
+	    dto.setTimelineStart(entity.getTimelineStart());
+	    dto.setTimelineEnd(entity.getTimelineEnd());
+	    dto.setStatus(entity.getStatus());
+	    dto.setLastUpdated(entity.getUpdatedOn());
+	    return dto;
 	}
 
+
 	private OtherProposal mapToEntity(OtherProposalDto dto) {
-		Ministry ministry = null;
-		if (dto.getMinistryId() != null) {
-			ministry = ministryRepository.findById(dto.getMinistryId())
-					.orElseThrow(() -> new RuntimeException("Ministry not found with id: " + dto.getMinistryId()));
-		}
-		return OtherProposal.builder().id(dto.getId()).ministry(ministry).ideaProposalTitle(dto.getIdeaProposalTitle())
-				.proposalDescription(dto.getProposalDescription()).proposalType(dto.getProposalType())
-				.potentialEconomicDevelopment(dto.getPotentialEconomicDevelopment())
-				.potentialEmploymentGeneration(dto.getPotentialEmploymentGeneration())
-				.timelineStart(dto.getTimelineStart()).timelineEnd(dto.getTimelineEnd()).status(dto.getStatus())
-				.build();
+	    OtherProposal entity = new OtherProposal();
+	    entity.setId(dto.getId());
+	    
+	    if (dto.getMinistryId() != null) {
+	        Ministry ministry = ministryRepository.findById(dto.getMinistryId())
+	                .orElseThrow(() -> new RuntimeException("Ministry not found with id: " + dto.getMinistryId()));
+	        entity.setMinistry(ministry);
+	    }
+
+	    entity.setIdeaProposalTitle(dto.getIdeaProposalTitle());
+	    entity.setProposalDescription(dto.getProposalDescription());
+	    entity.setProposalType(dto.getProposalType());
+	    entity.setPotentialEconomicDevelopment(dto.getPotentialEconomicDevelopment());
+	    entity.setPotentialEmploymentGeneration(dto.getPotentialEmploymentGeneration());
+	    entity.setTimelineStart(dto.getTimelineStart());
+	    entity.setTimelineEnd(dto.getTimelineEnd());
+	    entity.setStatus(dto.getStatus());
+
+	    return entity;
 	}
+
 
 	// ----------------- Business Methods -----------------
 	// Create
