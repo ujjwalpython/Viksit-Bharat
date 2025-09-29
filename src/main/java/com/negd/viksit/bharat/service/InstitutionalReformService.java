@@ -44,8 +44,8 @@ public class InstitutionalReformService {
 	}
 
 	private String generateCustomId() {
-		String sql = "SELECT id FROM vb_core.institutional_reform WHERE id LIKE :prefix ORDER BY id DESC LIMIT 1";
-//		String sql = "SELECT id FROM institutional_reform WHERE id LIKE :prefix ORDER BY id DESC LIMIT 1";
+//		String sql = "SELECT id FROM vb_core.institutional_reform WHERE id LIKE :prefix ORDER BY id DESC LIMIT 1";
+		String sql = "SELECT id FROM institutional_reform WHERE id LIKE :prefix ORDER BY id DESC LIMIT 1";
 		List<String> result = entityManager.createNativeQuery(sql).setParameter("prefix", ID_PREFIX + "%")
 				.getResultList();
 
@@ -68,7 +68,7 @@ public class InstitutionalReformService {
 		if (dto == null)
 			return null;
 		Target target = Target.builder().activityDescription(dto.getActivityDescription()).deadline(dto.getDeadline())
-				.documentPath(dto.getDocumentPath()).build();
+				.build();
 
 		if (dto.getDocumentId() != null) {
 			target.setDocument(documentRepository.findById(dto.getDocumentId())
@@ -81,8 +81,7 @@ public class InstitutionalReformService {
 		if (t == null)
 			return null;
 		return TargetDto.builder().id(t.getId()).activityDescription(t.getActivityDescription())
-				.deadline(t.getDeadline()).documentPath(t.getDocumentPath())
-				.documentId(t.getDocument() != null ? t.getDocument().getId() : null)
+				.deadline(t.getDeadline()).documentId(t.getDocument() != null ? t.getDocument().getId() : null)
 				.documentUrl(t.getDocument() != null ? t.getDocument().getFileUrl() : null).build();
 	}
 
@@ -163,7 +162,7 @@ public class InstitutionalReformService {
 				.orElseThrow(() -> new RuntimeException("Ministry not found"));
 
 		existing.setMinistry(ministry);
-
+		existing.setStatus(dto.getStatus());
 		existing.setInstitutionalReformName(dto.getInstitutionalReformName());
 		existing.setReformDescription(dto.getReformDescription());
 		existing.setReformType(dto.getReformType());
@@ -190,7 +189,7 @@ public class InstitutionalReformService {
 
 				target.setActivityDescription(tDto.getActivityDescription());
 				target.setDeadline(tDto.getDeadline());
-				target.setDocumentPath(tDto.getDocumentPath());
+//				target.setDocumentPath(tDto.getDocumentPath());
 
 				if (tDto.getDocumentId() != null) {
 					target.setDocument(documentRepository.findById(tDto.getDocumentId())

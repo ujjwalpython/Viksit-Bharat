@@ -18,7 +18,7 @@ public class Document extends Auditable<Long> {
     private UUID id;
 
     @Column(nullable = false)
-    private String fileName; // actual stored file name (uuid + extension)
+    private String fileName; 
 
     @Column(nullable = false)
     private String fileType;

@@ -42,8 +42,8 @@ public class OtherProposalService {
 	}
 
 	private String generateCustomId() {
-		String sql = "SELECT ir.id FROM vb_core.other_proposals ir WHERE ir.id LIKE :prefix ORDER BY ir.id DESC LIMIT 1";
-//		String sql = "SELECT ir.id FROM other_proposals ir WHERE ir.id LIKE :prefix ORDER BY ir.id DESC LIMIT 1";
+//		String sql = "SELECT ir.id FROM vb_core.other_proposals ir WHERE ir.id LIKE :prefix ORDER BY ir.id DESC LIMIT 1";
+		String sql = "SELECT ir.id FROM other_proposals ir WHERE ir.id LIKE :prefix ORDER BY ir.id DESC LIMIT 1";
 		List<String> result = entityManager.createNativeQuery(sql).setParameter("prefix", ID_PREFIX + "%")
 				.getResultList();
 
@@ -121,6 +121,7 @@ public class OtherProposalService {
 		existing.setPotentialEmploymentGeneration(dto.getPotentialEmploymentGeneration());
 		existing.setTimelineStart(dto.getTimelineStart());
 		existing.setTimelineEnd(dto.getTimelineEnd());
+		existing.setStatus(dto.getStatus());
 		return mapToDto(repository.save(existing));
 	}
 

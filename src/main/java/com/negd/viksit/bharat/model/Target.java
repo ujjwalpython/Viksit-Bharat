@@ -31,7 +31,7 @@ public class Target extends Auditable<Long> {
 
 //	private String name;
 	private LocalDate deadline;
-	private String documentPath;
+//	private String documentPath;
 	private String activityDescription;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
