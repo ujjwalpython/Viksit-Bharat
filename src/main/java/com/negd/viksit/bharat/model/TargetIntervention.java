@@ -8,6 +8,7 @@ import com.negd.viksit.bharat.audit.Auditable;
 import com.negd.viksit.bharat.model.master.Ministry;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -25,11 +26,11 @@ public class TargetIntervention extends Auditable<Long> {
 	@Id
 	private String id;
 //	private String goalId;
-	
+
 	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ministry_id")
-    private Ministry ministry;
-	
+	@JoinColumn(name = "ministry_id", nullable = false)
+	private Ministry ministry;
+
 	private String targetDetails;
 	private String actionPoint;
 	private LocalDate targetDate;
@@ -46,6 +47,8 @@ public class TargetIntervention extends Auditable<Long> {
 //    private ImplementationStatus implementationStatus;
 
 	private String bottlenecks;
+
+	@Column(name = "status", nullable = false)
 	private String status;
 
 	@OneToMany(mappedBy = "targetIntervention", cascade = CascadeType.ALL, orphanRemoval = true)

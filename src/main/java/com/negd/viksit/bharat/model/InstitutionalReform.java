@@ -9,6 +9,7 @@ import com.negd.viksit.bharat.enums.ReformType;
 import com.negd.viksit.bharat.model.master.Ministry;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -43,7 +44,7 @@ public class InstitutionalReform extends Auditable<Long> {
 //	private String goalId;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "ministry_id")
+	@JoinColumn(name = "ministry_id", nullable = false)
 	private Ministry ministry;
 
 	private String institutionalReformName;
@@ -51,7 +52,7 @@ public class InstitutionalReform extends Auditable<Long> {
 
 //    @Enumerated(EnumType.STRING)
 //    private ReformType reformType;
-	
+
 	private String reformType;
 
 	private LocalDate targetCompletionDate;
@@ -62,6 +63,7 @@ public class InstitutionalReform extends Auditable<Long> {
 
 	private String presentStatus;
 
+	@Column(name = "status", nullable = false)
 	private String status;
 
 	@OneToMany(mappedBy = "institutionalReform", cascade = CascadeType.ALL, orphanRemoval = true)

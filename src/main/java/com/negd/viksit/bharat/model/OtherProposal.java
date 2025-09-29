@@ -22,7 +22,7 @@ public class OtherProposal extends Auditable<Long>{
     private String id;
     
 	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ministry_id")
+    @JoinColumn(name = "ministry_id", nullable = false)
     private Ministry ministry;
     
     @Column(nullable = false)
@@ -44,7 +44,7 @@ public class OtherProposal extends Auditable<Long>{
     @Column(nullable = false)
     private LocalDate timelineEnd;
     
-    @Column(name = "status")
+	@Column(name = "status", nullable = false)
     private String status;
     
 }
