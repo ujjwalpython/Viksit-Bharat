@@ -68,7 +68,7 @@ public class InstitutionalReformService {
 		if (dto == null)
 			return null;
 		Target target = Target.builder().activityDescription(dto.getActivityDescription()).deadline(dto.getDeadline())
-				.build();
+				.documentPath(dto.getDocumentPath()).build();
 
 		if (dto.getDocumentId() != null) {
 			target.setDocument(documentRepository.findById(dto.getDocumentId())
@@ -81,7 +81,8 @@ public class InstitutionalReformService {
 		if (t == null)
 			return null;
 		return TargetDto.builder().id(t.getId()).activityDescription(t.getActivityDescription())
-				.deadline(t.getDeadline()).documentId(t.getDocument() != null ? t.getDocument().getId() : null)
+				.deadline(t.getDeadline()).documentPath(t.getDocumentPath())
+				.documentId(t.getDocument() != null ? t.getDocument().getId() : null)
 				.documentUrl(t.getDocument() != null ? t.getDocument().getFileUrl() : null).build();
 	}
 
@@ -189,6 +190,7 @@ public class InstitutionalReformService {
 
 				target.setActivityDescription(tDto.getActivityDescription());
 				target.setDeadline(tDto.getDeadline());
+				target.setDocumentPath(tDto.getDocumentPath());
 
 				if (tDto.getDocumentId() != null) {
 					target.setDocument(documentRepository.findById(tDto.getDocumentId())

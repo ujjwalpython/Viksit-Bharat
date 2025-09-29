@@ -31,7 +31,7 @@ public class Target extends Auditable<Long> {
 
 //	private String name;
 	private LocalDate deadline;
-//	private String documentPath;
+	private String documentPath;
 	private String activityDescription;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -39,6 +39,6 @@ public class Target extends Auditable<Long> {
 	private InstitutionalReform institutionalReform;
 	
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinColumn(name = "document_id")
+	@JoinColumn(name = "document_id", nullable = false)
 	private Document document;
 }

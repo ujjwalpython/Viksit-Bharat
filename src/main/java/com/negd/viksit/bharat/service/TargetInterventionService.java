@@ -51,8 +51,8 @@ public class TargetInterventionService {
 	}
 
 	private String generateCustomId() {
-//		String sql = "SELECT ti.id FROM vb_core.target_interventions ti WHERE ti.id LIKE :prefix ORDER BY ti.id DESC LIMIT 1";
-    	String sql = "SELECT ti.id FROM target_interventions ti WHERE ti.id LIKE :prefix ORDER BY ti.id DESC LIMIT 1";
+		String sql = "SELECT ti.id FROM vb_core.target_interventions ti WHERE ti.id LIKE :prefix ORDER BY ti.id DESC LIMIT 1";
+//    	String sql = "SELECT ti.id FROM target_interventions ti WHERE ti.id LIKE :prefix ORDER BY ti.id DESC LIMIT 1";
 		List<String> result = entityManager.createNativeQuery(sql).setParameter("prefix", ID_PREFIX + "%")
 				.getResultList();
 
@@ -95,7 +95,7 @@ public class TargetInterventionService {
 				kd.setActivityDescription(kdDto.getActivityDescription());
 				kd.setDeadline(kdDto.getDeadline());
 //                kd.setProgressMade(kdDto.getProgressMade());
-//				kd.setDocumentPath(kdDto.getDocumentPath());
+				kd.setDocumentPath(kdDto.getDocumentPath());
 				if (kdDto.getDocumentId() != null) {
 					Document doc = documentRepository.findById(kdDto.getDocumentId())
 							.orElseThrow(() -> new RuntimeException("Document not found: " + kdDto.getDocumentId()));
@@ -129,7 +129,7 @@ public class TargetInterventionService {
 				kdDto.setActivityDescription(kd.getActivityDescription());
 				kdDto.setDeadline(kd.getDeadline());
 //                kdDto.setProgressMade(kd.getProgressMade());
-//				kdDto.setDocumentPath(kd.getDocumentPath());
+				kdDto.setDocumentPath(kd.getDocumentPath());
 				kdDto.setDocumentId(kd.getDocument() != null ? kd.getDocument().getId() : null);
 				kdDto.setDocumentUrl(kd.getDocument() != null ? kd.getDocument().getFileUrl() : null);
 				kdDto.setId(kd.getId());

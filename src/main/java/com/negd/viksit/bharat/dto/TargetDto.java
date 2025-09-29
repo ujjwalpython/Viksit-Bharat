@@ -17,7 +17,7 @@ public class TargetDto {
 	private Long id;
 	private String activityDescription;
 	private LocalDate deadline;
-//	private String documentPath;
+	private String documentPath;
 	
 	private UUID documentId;
 	private String documentUrl;
