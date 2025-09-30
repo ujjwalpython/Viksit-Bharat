@@ -36,7 +36,7 @@ public class KeyDeliverable extends Auditable<Long> {
 	private TargetIntervention targetIntervention;
 	
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinColumn(name = "document_id", nullable = false)
+	@JoinColumn(name = "document_id")
 	private Document document;
 
 }

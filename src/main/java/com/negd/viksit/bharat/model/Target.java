@@ -39,6 +39,6 @@ public class Target extends Auditable<Long> {
 	private InstitutionalReform institutionalReform;
 	
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinColumn(name = "document_id", nullable = false)
+	@JoinColumn(name = "document_id")
 	private Document document;
 }
