@@ -1,6 +1,8 @@
 package com.negd.viksit.bharat.controller;
 
+import com.negd.viksit.bharat.dto.ReformMilestoneRespDto;
 import com.negd.viksit.bharat.dto.RegulatoryReformDto;
+import com.negd.viksit.bharat.dto.RegulatoryRespReformDto;
 import com.negd.viksit.bharat.model.User;
 import com.negd.viksit.bharat.service.RegulatoryReformService;
 import com.negd.viksit.bharat.util.ResponseGenerator;
@@ -21,13 +23,13 @@ public class RegulatoryReformController {
 
     @PostMapping
     public ResponseEntity<?> create(@RequestBody RegulatoryReformDto dto, HttpServletRequest request) {
-        RegulatoryReformDto created = reformService.createReform(dto);
+        RegulatoryRespReformDto created = reformService.createReform(dto);
         return ResponseGenerator.created(created, "Reform created successfully", request);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable String id, HttpServletRequest request) {
-        RegulatoryReformDto reform = reformService.getReform(id);
+        RegulatoryRespReformDto reform = reformService.getReformById(id);
         return ResponseGenerator.success(reform, "Reform fetched successfully", request);
     }
 
@@ -35,7 +37,7 @@ public class RegulatoryReformController {
     public ResponseEntity<?> update(@PathVariable String id,
                                     @RequestBody RegulatoryReformDto dto,
                                     HttpServletRequest request) {
-        RegulatoryReformDto updated = reformService.updateReform(id, dto);
+        RegulatoryRespReformDto updated = reformService.updateReform(id, dto);
         return ResponseGenerator.success(updated, "Reform updated successfully", request);
     }
 
@@ -47,24 +49,18 @@ public class RegulatoryReformController {
 
     @GetMapping
     public ResponseEntity<?> getAll(HttpServletRequest request) {
-        List<RegulatoryReformDto> all = reformService.getAllReforms();
+        List<RegulatoryRespReformDto> all = reformService.getAllReforms();
         return ResponseGenerator.success(all, "All reforms fetched successfully", request);
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<?> filter(@AuthenticationPrincipal User user,
-                                    @RequestParam(required = false) String status,
-                                    HttpServletRequest request) {
-        List<RegulatoryReformDto> reforms = reformService.filterReforms(user.getEntityid(), status);
-        return ResponseGenerator.success(reforms, "Filtered reforms fetched successfully", request);
+    public ResponseEntity<?> filterReforms(@AuthenticationPrincipal User user,
+                                           @RequestParam(required = false) String status,
+                                           HttpServletRequest request) {
+
+        List<RegulatoryRespReformDto> reforms = reformService.filterReforms(user.getEntityid(), status);
+        return ResponseGenerator.success(reforms, "Reforms fetched successfully", request);
     }
 
-    @PatchMapping("/{id}/status/{status}")
-    public ResponseEntity<?> updateStatus(@PathVariable String id,
-                                          @PathVariable String status,
-                                          HttpServletRequest request) {
-        RegulatoryReformDto updated = reformService.updateStatus(id, status);
-        return ResponseGenerator.success(updated, "Reform status updated successfully", request);
-    }
 }
 

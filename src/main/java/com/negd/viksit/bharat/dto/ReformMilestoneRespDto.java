@@ -12,7 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ReformMilestoneDto {
+public class ReformMilestoneRespDto {
     private String id;
     private String activityDescription;
     private LocalDate deadline;

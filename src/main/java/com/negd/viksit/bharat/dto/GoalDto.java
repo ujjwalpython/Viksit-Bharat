@@ -15,10 +15,6 @@ public class GoalDto {
     private String goalDescription;
     private String status;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonFormat(pattern = "dd MMM yyyy, HH:mm")
-    private LocalDateTime LastUpdate;
-
     private List<InterventionDto> interventions;
 
 }

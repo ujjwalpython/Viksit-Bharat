@@ -10,49 +10,55 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-
 @Entity
-@Table(name = "regulatory_reform", schema = "vb_core")
+@Table(name = "project_scheme", schema = "vb_core")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@SQLDelete(sql = "UPDATE vb_core.regulatory_reform SET deleted_at = now() WHERE seq_num = ?")
+@SQLDelete(sql = "UPDATE vb_core.project_scheme SET deleted_at = now() WHERE seq_num = ?")
 @Where(clause = "deleted_at IS NULL")
-public class RegulatoryReform extends Auditable<Long> {
+public class ProjectScheme extends Auditable<Long> {
+
     @Column(unique = true, nullable = false)
     private String entityId;
 
+    @Column(nullable = false)
     private String name;
 
     @Id
     @Column(name = "seq_num", insertable = false, updatable = false)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "reform_seq_gen")
-    @SequenceGenerator(name = "reform_seq_gen", sequenceName = "vb_core.reform_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "scheme_seq_gen")
+    @SequenceGenerator(name = "scheme_seq_gen", sequenceName = "vb_core.scheme_seq", allocationSize = 1)
     private Long seqNum;
 
-    private String description;
-    private String reformType;
+    private String type;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ministry_id")
     private Ministry ministry;
 
-    private LocalDate targetCompletionDate;
-    private String rulesToBeAmended;
-    private String intendedOutcome;
-    private String presentStatus;
+    @Column(length = 1000)
+    private String description;
 
     private String status;
-    @OneToMany(mappedBy = "reform", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ReformMilestone> milestones;
+
+    private LocalDate targetDate;
+
+    private BigDecimal totalBudgetRequired;
+
+    private Integer beneficiariesNo;
+
+    @OneToMany(mappedBy = "projectScheme", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SchemeKeyDeliverable> keyDeliverables;
 
     @PrePersist
     public void generateId() {
         if (this.seqNum != null) {
-            this.entityId = String.format("REGRF%02d", this.seqNum);
+            this.entityId = String.format("PROJ%02d", this.seqNum);
         }
     }
 }

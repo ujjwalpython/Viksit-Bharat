@@ -12,11 +12,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ReformMilestoneDto {
-    private String id;
+public class SchemeKeyDeliverableDto {
     private String activityDescription;
     private LocalDate deadline;
-    private Integer sortOrder;
+    private String progressMade;
     private UUID documentId;
 }
-

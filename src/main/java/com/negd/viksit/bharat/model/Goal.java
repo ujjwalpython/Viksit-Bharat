@@ -3,24 +3,28 @@ package com.negd.viksit.bharat.model;
 
 import com.negd.viksit.bharat.audit.Auditable;
 import com.negd.viksit.bharat.model.master.Ministry;
-import com.negd.viksit.bharat.util.GoalIdHelper;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import java.util.List;
-import java.util.UUID;
 
 @Data
 @Entity
-@SQLDelete(sql = "UPDATE vb_core.vb_goals SET deleted_at = now() WHERE id = ?")
+@SQLDelete(sql = "UPDATE vb_core.vb_goals SET deleted_at = now() WHERE seq_num = ?")
 @Where(clause = "deleted_at IS NULL")
 @Table(name = "vb_goals",schema = "vb_core")
 public class Goal extends Auditable<Long> {
 
+    @Column(unique = true, nullable = false)
+    private String entityId;
+
     @Id
-    private String id;
+    @Column(name = "seq_num", insertable = false, updatable = false)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "goal_seq_gen")
+    @SequenceGenerator(name = "goal_seq_gen", sequenceName = "vb_core.goal_seq", allocationSize = 1)
+    private Long seqNum;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ministry_id")
@@ -37,8 +41,9 @@ public class Goal extends Auditable<Long> {
 
     @PrePersist
     public void generateId() {
-        long nextNumber = GoalIdHelper.getNextGoalNumber();
-        this.id = String.format("MOCVBG%02d", nextNumber);
+        if (this.seqNum != null) {
+            this.entityId = String.format("MOCVBG%02d", this.seqNum);
+        }
     }
 }
 

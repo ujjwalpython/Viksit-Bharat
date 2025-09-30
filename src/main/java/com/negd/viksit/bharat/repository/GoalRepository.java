@@ -5,9 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-public interface GoalRepository extends JpaRepository<Goal, String> {
+public interface GoalRepository extends JpaRepository<Goal, Long> {
 
     List<Goal> findByCreatedBy(Long createdBy);
 
@@ -21,7 +22,10 @@ public interface GoalRepository extends JpaRepository<Goal, String> {
     List<Goal> findByCreatedByAndStatusIgnoreCaseAndGoalDescriptionContainingIgnoreCase(
             Long createdBy, String status, String goalDescription
     );
-    @Query("SELECT COALESCE(MAX(CAST(SUBSTRING(g.id, 7) AS int)), 0) FROM Goal g")
-    long getMaxGoalNumber();
+
+    @Query(value = "SELECT COUNT(*) FROM vb_core.vb_goals", nativeQuery = true)
+    Long countAllIncludingDeleted();
+
+    Optional<Goal> findByEntityId(String entityId);
 }
 

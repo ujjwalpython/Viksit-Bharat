@@ -1,76 +1,156 @@
 package com.negd.viksit.bharat.service;
 
-import com.negd.viksit.bharat.dto.ReformMilestoneDto;
-import com.negd.viksit.bharat.dto.RegulatoryReformDto;
-import com.negd.viksit.bharat.exception.InvalidStatusException;
+import com.negd.viksit.bharat.dto.*;
+import com.negd.viksit.bharat.model.Document;
 import com.negd.viksit.bharat.model.ReformMilestone;
 import com.negd.viksit.bharat.model.RegulatoryReform;
+import com.negd.viksit.bharat.model.master.Ministry;
+import com.negd.viksit.bharat.repository.DocumentRepository;
+import com.negd.viksit.bharat.repository.MinistryRepository;
 import com.negd.viksit.bharat.repository.RegulatoryReformRepository;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
+@Transactional
 public class RegulatoryReformService {
 
     private final RegulatoryReformRepository reformRepository;
+    private final DocumentRepository documentRepository;
+    private final MinistryRepository ministryRepository;
 
-    public RegulatoryReformDto createReform(RegulatoryReformDto dto) {
-        RegulatoryReform entity = mapToEntity(dto);
-        entity.getMilestones().forEach(m -> m.setReform(entity));
-        RegulatoryReform saved = reformRepository.save(entity);
-        return mapToDto(saved);
+    public RegulatoryRespReformDto createReform(RegulatoryReformDto dto) {
+        Ministry ministry = ministryRepository.findById(dto.getMinistryId())
+                .orElseThrow(() -> new EntityNotFoundException("Ministry not found"));
+
+        RegulatoryReform reform = RegulatoryReform.builder()
+                .name(dto.getName())
+                .description(dto.getDescription())
+                .reformType(dto.getReformType())
+                .ministry(ministry)
+                .targetCompletionDate(dto.getTargetCompletionDate())
+                .rulesToBeAmended(dto.getRulesToBeAmended())
+                .intendedOutcome(dto.getIntendedOutcome())
+                .presentStatus(dto.getPresentStatus())
+                .status(dto.getStatus())
+                .build();
+
+        if (dto.getMilestones() != null) {
+            List<ReformMilestone> milestones = dto.getMilestones().stream().map(m -> {
+                Document doc = m.getDocumentId() != null
+                        ? documentRepository.findById(m.getDocumentId())
+                        .orElseThrow(() -> new EntityNotFoundException("Document not found"))
+                        : null;
+                return ReformMilestone.builder()
+                        .activityDescription(m.getActivityDescription())
+                        .deadline(m.getDeadline())
+                        .document(doc)
+                        .sortOrder(m.getSortOrder())
+                        .reform(reform)
+                        .build();
+            }).toList();
+
+            reform.setMilestones(milestones);
+        }
+
+        RegulatoryReform saved = reformRepository.save(reform);
+        return mapToResponse(saved);
     }
 
-    public List<RegulatoryReformDto> getAllReforms() {
-        return reformRepository.findAll()
-                .stream()
-                .map(this::mapToDto)
+    public RegulatoryRespReformDto getReformById(String id) {
+        RegulatoryReform reform = reformRepository.findByEntityId(id)
+                .orElseThrow(() -> new EntityNotFoundException("Reform not found"));
+        return mapToResponse(reform);
+    }
+
+    public List<RegulatoryRespReformDto> getAllReforms() {
+        return reformRepository.findAll().stream()
+                .map(this::mapToResponse)
                 .toList();
     }
 
-    public RegulatoryReformDto getReform(String id) {
-        return reformRepository.findById(id)
-                .map(this::mapToDto)
+    public RegulatoryRespReformDto updateReform(String id, RegulatoryReformDto dto) {
+        RegulatoryReform reform = reformRepository.findByEntityId(id)
                 .orElseThrow(() -> new EntityNotFoundException("Reform not found"));
-    }
+        Ministry ministry = ministryRepository.findById(dto.getMinistryId())
+                .orElseThrow(() -> new EntityNotFoundException("Ministry not found"));
 
-    public RegulatoryReformDto updateReform(String id, RegulatoryReformDto dto) {
-        RegulatoryReform existing = reformRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Reform not found"));
+        reform.setName(dto.getName());
+        reform.setDescription(dto.getDescription());
+        reform.setReformType(dto.getReformType());
+        reform.setMinistry(ministry);
+        reform.setTargetCompletionDate(dto.getTargetCompletionDate());
+        reform.setRulesToBeAmended(dto.getRulesToBeAmended());
+        reform.setIntendedOutcome(dto.getIntendedOutcome());
+        reform.setPresentStatus(dto.getPresentStatus());
+        reform.setStatus(dto.getStatus());
 
-        existing.setName(dto.getName());
-        existing.setDescription(dto.getDescription());
-        existing.setReformType(dto.getReformType());
-        existing.setTargetCompletionDate(dto.getTargetCompletionDate());
-        existing.setRulesToBeAmended(dto.getRulesToBeAmended());
-        existing.setIntendedOutcome(dto.getIntendedOutcome());
-        existing.setPresentStatus(dto.getPresentStatus());
-        existing.setStatus(dto.getStatus());
-
-        existing.getMilestones().clear();
+        reform.getMilestones().clear();
         if (dto.getMilestones() != null) {
-            List<ReformMilestone> milestones = dto.getMilestones().stream()
-                    .map(mDto -> mapMilestoneToEntity(mDto, existing))
-                    .toList();
-            existing.getMilestones().addAll(milestones);
+            List<ReformMilestone> milestones = dto.getMilestones().stream().map(m -> {
+                Document doc = m.getDocumentId() != null
+                        ? documentRepository.findById(m.getDocumentId())
+                        .orElseThrow(() -> new EntityNotFoundException("Document not found"))
+                        : null;
+                return ReformMilestone.builder()
+                        .activityDescription(m.getActivityDescription())
+                        .deadline(m.getDeadline())
+                        .document(doc)
+                        .sortOrder(m.getSortOrder())
+                        .reform(reform)
+                        .build();
+            }).toList();
+            reform.getMilestones().addAll(milestones);
         }
 
-        return mapToDto(reformRepository.save(existing));
+        RegulatoryReform updated = reformRepository.save(reform);
+        return mapToResponse(updated);
     }
 
     public void deleteReform(String id) {
-        RegulatoryReform entity = reformRepository.findById(id)
+        RegulatoryReform reform = reformRepository.findByEntityId(id)
                 .orElseThrow(() -> new EntityNotFoundException("Reform not found"));
-        reformRepository.delete(entity);
+        reformRepository.delete(reform);
     }
 
-    public List<RegulatoryReformDto> filterReforms(Long entityId, String status) {
+    private RegulatoryRespReformDto mapToResponse(RegulatoryReform reform) {
+        return RegulatoryRespReformDto.builder()
+                .id(reform.getEntityId())
+                .name(reform.getName())
+                .description(reform.getDescription())
+                .LastUpdate(reform.getUpdatedOn())
+                .reformType(reform.getReformType())
+                .ministry(reform.getMinistry() != null ? reform.getMinistry().getName() : null) // ✅ null-safe
+                .targetCompletionDate(reform.getTargetCompletionDate())
+                .rulesToBeAmended(reform.getRulesToBeAmended())
+                .intendedOutcome(reform.getIntendedOutcome())
+                .presentStatus(reform.getPresentStatus())
+                .status(reform.getStatus())
+                .milestones(reform.getMilestones() != null
+                        ? reform.getMilestones().stream()
+                        .map(m -> ReformMilestoneRespDto.builder()
+                                .id(m.getEntityId())
+                                .activityDescription(m.getActivityDescription())
+                                .deadline(m.getDeadline())
+                                .sortOrder(m.getSortOrder())
+                                .documentId(m.getDocument() != null
+                                        ? m.getDocument().getId()
+                                        : null
+                                )
+                                .build()
+                        )
+                        .toList()
+                        : List.of()
+                )
+                .build();
+    }
+
+    public List<RegulatoryRespReformDto> filterReforms(Long entityId, String status) {
         List<RegulatoryReform> reforms;
 
         if (status == null) {
@@ -79,81 +159,7 @@ public class RegulatoryReformService {
             reforms = reformRepository.findByCreatedByAndStatusIgnoreCase(entityId, status);
         }
 
-        return reforms.stream()
-                .map(this::mapToDto)
-                .toList();
+        return reforms.stream().map(this::mapToResponse).toList();
     }
 
-    public RegulatoryReformDto updateStatus(String id, String status) {
-        RegulatoryReform reform = reformRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Reform not found with id: " + id));
-
-        String newStatus = status.toUpperCase();
-        switch (newStatus) {
-            case "DRAFT":
-            case "SUBMITTED":
-                reform.setStatus(newStatus);
-                break;
-            default:
-                throw new InvalidStatusException("Invalid status: " + newStatus);
-        }
-
-        RegulatoryReform saved = reformRepository.save(reform);
-        return mapToDto(saved);
-    }
-
-    // ---- Mapping Helpers ----
-    private RegulatoryReform mapToEntity(RegulatoryReformDto dto) {
-        return RegulatoryReform.builder()
-                .id(dto.getId())
-                .name(dto.getName())
-                .description(dto.getDescription())
-                .reformType(dto.getReformType())
-                .targetCompletionDate(dto.getTargetCompletionDate())
-                .rulesToBeAmended(dto.getRulesToBeAmended())
-                .intendedOutcome(dto.getIntendedOutcome())
-                .presentStatus(dto.getPresentStatus())
-                .status(dto.getStatus())
-                .milestones(dto.getMilestones() != null ?
-                        dto.getMilestones().stream()
-                                .map(m -> mapMilestoneToEntity(m, null))
-                                .toList() : List.of())
-                .build();
-    }
-
-    private RegulatoryReformDto mapToDto(RegulatoryReform entity) {
-        return RegulatoryReformDto.builder()
-                .id(entity.getId())
-                .name(entity.getName())
-                .description(entity.getDescription())
-                .reformType(entity.getReformType())
-                .targetCompletionDate(entity.getTargetCompletionDate())
-                .rulesToBeAmended(entity.getRulesToBeAmended())
-                .intendedOutcome(entity.getIntendedOutcome())
-                .presentStatus(entity.getPresentStatus())
-                .status(entity.getStatus())
-                .milestones(entity.getMilestones() != null ?
-                        entity.getMilestones().stream()
-                                .map(this::mapMilestoneToDto)
-                                .toList() : List.of())
-                .build();
-    }
-
-    private ReformMilestone mapMilestoneToEntity(ReformMilestoneDto dto, RegulatoryReform parent) {
-        return ReformMilestone.builder()
-                .id(dto.getId())
-                .activityDescription(dto.getActivityDescription())
-                .deadline(dto.getDeadline())
-                .reform(parent)
-                .build();
-    }
-
-    private ReformMilestoneDto mapMilestoneToDto(ReformMilestone entity) {
-        return ReformMilestoneDto.builder()
-                .id(entity.getId())
-                .activityDescription(entity.getActivityDescription())
-                .deadline(entity.getDeadline())
-                .build();
-    }
 }
-
