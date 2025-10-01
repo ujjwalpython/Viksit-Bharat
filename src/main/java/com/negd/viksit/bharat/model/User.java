@@ -92,6 +92,8 @@ public class User extends Auditable<Long> implements Serializable, UserDetails {
     @Column(name = "lastpasswordresetdate")
     private Long lastPasswordResetDate;
 
+    @Column(name = "is_logged_out")
+    private boolean isLoggedOut;
     // ----------------- Spring Security -----------------
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
