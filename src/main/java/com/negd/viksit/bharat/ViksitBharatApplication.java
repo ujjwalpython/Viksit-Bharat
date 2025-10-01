@@ -42,7 +42,8 @@ public class ViksitBharatApplication extends SpringBootServletInitializer {
 
 	@Bean
 	CommandLineRunner commandLineRunner(PasswordEncoder passwordEncoder, UserRepository userRepository,
-			MinistryRepository ministryRepository, DepartmentRepository departmentRepository, TargetIndicatorRepository targetIndicatorRepository) {
+			MinistryRepository ministryRepository, DepartmentRepository departmentRepository,
+			TargetIndicatorRepository targetIndicatorRepository) {
 		return (args) -> {
 			// ------------------ SEED MINISTRIES ------------------
 			if (ministryRepository.findAll().isEmpty()) {
@@ -154,13 +155,13 @@ public class ViksitBharatApplication extends SpringBootServletInitializer {
 								.isActive(true).isDeleted(false).build(),
 						Ministry.builder().code("MOPLAN").name("Ministry of Planning").isActive(true).isDeleted(false)
 								.build(),
-						Ministry.builder().code("DEPTSPC").name("Department of Space").isActive(true)
-								.isDeleted(false).build(),
+						Ministry.builder().code("DEPTSPC").name("Department of Space").isActive(true).isDeleted(false)
+								.build(),
 						Ministry.builder().code("DAE").name("Department of Atomic Energy").isActive(true)
 								.isDeleted(false).build());
 				ministryRepository.saveAll(ministries);
 			}
-			
+
 			List<Ministry> savedMinistries = ministryRepository.findAll();
 			// ------------------ SEED DEPARTMENTS ------------------
 			if (departmentRepository.findAll().isEmpty()) {
@@ -255,6 +256,14 @@ public class ViksitBharatApplication extends SpringBootServletInitializer {
 												.isActive(true).isDeleted(false).build(),
 										Department.builder().code("LD").name("Legislative Department").isActive(true)
 												.isDeleted(false).build())),
+						Map.entry("MOPPGP", List.of(
+								Department.builder().code("DARPG")
+										.name("Department of Administrative Reforms and Public Grievances")
+										.isActive(true).isDeleted(false).build(),
+								Department.builder().code("DoPPW").name("Department of Pension & Pensioner's Welfare")
+										.isActive(true).isDeleted(false).build(),
+								Department.builder().code("DoPT").name("Department of Personnel and Training")
+										.isActive(true).isDeleted(false).build())),
 						Map.entry("MORD",
 								List.of(Department.builder().code("DLR").name("Department of Land Resources")
 										.isActive(true).isDeleted(false).build(),
@@ -282,12 +291,12 @@ public class ViksitBharatApplication extends SpringBootServletInitializer {
 												.isActive(true).isDeleted(false).build())));
 
 				deptMap.forEach((ministryCode, depts) -> {
-				    Ministry ministry = ministryRepository.findByCode(ministryCode)
-				                            .orElseThrow(() -> new RuntimeException("Ministry not found: " + ministryCode));
-				    depts.forEach(d -> d.setMinistry(ministry));
-				    departmentRepository.saveAll(depts);
+					Ministry ministry = ministryRepository.findByCode(ministryCode)
+							.orElseThrow(() -> new RuntimeException("Ministry not found: " + ministryCode));
+					depts.forEach(d -> d.setMinistry(ministry));
+					departmentRepository.saveAll(depts);
 				});
-            }
+			}
 
 			// Seed Users
 			if (userRepository.findAll().isEmpty()) {
