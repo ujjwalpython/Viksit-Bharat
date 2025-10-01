@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.negd.viksit.bharat.audit.Auditable;
 import com.negd.viksit.bharat.model.master.Department;
@@ -63,10 +64,12 @@ public class User extends Auditable<Long> implements Serializable, UserDetails {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ministry_id", nullable = true)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Ministry ministry;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id", nullable = true)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Department department;
 
     private String state;
@@ -107,7 +110,7 @@ public class User extends Auditable<Long> implements Serializable, UserDetails {
     private Long lastPasswordResetDate;
 
     @Column(name = "is_logged_out")
-    private boolean isLoggedOut;
+    private Boolean isLoggedOut;
     // ----------------- Spring Security -----------------
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
