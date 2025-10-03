@@ -2,6 +2,7 @@ package com.negd.viksit.bharat.model.master;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.negd.viksit.bharat.audit.Auditable;
 
 import jakarta.persistence.Column;
@@ -40,6 +41,7 @@ public class Department extends Auditable<Long> {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "ministry_id", nullable = false)
+	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 	private Ministry ministry;
 
 	@Column(name = "is_active")
@@ -47,5 +49,6 @@ public class Department extends Auditable<Long> {
 
 	@Column(name = "is_deleted")
 	private Boolean isDeleted = false;
+
 
 }

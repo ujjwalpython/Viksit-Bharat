@@ -301,79 +301,38 @@ public class ViksitBharatApplication extends SpringBootServletInitializer {
                                         Department.builder().code("DoYA").name("Department of Youth Affairs")
                                                 .isActive(true).isDeleted(false).build())));
 
-                deptMap.forEach((ministryCode, depts) -> {
-                    Ministry ministry = ministryRepository.findByCode(ministryCode)
-                            .orElseThrow(() -> new RuntimeException("Ministry not found: " + ministryCode));
-                    depts.forEach(d -> d.setMinistry(ministry));
-                    departments.set(departmentRepository.saveAll(depts));
-                });
+				deptMap.forEach((ministryCode, depts) -> {
+				    Ministry ministry = ministryRepository.findByCode(ministryCode)
+				                            .orElseThrow(() -> new RuntimeException("Ministry not found: " + ministryCode));
+				    depts.forEach(d -> d.setMinistry(ministry));
+				    departmentRepository.saveAll(depts);
+				});
             }
 
-            if (userRepository.count() == 0) {
-                List<User> users = List.of(
-                        User.builder()
-                                .firstName("Ministry")
-                                .lastName("Admin")
-                                .email("ministry.admin@test.com")
-                                .isActive(true)
-                                .password(passwordEncoder.encode("password@123"))
-                                .ministry(ministries.get(0))
-                                .roles(Set.of(roleList.get(0)))
-                                .build(),
+			// Seed Users
+			if (userRepository.findAll().isEmpty()) {
+				List<User> users = List.of(
+						User.builder().firstName("Ujjwal").lastName("Dhiman").email("ujjwalDhiman@gmail.com")
+								.isActive(true).password(passwordEncoder.encode("password@123"))
+								.ministry(savedMinistries.get(0)).build(),
+						User.builder().firstName("Test").lastName("User").email("testuser@gmail.com").isActive(true)
+								.password(passwordEncoder.encode("test@123")).ministry(savedMinistries.get(1)).build());
+				userRepository.saveAll(users);
+			}
 
-                        User.builder()
-                                .firstName("Department")
-                                .lastName("Admin")
-                                .email("dept.admin@test.com")
-                                .isActive(true)
-                                .password(passwordEncoder.encode("password@123"))
-                                .department(departments.get().get(0))
-                                .roles(Set.of(roleList.get(1)))
-                                .build(),
-
-                        User.builder()
-                                .firstName("PMO")
-                                .lastName("User")
-                                .email("pmo.user@test.com")
-                                .isActive(true)
-                                .password(passwordEncoder.encode("password@123"))
-                                .roles(Set.of(roleList.get(2)))
-                                .build(),
-
-                        User.builder()
-                                .firstName("Cabsec")
-                                .lastName("User")
-                                .email("cabsec.user@test.com")
-                                .isActive(true)
-                                .password(passwordEncoder.encode("password@123"))
-                                .roles(Set.of(roleList.get(3)))
-                                .build(),
-
-                        User.builder()
-                                .firstName("Super")
-                                .lastName("Admin")
-                                .email("super.admin@test.com")
-                                .isActive(true)
-                                .password(passwordEncoder.encode("password@123"))
-                                .roles(Set.of(roleList.get(4)))
-                                .build()
-                );
-
-                userRepository.saveAll(users);
-            }
-            if (targetIndicatorRepository.findAll().isEmpty()) {
-                List<TargetIndicator> indicators = List.of(
-                        TargetIndicator.builder().code("GDP").name("GDP Growth Rate").isActive(true).isDeleted(false)
-                                .build(),
-                        TargetIndicator.builder().code("PCI").name("Per Capita Income").isActive(true).isDeleted(false)
-                                .build(),
-                        TargetIndicator.builder().code("DIGI").name("Digital Literacy Rate").isActive(true)
-                                .isDeleted(false).build(),
-                        TargetIndicator.builder().code("RENEW").name("Renewable Energy Capacity").isActive(true)
-                                .isDeleted(false).build());
-                targetIndicatorRepository.saveAll(indicators);
-            }
-        };
+			if (targetIndicatorRepository.findAll().isEmpty()) {
+				List<TargetIndicator> indicators = List.of(
+						TargetIndicator.builder().code("GDP").name("GDP Growth Rate").isActive(true).isDeleted(false)
+								.build(),
+						TargetIndicator.builder().code("PCI").name("Per Capita Income").isActive(true).isDeleted(false)
+								.build(),
+						TargetIndicator.builder().code("DIGI").name("Digital Literacy Rate").isActive(true)
+								.isDeleted(false).build(),
+						TargetIndicator.builder().code("RENEW").name("Renewable Energy Capacity").isActive(true)
+								.isDeleted(false).build());
+				targetIndicatorRepository.saveAll(indicators);
+			}
+		};
 
     }
 }
