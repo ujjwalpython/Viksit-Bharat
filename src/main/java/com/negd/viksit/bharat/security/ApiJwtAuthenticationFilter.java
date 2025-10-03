@@ -1,5 +1,6 @@
 package com.negd.viksit.bharat.security;
 
+import com.negd.viksit.bharat.exception.UnauthorizedException;
 import com.negd.viksit.bharat.model.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -40,6 +41,10 @@ public class ApiJwtAuthenticationFilter extends OncePerRequestFilter {
 
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     User userEntity = (User) userDetailsService.loadUserByUsername(username);
+
+                    if (userEntity.isLoggedOut()) {
+                        throw new UnauthorizedException("User is logged out");
+                    }
 
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             userEntity, null, userEntity.getAuthorities());

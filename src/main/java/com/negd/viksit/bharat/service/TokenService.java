@@ -1,7 +1,6 @@
 package com.negd.viksit.bharat.service;
 
 import com.negd.viksit.bharat.dto.UserAuthDto;
-import com.negd.viksit.bharat.dto.UserPrincipal;
 import com.negd.viksit.bharat.exception.UnauthorizedException;
 import com.negd.viksit.bharat.model.User;
 import com.negd.viksit.bharat.repository.UserRepository;
@@ -17,7 +16,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class LoginService {
+public class TokenService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenUtil jwtTokenUtil;
@@ -47,5 +46,10 @@ public class LoginService {
             log.error("Authentication failed for email: {}, error: {}", email, e.getMessage());
             throw new UnauthorizedException("Unauthorized access");
         }
+    }
+
+    public void logout(User user) {
+        user.setLoggedOut(true);
+        userRepository.save(user);
     }
 }
