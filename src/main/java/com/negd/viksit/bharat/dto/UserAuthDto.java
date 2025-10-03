@@ -24,10 +24,16 @@ public class UserAuthDto {
         this.firstName = user.getFirstName();
         this.email = user.getEmail();
         this.authToken = token;
-        this.ministry = user.getMinistry().getName();
-
         this.roles = user.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());
+        if (user.hasRole("DEPT_ADMIN")){
+            this.ministry = user.getMinistry().getName() + " / " + user.getDepartment().getName();
+        }
+        else if(user.hasRole("MINISTRY_ADMIN")){
+            this.ministry = user.getMinistry().getName();}
     }
+
+
+
 }

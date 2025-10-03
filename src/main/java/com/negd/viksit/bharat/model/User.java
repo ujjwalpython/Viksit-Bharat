@@ -2,8 +2,11 @@ package com.negd.viksit.bharat.model;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,17 +17,6 @@ import com.negd.viksit.bharat.audit.Auditable;
 import com.negd.viksit.bharat.model.master.Department;
 import com.negd.viksit.bharat.model.master.Ministry;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -148,6 +140,10 @@ public class User extends Auditable<Long> implements Serializable, UserDetails {
     @Override
     public boolean isEnabled() {
         return Boolean.TRUE.equals(isActive);
+    }
+
+    public boolean hasRole(String roleName) {
+        return this.roles.stream().anyMatch(r -> roleName.equals(r.getName()));
     }
 }
 
