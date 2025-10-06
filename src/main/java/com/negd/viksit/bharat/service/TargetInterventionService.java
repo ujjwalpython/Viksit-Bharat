@@ -114,19 +114,21 @@ public class TargetInterventionService {
 //		dto.setGoalId(entity.getGoalId());
 //		dto.setMinistryId(entity.getMinistry().getName());
 		
-		String ministryDisplayName = entity.getMinistry().getName();
+		 // Build Ministry / Department display name
+	    String ministryDisplayName = entity.getMinistry().getName();
 
-	    // Pick the first active department, if exists
 	    if (entity.getMinistry().getDepartments() != null && !entity.getMinistry().getDepartments().isEmpty()) {
 	        Department dept = entity.getMinistry().getDepartments().stream()
-	            .filter(d -> d.getIsActive() != null && d.getIsActive())
+	            .filter(d -> Boolean.TRUE.equals(d.getIsActive()))
 	            .findFirst()
 	            .orElse(null);
+
 	        if (dept != null) {
 	            ministryDisplayName += "/" + dept.getName();
 	        }
 	    }
 
+	    // Set the human-readable name in the ministryId field
 	    dto.setMinistryId(ministryDisplayName);
 
 		dto.setTargetDetails(entity.getTargetDetails());

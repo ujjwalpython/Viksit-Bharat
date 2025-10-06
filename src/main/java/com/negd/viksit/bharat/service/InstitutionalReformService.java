@@ -130,19 +130,21 @@ public class InstitutionalReformService {
 		dto.setLastUpdated(reform.getUpdatedOn());
 //		dto.setMinistryId(reform.getMinistry().getName());
 		
-		String ministryDisplayName = reform.getMinistry().getName();
+		 // Build Ministry / Department display name
+	    String ministryDisplayName = reform.getMinistry().getName();
 
-	    // Pick the first active department, if exists
 	    if (reform.getMinistry().getDepartments() != null && !reform.getMinistry().getDepartments().isEmpty()) {
 	        Department dept = reform.getMinistry().getDepartments().stream()
-	            .filter(d -> d.getIsActive() != null && d.getIsActive())
+	            .filter(d -> Boolean.TRUE.equals(d.getIsActive()))
 	            .findFirst()
 	            .orElse(null);
+
 	        if (dept != null) {
 	            ministryDisplayName += "/" + dept.getName();
 	        }
 	    }
 
+	    // Set the human-readable name in the ministryId field
 	    dto.setMinistryId(ministryDisplayName);
 
 
