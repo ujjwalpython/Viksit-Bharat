@@ -124,7 +124,7 @@ public class TargetInterventionService {
 	            .orElse(null);
 
 	        if (dept != null) {
-	            ministryDisplayName += "/" + dept.getName();
+	            ministryDisplayName += " / " + dept.getName();
 	        }
 	    }
 

@@ -79,7 +79,7 @@ public class OtherProposalService {
 	            .orElse(null);
 
 	        if (dept != null) {
-	            ministryDisplayName += "/" + dept.getName();
+	            ministryDisplayName += " / " + dept.getName();
 	        }
 	    }
 

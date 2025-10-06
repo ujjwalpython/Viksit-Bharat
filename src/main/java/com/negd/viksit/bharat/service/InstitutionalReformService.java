@@ -140,7 +140,7 @@ public class InstitutionalReformService {
 	            .orElse(null);
 
 	        if (dept != null) {
-	            ministryDisplayName += "/" + dept.getName();
+	            ministryDisplayName += " / " + dept.getName();
 	        }
 	    }
 
