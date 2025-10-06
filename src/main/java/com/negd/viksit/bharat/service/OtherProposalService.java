@@ -9,6 +9,7 @@ import com.negd.viksit.bharat.dto.OtherProposalDto;
 import com.negd.viksit.bharat.dto.OtherProposalResponseDto;
 import com.negd.viksit.bharat.model.OtherProposal;
 import com.negd.viksit.bharat.model.User;
+import com.negd.viksit.bharat.model.master.Department;
 import com.negd.viksit.bharat.model.master.Ministry;
 import com.negd.viksit.bharat.repository.MinistryRepository;
 import com.negd.viksit.bharat.repository.ProposalRepository;
@@ -66,7 +67,24 @@ public class OtherProposalService {
 	    OtherProposalResponseDto dto = new OtherProposalResponseDto();
 
 	    dto.setId(entity.getId());
-	    dto.setMinistryId(entity.getMinistry().getName());
+//	    dto.setMinistryId(entity.getMinistry().getName());
+	    
+	    String ministryDisplayName = entity.getMinistry().getName();
+
+	    // Pick the first active department, if exists
+	    if (entity.getMinistry().getDepartments() != null && !entity.getMinistry().getDepartments().isEmpty()) {
+	        Department dept = entity.getMinistry().getDepartments().stream()
+	            .filter(d -> d.getIsActive() != null && d.getIsActive())
+	            .findFirst()
+	            .orElse(null);
+	        if (dept != null) {
+	            ministryDisplayName += "/" + dept.getName();
+	        }
+	    }
+
+	    dto.setMinistryId(ministryDisplayName);
+
+	    
 	    dto.setIdeaProposalTitle(entity.getIdeaProposalTitle());
 	    dto.setProposalDescription(entity.getProposalDescription());
 	    dto.setProposalType(entity.getProposalType());

@@ -12,6 +12,7 @@ import com.negd.viksit.bharat.dto.TargetInterventionResponseDto;
 import com.negd.viksit.bharat.model.Document;
 import com.negd.viksit.bharat.model.KeyDeliverable;
 import com.negd.viksit.bharat.model.TargetIntervention;
+import com.negd.viksit.bharat.model.master.Department;
 import com.negd.viksit.bharat.model.master.Ministry;
 import com.negd.viksit.bharat.repository.DocumentRepository;
 import com.negd.viksit.bharat.repository.MinistryRepository;
@@ -111,7 +112,23 @@ public class TargetInterventionService {
 		TargetInterventionResponseDto dto = new TargetInterventionResponseDto();
 		dto.setId(entity.getId());
 //		dto.setGoalId(entity.getGoalId());
-		dto.setMinistryId(entity.getMinistry().getName());
+//		dto.setMinistryId(entity.getMinistry().getName());
+		
+		String ministryDisplayName = entity.getMinistry().getName();
+
+	    // Pick the first active department, if exists
+	    if (entity.getMinistry().getDepartments() != null && !entity.getMinistry().getDepartments().isEmpty()) {
+	        Department dept = entity.getMinistry().getDepartments().stream()
+	            .filter(d -> d.getIsActive() != null && d.getIsActive())
+	            .findFirst()
+	            .orElse(null);
+	        if (dept != null) {
+	            ministryDisplayName += "/" + dept.getName();
+	        }
+	    }
+
+	    dto.setMinistryId(ministryDisplayName);
+
 		dto.setTargetDetails(entity.getTargetDetails());
 		dto.setActionPoint(entity.getActionPoint());
 		dto.setTargetDate(entity.getTargetDate());

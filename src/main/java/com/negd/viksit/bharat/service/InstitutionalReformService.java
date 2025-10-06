@@ -10,6 +10,7 @@ import com.negd.viksit.bharat.dto.InstitutionalReformResponseDto;
 import com.negd.viksit.bharat.dto.TargetDto;
 import com.negd.viksit.bharat.model.InstitutionalReform;
 import com.negd.viksit.bharat.model.Target;
+import com.negd.viksit.bharat.model.master.Department;
 import com.negd.viksit.bharat.model.master.Ministry;
 import com.negd.viksit.bharat.repository.DocumentRepository;
 import com.negd.viksit.bharat.repository.InstitutionalReformRepository;
@@ -127,7 +128,23 @@ public class InstitutionalReformService {
 		dto.setPresentStatus(reform.getPresentStatus());
 		dto.setStatus(reform.getStatus());
 		dto.setLastUpdated(reform.getUpdatedOn());
-		dto.setMinistryId(reform.getMinistry().getName());
+//		dto.setMinistryId(reform.getMinistry().getName());
+		
+		String ministryDisplayName = reform.getMinistry().getName();
+
+	    // Pick the first active department, if exists
+	    if (reform.getMinistry().getDepartments() != null && !reform.getMinistry().getDepartments().isEmpty()) {
+	        Department dept = reform.getMinistry().getDepartments().stream()
+	            .filter(d -> d.getIsActive() != null && d.getIsActive())
+	            .findFirst()
+	            .orElse(null);
+	        if (dept != null) {
+	            ministryDisplayName += "/" + dept.getName();
+	        }
+	    }
+
+	    dto.setMinistryId(ministryDisplayName);
+
 
 		if (reform.getTarget() != null) {
 			dto.setTarget(reform.getTarget().stream().map(this::toDto).collect(Collectors.toList()));
