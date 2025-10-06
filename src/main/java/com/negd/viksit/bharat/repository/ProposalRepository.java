@@ -15,8 +15,17 @@ public interface ProposalRepository extends JpaRepository<OtherProposal, String>
 
 	List<OtherProposal> findByCreatedByAndStatusIgnoreCase(Long entityid, String status);
 
-	List<OtherProposal> findByCreatedByAndProposalDescriptionContainingIgnoreCase(Long entityid, String proposalDescription);
+	List<OtherProposal> findByCreatedByAndProposalDescriptionContainingIgnoreCase(Long entityid,
+			String proposalDescription);
 
 	List<OtherProposal> findByCreatedByAndStatusIgnoreCaseAndProposalDescriptionContainingIgnoreCase(Long entityid,
 			String status, String proposalDescription);
+
+	List<OtherProposal> findByStatusIgnoreCase(String status);
+
+	List<OtherProposal> findByProposalDescriptionContainingIgnoreCase(String description);
+
+	List<OtherProposal> findByStatusIgnoreCaseAndProposalDescriptionContainingIgnoreCase(String status,
+			String description);
+
 }

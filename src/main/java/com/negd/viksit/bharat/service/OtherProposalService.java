@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.negd.viksit.bharat.dto.OtherProposalDto;
 import com.negd.viksit.bharat.dto.OtherProposalResponseDto;
 import com.negd.viksit.bharat.model.OtherProposal;
+import com.negd.viksit.bharat.model.User;
 import com.negd.viksit.bharat.model.master.Ministry;
 import com.negd.viksit.bharat.repository.MinistryRepository;
 import com.negd.viksit.bharat.repository.ProposalRepository;
@@ -111,8 +112,25 @@ public class OtherProposalService {
 	}
 
 	// GetAllList
-	public List<OtherProposalResponseDto> getAll() {
-		return repository.findAll().stream().map(this::mapToDto).collect(Collectors.toList());
+	public List<OtherProposalResponseDto> getAll(User user) {
+	    String email = user.getEmail();
+
+	    // Super users who can see all
+	    List<String> superUsers = List.of(
+	            "super.admin@test.com",
+	            "cabsec.user@test.com",
+	            "pmo.user@test.com"
+	    );
+
+	    List<OtherProposal> proposals;
+
+	    if (superUsers.contains(email)) {
+	        proposals = repository.findAll();
+	    } else {
+	        proposals = repository.findByCreatedBy(user.getEntityid());
+	    }
+
+	    return proposals.stream().map(this::mapToDto).collect(Collectors.toList());
 	}
 
 	// GetListById
@@ -169,21 +187,58 @@ public class OtherProposalService {
 	}
 
 	// Filter
-	public List<OtherProposalResponseDto> filterProposals(Long entityId, String status, String proposalDescription) {
-		List<OtherProposal> proposals;
+//	public List<OtherProposalResponseDto> filterProposals(Long entityId, String status, String proposalDescription) {
+//		List<OtherProposal> proposals;
+//
+//		if (status == null && proposalDescription == null) {
+//			proposals = repository.findByCreatedBy(entityId);
+//		} else if (status != null && proposalDescription == null) {
+//			proposals = repository.findByCreatedByAndStatusIgnoreCase(entityId, status);
+//		} else if (status == null) {
+//			proposals = repository.findByCreatedByAndProposalDescriptionContainingIgnoreCase(entityId,
+//					proposalDescription);
+//		} else {
+//			proposals = repository.findByCreatedByAndStatusIgnoreCaseAndProposalDescriptionContainingIgnoreCase(
+//					entityId, status, proposalDescription);
+//		}
+//		return proposals.stream().map(this::mapToDto).collect(Collectors.toList());
+//	}
+	
+	public List<OtherProposalResponseDto> filterProposals(Long entityId, String status, String proposalDescription, String email) {
+	    List<String> superUsers = List.of(
+	            "super.admin@test.com",
+	            "cabsec.user@test.com",
+	            "pmo.user@test.com"
+	    );
 
-		if (status == null && proposalDescription == null) {
-			proposals = repository.findByCreatedBy(entityId);
-		} else if (status != null && proposalDescription == null) {
-			proposals = repository.findByCreatedByAndStatusIgnoreCase(entityId, status);
-		} else if (status == null) {
-			proposals = repository.findByCreatedByAndProposalDescriptionContainingIgnoreCase(entityId,
-					proposalDescription);
-		} else {
-			proposals = repository.findByCreatedByAndStatusIgnoreCaseAndProposalDescriptionContainingIgnoreCase(
-					entityId, status, proposalDescription);
-		}
-		return proposals.stream().map(this::mapToDto).collect(Collectors.toList());
+	    List<OtherProposal> proposals;
+
+	    if (superUsers.contains(email)) {
+	        // Super users → no restriction by createdBy
+	        if (status == null && proposalDescription == null) {
+	            proposals = repository.findAll();
+	        } else if (status != null && proposalDescription == null) {
+	            proposals = repository.findByStatusIgnoreCase(status);
+	        } else if (status == null) {
+	            proposals = repository.findByProposalDescriptionContainingIgnoreCase(proposalDescription);
+	        } else {
+	            proposals = repository.findByStatusIgnoreCaseAndProposalDescriptionContainingIgnoreCase(status, proposalDescription);
+	        }
+	    } else {
+	        // Normal users → restricted by createdBy
+	        if (status == null && proposalDescription == null) {
+	            proposals = repository.findByCreatedBy(entityId);
+	        } else if (status != null && proposalDescription == null) {
+	            proposals = repository.findByCreatedByAndStatusIgnoreCase(entityId, status);
+	        } else if (status == null) {
+	            proposals = repository.findByCreatedByAndProposalDescriptionContainingIgnoreCase(entityId, proposalDescription);
+	        } else {
+	            proposals = repository.findByCreatedByAndStatusIgnoreCaseAndProposalDescriptionContainingIgnoreCase(entityId, status, proposalDescription);
+	        }
+	    }
+
+	    return proposals.stream().map(this::mapToDto).collect(Collectors.toList());
 	}
+
 
 }

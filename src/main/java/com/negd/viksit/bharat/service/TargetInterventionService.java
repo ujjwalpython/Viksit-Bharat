@@ -149,8 +149,18 @@ public class TargetInterventionService {
 	}
 
 	// Get All List
-	public List<TargetInterventionResponseDto> findAll() {
-		return repository.findAll().stream().map(this::convertToDto).collect(Collectors.toList());
+	public List<TargetInterventionResponseDto> findAll(com.negd.viksit.bharat.model.User user) {
+		String email = user.getEmail();
+		List<String> superUsers = List.of("super.admin@test.com", "cabsec.user@test.com", "pmo.user@test.com");
+
+		List<TargetIntervention> entities;
+		if (superUsers.contains(email)) {
+			entities = repository.findAll();
+		} else {
+			entities = repository.findByCreatedBy(user.getEntityid());
+		}
+
+		return entities.stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 
 	// Get List By Id
@@ -242,18 +252,35 @@ public class TargetInterventionService {
 
 	// Filter
 	public List<TargetInterventionResponseDto> filterTargetInterventions(Long entityId, String status,
-			String targetDetails) {
+			String targetDetails, String email) {
+
+		List<String> superUsers = List.of("super.admin@test.com", "cabsec.user@test.com", "pmo.user@test.com");
+
 		List<TargetIntervention> entities;
 
-		if (status == null && targetDetails == null) {
-			entities = repository.findByCreatedBy(entityId);
-		} else if (status != null && targetDetails == null) {
-			entities = repository.findByCreatedByAndStatusIgnoreCase(entityId, status);
-		} else if (status == null) {
-			entities = repository.findByCreatedByAndTargetDetailsContainingIgnoreCase(entityId, targetDetails);
+		if (superUsers.contains(email)) {
+			// Super users → see everything
+			if (status == null && targetDetails == null) {
+				entities = repository.findAll();
+			} else if (status != null && targetDetails == null) {
+				entities = repository.findByStatusIgnoreCase(status);
+			} else if (status == null) {
+				entities = repository.findByTargetDetailsContainingIgnoreCase(targetDetails);
+			} else {
+				entities = repository.findByStatusIgnoreCaseAndTargetDetailsContainingIgnoreCase(status, targetDetails);
+			}
 		} else {
-			entities = repository.findByCreatedByAndStatusIgnoreCaseAndTargetDetailsContainingIgnoreCase(entityId,
-					status, targetDetails);
+			// Normal users → restricted by createdBy
+			if (status == null && targetDetails == null) {
+				entities = repository.findByCreatedBy(entityId);
+			} else if (status != null && targetDetails == null) {
+				entities = repository.findByCreatedByAndStatusIgnoreCase(entityId, status);
+			} else if (status == null) {
+				entities = repository.findByCreatedByAndTargetDetailsContainingIgnoreCase(entityId, targetDetails);
+			} else {
+				entities = repository.findByCreatedByAndStatusIgnoreCaseAndTargetDetailsContainingIgnoreCase(entityId,
+						status, targetDetails);
+			}
 		}
 
 		return entities.stream().map(this::convertToDto).collect(Collectors.toList());

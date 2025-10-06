@@ -41,9 +41,8 @@ public class TargetInterventionController {
 	}
 
 	// READ ALL
-	@GetMapping("/getList")
-	public ResponseEntity<?> getAll(HttpServletRequest request) {
-		List<TargetInterventionResponseDto> list = service.findAll();
+	public ResponseEntity<?> getAll(@AuthenticationPrincipal User user, HttpServletRequest request) {
+		List<TargetInterventionResponseDto> list = service.findAll(user);
 		return ResponseGenerator.success(list, "Target / Intervention fetched successfully", request);
 	}
 
@@ -81,10 +80,12 @@ public class TargetInterventionController {
 	// FILTER
 	@GetMapping("/filter")
 	public ResponseEntity<?> filterTargetInterventions(@AuthenticationPrincipal User user,
-			@RequestParam(required = false) String status, @RequestParam(required = false) String targetDetails,
+			@RequestParam(required = false) String status, 
+			@RequestParam(required = false) String targetDetails,
 			HttpServletRequest request) {
 
-		List<TargetInterventionResponseDto> list = service.filterTargetInterventions(user.getEntityid(), status, targetDetails);
+		List<TargetInterventionResponseDto> list = service.filterTargetInterventions(
+				user.getEntityid(), status, targetDetails, user.getEmail());
 		return ResponseGenerator.success(list, "Target / Intervention filtered successfully", request);
 	}
 

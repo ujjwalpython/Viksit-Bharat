@@ -144,8 +144,18 @@ public class InstitutionalReformService {
 	}
 
 	// READ ALL
-	public List<InstitutionalReformResponseDto> getAll() {
-		return reformRepo.findAll().stream().map(this::mapToDto).collect(Collectors.toList());
+	public List<InstitutionalReformResponseDto> getAll(com.negd.viksit.bharat.model.User user) {
+		String email = user.getEmail();
+		List<String> superUsers = List.of("super.admin@test.com", "cabsec.user@test.com", "pmo.user@test.com");
+
+		List<InstitutionalReform> reforms;
+		if (superUsers.contains(email)) {
+			reforms = reformRepo.findAll();
+		} else {
+			reforms = reformRepo.findByCreatedBy(user.getEntityid());
+		}
+
+		return reforms.stream().map(this::mapToDto).collect(Collectors.toList());
 	}
 
 	// READ ONE
@@ -240,18 +250,36 @@ public class InstitutionalReformService {
 	}
 
 	// Filters
-	public List<InstitutionalReformResponseDto> filterReforms(Long entityid, String status, String reformDescription) {
+	public List<InstitutionalReformResponseDto> filterReforms(Long entityId, String status,
+			String reformDescription, String email) {
+
+		List<String> superUsers = List.of("super.admin@test.com", "cabsec.user@test.com", "pmo.user@test.com");
 		List<InstitutionalReform> reforms;
 
-		if (status == null && reformDescription == null) {
-			reforms = reformRepo.findByCreatedBy(entityid);
-		} else if (status != null && reformDescription == null) {
-			reforms = reformRepo.findByCreatedByAndStatusIgnoreCase(entityid, status);
-		} else if (status == null) {
-			reforms = reformRepo.findByCreatedByAndReformDescriptionContainingIgnoreCase(entityid, reformDescription);
+		if (superUsers.contains(email)) {
+			// Super users → see everything
+			if (status == null && reformDescription == null) {
+				reforms = reformRepo.findAll();
+			} else if (status != null && reformDescription == null) {
+				reforms = reformRepo.findByStatusIgnoreCase(status);
+			} else if (status == null) {
+				reforms = reformRepo.findByReformDescriptionContainingIgnoreCase(reformDescription);
+			} else {
+				reforms = reformRepo.findByStatusIgnoreCaseAndReformDescriptionContainingIgnoreCase(status,
+						reformDescription);
+			}
 		} else {
-			reforms = reformRepo.findByCreatedByAndStatusIgnoreCaseAndReformDescriptionContainingIgnoreCase(entityid,
-					status, reformDescription);
+			// Normal users → only their own records
+			if (status == null && reformDescription == null) {
+				reforms = reformRepo.findByCreatedBy(entityId);
+			} else if (status != null && reformDescription == null) {
+				reforms = reformRepo.findByCreatedByAndStatusIgnoreCase(entityId, status);
+			} else if (status == null) {
+				reforms = reformRepo.findByCreatedByAndReformDescriptionContainingIgnoreCase(entityId, reformDescription);
+			} else {
+				reforms = reformRepo.findByCreatedByAndStatusIgnoreCaseAndReformDescriptionContainingIgnoreCase(entityId,
+						status, reformDescription);
+			}
 		}
 
 		return reforms.stream().map(this::mapToDto).collect(Collectors.toList());

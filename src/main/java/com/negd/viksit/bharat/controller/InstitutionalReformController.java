@@ -43,8 +43,8 @@ public class InstitutionalReformController {
 
 	// READ ALL
 	@GetMapping("/getList")
-	public ResponseEntity<?> getAll(HttpServletRequest request) {
-		List<InstitutionalReformResponseDto> list = service.getAll();
+	public ResponseEntity<?> getAll(@AuthenticationPrincipal User user, HttpServletRequest request) {
+		List<InstitutionalReformResponseDto> list = service.getAll(user);
 		return ResponseGenerator.success(list, "Institutional Reforms fetched successfully", request);
 	}
 
@@ -88,10 +88,12 @@ public class InstitutionalReformController {
 
 	// FILTER
 	@GetMapping("/filter")
-	public ResponseEntity<?> filterReforms(@AuthenticationPrincipal User user, @RequestParam(required = false) String status,
-			@RequestParam(required = false) String description, HttpServletRequest request) {
+	public ResponseEntity<?> filterReforms(@AuthenticationPrincipal User user,
+			@RequestParam(required = false) String status, @RequestParam(required = false) String description,
+			HttpServletRequest request) {
 
-		List<InstitutionalReformResponseDto> reforms = service.filterReforms(user.getEntityid(), status, description);
+		List<InstitutionalReformResponseDto> reforms = service.filterReforms(user.getEntityid(), status, description,
+				user.getEmail());
 		return ResponseGenerator.success(reforms, "Institutional Reforms filtered successfully", request);
 	}
 

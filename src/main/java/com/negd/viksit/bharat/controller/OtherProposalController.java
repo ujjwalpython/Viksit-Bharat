@@ -42,9 +42,9 @@ public class OtherProposalController {
 
 	// READ ALL
 	@GetMapping("/getList")
-	public ResponseEntity<?> getAll(HttpServletRequest request) {
-		List<OtherProposalResponseDto> list = service.getAll();
-		return ResponseGenerator.success(list, "Proposals fetched successfully", request);
+	public ResponseEntity<?> getAll(@AuthenticationPrincipal User user, HttpServletRequest request) {
+	    List<OtherProposalResponseDto> list = service.getAll(user);
+	    return ResponseGenerator.success(list, "Proposals fetched successfully", request);
 	}
 
 	// READ ONE
@@ -78,13 +78,16 @@ public class OtherProposalController {
 	}
 	
 	@GetMapping("/filter")
-    public ResponseEntity<?> filterProposal(@AuthenticationPrincipal User user,
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) String proposalDescription,
-            HttpServletRequest request) {
+	public ResponseEntity<?> filterProposal(@AuthenticationPrincipal User user,
+	        @RequestParam(required = false) String status,
+	        @RequestParam(required = false) String proposalDescription,
+	        HttpServletRequest request) {
 
-        List<OtherProposalResponseDto> list = service.filterProposals(user.getEntityid(),status, proposalDescription);
-        return ResponseGenerator.success(list, "Goals fetched successfully", request);
-    }
+	    List<OtherProposalResponseDto> list = service.filterProposals(
+	            user.getEntityid(), status, proposalDescription, user.getEmail());
+
+	    return ResponseGenerator.success(list, "Proposals fetched successfully", request);
+	}
+
 
 }

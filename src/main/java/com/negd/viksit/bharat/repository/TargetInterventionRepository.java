@@ -18,4 +18,12 @@ public interface TargetInterventionRepository extends JpaRepository<TargetInterv
 
 	List<TargetIntervention> findByCreatedByAndStatusIgnoreCaseAndTargetDetailsContainingIgnoreCase(Long entityId,
 			String status, String targetDetails);
+
+	List<TargetIntervention> findByStatusIgnoreCase(String status);
+
+	List<TargetIntervention> findByTargetDetailsContainingIgnoreCase(String targetDetails);
+
+	List<TargetIntervention> findByStatusIgnoreCaseAndTargetDetailsContainingIgnoreCase(String status,
+			String targetDetails);
+
 }

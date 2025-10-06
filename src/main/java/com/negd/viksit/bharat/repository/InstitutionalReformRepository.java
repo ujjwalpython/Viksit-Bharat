@@ -14,8 +14,16 @@ public interface InstitutionalReformRepository extends JpaRepository<Institution
 
 	List<InstitutionalReform> findByCreatedByAndStatusIgnoreCase(Long entityid, String status);
 
-	List<InstitutionalReform> findByCreatedByAndReformDescriptionContainingIgnoreCase(Long entityid, String reformDescription);
+	List<InstitutionalReform> findByCreatedByAndReformDescriptionContainingIgnoreCase(Long entityid,
+			String reformDescription);
 
 	List<InstitutionalReform> findByCreatedByAndStatusIgnoreCaseAndReformDescriptionContainingIgnoreCase(Long entityid,
 			String status, String reformDescription);
+
+	List<InstitutionalReform> findByStatusIgnoreCase(String status);
+
+	List<InstitutionalReform> findByReformDescriptionContainingIgnoreCase(String reformDescription);
+
+	List<InstitutionalReform> findByStatusIgnoreCaseAndReformDescriptionContainingIgnoreCase(String status,
+			String reformDescription);
 }
