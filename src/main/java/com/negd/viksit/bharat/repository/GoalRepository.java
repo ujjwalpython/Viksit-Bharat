@@ -12,13 +12,10 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
 
     List<Goal> findByCreatedBy(Long createdBy);
 
-    // Goals by user and status
     List<Goal> findByCreatedByAndStatusIgnoreCase(Long createdBy, String status);
 
-    // Goals by user and description
     List<Goal> findByCreatedByAndGoalDescriptionContainingIgnoreCase(Long createdBy, String goalDescription);
 
-    // Goals by user, status, and description
     List<Goal> findByCreatedByAndStatusIgnoreCaseAndGoalDescriptionContainingIgnoreCase(
             Long createdBy, String status, String goalDescription
     );
@@ -27,5 +24,11 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
     Long countAllIncludingDeleted();
 
     Optional<Goal> findByEntityId(String entityId);
+
+    List<Goal> findByStatusIgnoreCase(String status);
+
+    List<Goal> findByGoalDescriptionContainingIgnoreCase(String goalDescription);
+
+    List<Goal> findByStatusIgnoreCaseAndGoalDescriptionContainingIgnoreCase(String status, String goalDescription);
 }
 

@@ -25,21 +25,21 @@ public class GoalController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createGoal( @RequestBody GoalDto goalDto, HttpServletRequest request) {
+    public ResponseEntity<?> createGoal( @AuthenticationPrincipal User user,@RequestBody GoalDto goalDto, HttpServletRequest request) {
         GoalStatusRespDto createdGoal = goalService.createGoal(goalDto);
         return ResponseGenerator.created(createdGoal, "Goal created successfully", request);
     }
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getGoalById(@PathVariable String id, HttpServletRequest request) {
-        GoalResponseDto goal = goalService.getGoalById(id);
+    public ResponseEntity<?> getGoalById(@AuthenticationPrincipal User user,@PathVariable String id, HttpServletRequest request) {
+        GoalResponseDto goal = goalService.getGoalById(id,user);
         return ResponseGenerator.success(goal, "Goal fetched successfully", request);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateGoal(@PathVariable String id, @RequestBody GoalDto goalDto, HttpServletRequest request) {
-        GoalResponseDto updatedGoal = goalService.updateGoal(id, goalDto);
+    public ResponseEntity<?> updateGoal(@AuthenticationPrincipal User user,@PathVariable String id, @RequestBody GoalDto goalDto, HttpServletRequest request) {
+        GoalResponseDto updatedGoal = goalService.updateGoal(id, goalDto,user);
         return ResponseGenerator.success(updatedGoal, "Goal updated successfully", request);
     }
 
@@ -50,12 +50,12 @@ public class GoalController {
     }
 
     @PatchMapping("/{id}/status/{status}")
-    public ResponseEntity<?> updateStatus(
+    public ResponseEntity<?> updateStatus(@AuthenticationPrincipal User user,
             @PathVariable String id,
             @PathVariable String status,
             HttpServletRequest request){
 
-        GoalResponseDto updatedGoal = goalService.updateStatus(id, status);
+        GoalResponseDto updatedGoal = goalService.updateStatus(id, status,user);
         return ResponseGenerator.success(updatedGoal, "Goal status updated successfully", request);
     }
 
@@ -65,14 +65,14 @@ public class GoalController {
             @RequestParam(required = false) String goalDescription,
             HttpServletRequest request) {
 
-        List<GoalResponseDto> goals = goalService.filterGoals(user.getEntityid(),status, goalDescription);
+        List<GoalResponseDto> goals = goalService.filterGoals(user,status, goalDescription);
         return ResponseGenerator.success(goals, "Goals fetched successfully", request);
     }
 
 
     @GetMapping
-    public ResponseEntity<?> getAllGoals(HttpServletRequest request) {
-        List<GoalResponseDto> goals = goalService.getAllGoals();
+    public ResponseEntity<?> getAllGoals(@AuthenticationPrincipal User user,HttpServletRequest request) {
+        List<GoalResponseDto> goals = goalService.getAllGoals(user);
         return ResponseGenerator.success(goals, "Goals fetched successfully", request);
     }
 

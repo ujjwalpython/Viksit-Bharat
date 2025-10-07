@@ -28,7 +28,7 @@ public class MinistryService {
                 for (var dept : ministry.getDepartments()) {
                     // Clone ministry and override name for each department
                     Ministry copy = Ministry.builder()
-                            .id(ministry.getId())
+                            .id(dept.getId())
                             .code(ministry.getCode())
                             .description(ministry.getDescription())
                             .isActive(ministry.getIsActive())

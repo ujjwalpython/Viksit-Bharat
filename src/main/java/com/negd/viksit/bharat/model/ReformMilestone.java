@@ -33,7 +33,7 @@ public class ReformMilestone extends Auditable<Long> {
     private String activityDescription;
     private LocalDate deadline;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "reform_id")
     private RegulatoryReform reform;
 

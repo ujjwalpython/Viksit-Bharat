@@ -39,7 +39,7 @@ public class Department extends Auditable<Long> {
 	@Column(length = 500)
 	private String description;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "ministry_id", nullable = false)
 	@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 	private Ministry ministry;

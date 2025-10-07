@@ -1,12 +1,12 @@
 package com.negd.viksit.bharat.service;
 
-import com.negd.viksit.bharat.dto.DocumentDto;
-import com.negd.viksit.bharat.dto.SchemeKeyDeliverableRespDto;
+import com.negd.viksit.bharat.Constants;
 import com.negd.viksit.bharat.dto.ProjectSchemeDto;
 import com.negd.viksit.bharat.dto.ProjectSchemeResponseDto;
 import com.negd.viksit.bharat.model.Document;
 import com.negd.viksit.bharat.model.ProjectScheme;
 import com.negd.viksit.bharat.model.SchemeKeyDeliverable;
+import com.negd.viksit.bharat.model.User;
 import com.negd.viksit.bharat.model.master.Ministry;
 import com.negd.viksit.bharat.repository.DocumentRepository;
 import com.negd.viksit.bharat.repository.MinistryRepository;
@@ -17,6 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
@@ -26,8 +30,10 @@ public class ProjectSchemeService {
     private final ProjectSchemeRepository projectRepo;
     private final DocumentRepository documentRepo;
     private final MinistryRepository ministryRepository;
+    private final ResBuildder responseBuilder;
 
-    public ProjectSchemeResponseDto create(ProjectSchemeDto dto) {
+
+    public ProjectSchemeResponseDto create(ProjectSchemeDto dto,User user) {
         Ministry ministry = ministryRepository.findById(dto.getMinistryId())
                 .orElseThrow(() -> new EntityNotFoundException("Ministry not found"));
         ProjectScheme project = ProjectScheme.builder()
@@ -59,19 +65,19 @@ public class ProjectSchemeService {
         }
 
         ProjectScheme saved = projectRepo.save(project);
-        return mapToResponse(saved);
+        return responseBuilder.mapToResponse(saved,user);
     }
 
-    public ProjectSchemeResponseDto getById(String id) {
-        return mapToResponse(projectRepo.findByEntityId(id)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found")));
+    public ProjectSchemeResponseDto getById(String id,User user) {
+        return responseBuilder.mapToResponse(projectRepo.findByEntityId(id)
+                .orElseThrow(() -> new EntityNotFoundException("Project not found")),user);
     }
 
-    public List<ProjectSchemeResponseDto> getAll() {
-        return projectRepo.findAll().stream().map(this::mapToResponse).toList();
+    public List<ProjectSchemeResponseDto> getAll(User user) {
+        return projectRepo.findAll().stream().map(goal -> responseBuilder.mapToResponse(goal,user) ).toList();
     }
 
-    public ProjectSchemeResponseDto update(String id, ProjectSchemeDto dto) {
+    public ProjectSchemeResponseDto update(String id, ProjectSchemeDto dto,User user) {
         Ministry ministry = ministryRepository.findById(dto.getMinistryId())
                 .orElseThrow(() -> new EntityNotFoundException("Ministry not found"));
         ProjectScheme project = projectRepo.findByEntityId(id)
@@ -104,7 +110,7 @@ public class ProjectSchemeService {
             project.getKeyDeliverables().addAll(deliverables);
         }
 
-        return mapToResponse(projectRepo.save(project));
+        return responseBuilder.mapToResponse(projectRepo.save(project),user);
     }
 
     public void delete(String id) {
@@ -113,48 +119,29 @@ public class ProjectSchemeService {
         projectRepo.delete(project);
     }
 
-    private ProjectSchemeResponseDto mapToResponse(ProjectScheme project) {
-        return ProjectSchemeResponseDto.builder()
-                .id(project.getEntityId())
-                .name(project.getName())
-                .type(project.getType())
-                .description(project.getDescription())
-                .targetDate(project.getTargetDate())
-                .totalBudgetRequired(project.getTotalBudgetRequired())
-                .beneficiariesNo(project.getBeneficiariesNo())
-                .status(project.getStatus())
-                .ministry(project.getMinistry().getName())
-                .LastUpdate(project.getUpdatedOn())
-                .keyDeliverables(project.getKeyDeliverables() != null
-                                ? project.getKeyDeliverables().stream().map(k ->
-                                SchemeKeyDeliverableRespDto.builder()
-                                        .id(k.getEntityId())
-                                        .activityDescription(k.getActivityDescription())
-                                        .deadline(k.getDeadline())
-                                        .progressMade(k.getProgressMade())
-                                        .documentId(k.getDocument() != null
-                                                ? k.getDocument().getId()
-                                                : null
-                                        )
-                                        .build()
-                                )
-                                .toList()
-                                : List.of()
-                )
-                .build();
-    }
 
-    public List<ProjectSchemeResponseDto> filterProjects(Long entityId, String status) {
-        List<ProjectScheme> projects;
+    public List<ProjectSchemeResponseDto> filterProjects(User usr, String st) {
+        final var id = usr.getEntityid();
+        final var scopedRoles = Set.of(Constants.MADMIN,Constants.DADMIN);
+        final boolean isScoped = scopedRoles.stream().anyMatch(usr::hasRole);
 
-        if (status == null) {
-            projects = projectRepo.findByCreatedBy(entityId);
-        } else {
-            projects = projectRepo.findByCreatedByAndStatusIgnoreCase(entityId, status);
-        }
+        Supplier<List<ProjectScheme>> fetchProjects = () -> {
+            if (isScoped) {
+                return st != null
+                        ? projectRepo.findByCreatedByAndStatusIgnoreCase(id, st)
+                        : projectRepo.findByCreatedBy(id);
+            }
+            return st != null
+                    ? projectRepo.findByStatusIgnoreCase(st)
+                    : projectRepo.findAll();
+        };
 
-        return projects.stream()
-                .map(this::mapToResponse)
+        return Optional.ofNullable(st)
+                .map(s -> fetchProjects.get())
+                .orElseGet(fetchProjects)
+                .stream()
+                .map(projectScheme -> responseBuilder.mapToResponse(projectScheme,usr))
+                .filter(Objects::nonNull)
                 .toList();
     }
 

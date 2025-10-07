@@ -26,7 +26,7 @@ public class Goal extends Auditable<Long> {
     @SequenceGenerator(name = "goal_seq_gen", sequenceName = "vb_core.goal_seq", allocationSize = 1)
     private Long seqNum;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ministry_id")
     private Ministry ministry;
 

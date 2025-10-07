@@ -319,7 +319,7 @@ public class ViksitBharatApplication extends SpringBootServletInitializer {
                                 .email("ministry.admin@test.com")
                                 .isActive(true)
                                 .password(passwordEncoder.encode("password@123"))
-                                .ministry(ministries.get(0))
+                                .ministry(ministries.stream().filter(ministry -> ministry.getDepartments()==null).findFirst().get())
                                 .roles(Set.of(roleList.get(0)))
                                 .build(),
 

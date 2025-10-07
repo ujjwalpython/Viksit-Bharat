@@ -53,11 +53,11 @@ public class User extends Auditable<Long> implements Serializable, UserDetails {
     @Column(name = "mno")
     private String mobileNumber;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ministry_id", nullable = true)
     private Ministry ministry;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "department_id", nullable = true)
     private Department department;
 

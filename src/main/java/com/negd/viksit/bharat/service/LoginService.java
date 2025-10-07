@@ -38,7 +38,8 @@ public class LoginService {
             );
 
             User loggedInUser = (User) authentication.getPrincipal();
-
+            loggedInUser.setLoggedOut(false);
+            userRepository.save(loggedInUser);
             String token = jwtTokenUtil.generateToken(loggedInUser);
 
             return new UserAuthDto(loggedInUser, token);

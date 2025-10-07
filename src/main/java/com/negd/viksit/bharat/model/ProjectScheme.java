@@ -37,7 +37,7 @@ public class ProjectScheme extends Auditable<Long> {
 
     private String type;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ministry_id")
     private Ministry ministry;
 
