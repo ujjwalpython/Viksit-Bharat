@@ -42,7 +42,7 @@ public class SchemeKeyDeliverable extends Auditable<Long> {
     @JoinColumn(name = "document_id")
     private Document document;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_scheme_id")
     private ProjectScheme projectScheme;
 

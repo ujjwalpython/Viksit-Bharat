@@ -24,28 +24,28 @@ public class ProjectSchemeController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody ProjectSchemeDto dto, HttpServletRequest request) {
-        ProjectSchemeResponseDto created = projectService.create(dto);
+    public ResponseEntity<?> create(@AuthenticationPrincipal User user,@RequestBody ProjectSchemeDto dto, HttpServletRequest request) {
+        ProjectSchemeResponseDto created = projectService.create(dto,user);
         return ResponseGenerator.created(created, "Project Scheme created successfully", request);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable String id, HttpServletRequest request) {
-        ProjectSchemeResponseDto project = projectService.getById(id);
+    public ResponseEntity<?> getById(@PathVariable String id, HttpServletRequest request,@AuthenticationPrincipal User user) {
+        ProjectSchemeResponseDto project = projectService.getById(id,user);
         return ResponseGenerator.success(project, "Project Scheme fetched successfully", request);
     }
 
     @GetMapping
-    public ResponseEntity<?> getAll(HttpServletRequest request) {
-        List<ProjectSchemeResponseDto> projects = projectService.getAll();
+    public ResponseEntity<?> getAll(HttpServletRequest request,@AuthenticationPrincipal User user) {
+        List<ProjectSchemeResponseDto> projects = projectService.getAll(user);
         return ResponseGenerator.success(projects, "Project Schemes fetched successfully", request);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable String id,
+    public ResponseEntity<?> update(@AuthenticationPrincipal User user,@PathVariable String id,
                                     @RequestBody ProjectSchemeDto dto,
                                     HttpServletRequest request) {
-        ProjectSchemeResponseDto updated = projectService.update(id, dto);
+        ProjectSchemeResponseDto updated = projectService.update(id, dto,user);
         return ResponseGenerator.success(updated, "Project Scheme updated successfully", request);
     }
 
@@ -60,7 +60,7 @@ public class ProjectSchemeController {
                                             @RequestParam(required = false) String status,
                                             HttpServletRequest request) {
 
-        List<ProjectSchemeResponseDto> projects = projectService.filterProjects(user.getEntityid(), status);
+        List<ProjectSchemeResponseDto> projects = projectService.filterProjects(user, status);
         return ResponseGenerator.success(projects, "Projects fetched successfully", request);
     }
 

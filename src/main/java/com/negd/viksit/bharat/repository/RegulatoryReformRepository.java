@@ -18,4 +18,6 @@ public interface RegulatoryReformRepository extends JpaRepository<RegulatoryRefo
     Long countAllIncludingDeleted();
 
     Optional<RegulatoryReform> findByEntityId(String entityId);
+
+    List<RegulatoryReform> findByStatusIgnoreCase(String st);
 }

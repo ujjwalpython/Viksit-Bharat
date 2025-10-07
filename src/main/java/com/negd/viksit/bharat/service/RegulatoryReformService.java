@@ -1,9 +1,11 @@
 package com.negd.viksit.bharat.service;
 
+import com.negd.viksit.bharat.Constants;
 import com.negd.viksit.bharat.dto.*;
 import com.negd.viksit.bharat.model.Document;
 import com.negd.viksit.bharat.model.ReformMilestone;
 import com.negd.viksit.bharat.model.RegulatoryReform;
+import com.negd.viksit.bharat.model.User;
 import com.negd.viksit.bharat.model.master.Ministry;
 import com.negd.viksit.bharat.repository.DocumentRepository;
 import com.negd.viksit.bharat.repository.MinistryRepository;
@@ -14,6 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -23,8 +29,10 @@ public class RegulatoryReformService {
     private final RegulatoryReformRepository reformRepository;
     private final DocumentRepository documentRepository;
     private final MinistryRepository ministryRepository;
+    private final ResBuildder responseBuilder;
 
-    public RegulatoryRespReformDto createReform(RegulatoryReformDto dto) {
+
+    public RegulatoryRespReformDto createReform(RegulatoryReformDto dto,User user) {
         Ministry ministry = ministryRepository.findById(dto.getMinistryId())
                 .orElseThrow(() -> new EntityNotFoundException("Ministry not found"));
 
@@ -59,22 +67,22 @@ public class RegulatoryReformService {
         }
 
         RegulatoryReform saved = reformRepository.save(reform);
-        return mapToResponse(saved);
+        return responseBuilder.mapToResponse(saved,user);
     }
 
-    public RegulatoryRespReformDto getReformById(String id) {
+    public RegulatoryRespReformDto getReformById(String id,User user) {
         RegulatoryReform reform = reformRepository.findByEntityId(id)
                 .orElseThrow(() -> new EntityNotFoundException("Reform not found"));
-        return mapToResponse(reform);
+        return responseBuilder.mapToResponse(reform,user);
     }
 
-    public List<RegulatoryRespReformDto> getAllReforms() {
+    public List<RegulatoryRespReformDto> getAllReforms(User user) {
         return reformRepository.findAll().stream()
-                .map(this::mapToResponse)
+                .map(reform -> responseBuilder.mapToResponse(reform,user))
                 .toList();
     }
 
-    public RegulatoryRespReformDto updateReform(String id, RegulatoryReformDto dto) {
+    public RegulatoryRespReformDto updateReform(String id, RegulatoryReformDto dto,User user) {
         RegulatoryReform reform = reformRepository.findByEntityId(id)
                 .orElseThrow(() -> new EntityNotFoundException("Reform not found"));
         Ministry ministry = ministryRepository.findById(dto.getMinistryId())
@@ -109,7 +117,7 @@ public class RegulatoryReformService {
         }
 
         RegulatoryReform updated = reformRepository.save(reform);
-        return mapToResponse(updated);
+        return responseBuilder.mapToResponse(updated,user);
     }
 
     public void deleteReform(String id) {
@@ -118,48 +126,30 @@ public class RegulatoryReformService {
         reformRepository.delete(reform);
     }
 
-    private RegulatoryRespReformDto mapToResponse(RegulatoryReform reform) {
-        return RegulatoryRespReformDto.builder()
-                .id(reform.getEntityId())
-                .name(reform.getName())
-                .description(reform.getDescription())
-                .LastUpdate(reform.getUpdatedOn())
-                .reformType(reform.getReformType())
-                .ministry(reform.getMinistry() != null ? reform.getMinistry().getName() : null) // ✅ null-safe
-                .targetCompletionDate(reform.getTargetCompletionDate())
-                .rulesToBeAmended(reform.getRulesToBeAmended())
-                .intendedOutcome(reform.getIntendedOutcome())
-                .presentStatus(reform.getPresentStatus())
-                .status(reform.getStatus())
-                .milestones(reform.getMilestones() != null
-                        ? reform.getMilestones().stream()
-                        .map(m -> ReformMilestoneRespDto.builder()
-                                .id(m.getEntityId())
-                                .activityDescription(m.getActivityDescription())
-                                .deadline(m.getDeadline())
-                                .sortOrder(m.getSortOrder())
-                                .documentId(m.getDocument() != null
-                                        ? m.getDocument().getId()
-                                        : null
-                                )
-                                .build()
-                        )
-                        .toList()
-                        : List.of()
-                )
-                .build();
-    }
+    @Transactional(readOnly = true)
+    public List<RegulatoryRespReformDto> filterReforms(User usr, String st) {
+        final var id = usr.getEntityid();
+        final var admin = Set.of(Constants.MADMIN,Constants.DADMIN).stream().anyMatch(usr::hasRole);
 
-    public List<RegulatoryRespReformDto> filterReforms(Long entityId, String status) {
-        List<RegulatoryReform> reforms;
+        Function<Boolean, List<RegulatoryReform>> fetch = x -> {
+            if (admin)
+                return Boolean.TRUE.equals(x)
+                        ? reformRepository.findByCreatedByAndStatusIgnoreCase(id, st)
+                        : reformRepository.findByCreatedBy(id);
+            return Boolean.TRUE.equals(x)
+                    ? reformRepository.findByStatusIgnoreCase(st)
+                    : reformRepository.findAll();
+        };
 
-        if (status == null) {
-            reforms = reformRepository.findByCreatedBy(entityId);
-        } else {
-            reforms = reformRepository.findByCreatedByAndStatusIgnoreCase(entityId, status);
-        }
-
-        return reforms.stream().map(this::mapToResponse).toList();
+        return Stream.ofNullable(st)
+                .map(Objects::nonNull)
+                .map(fetch)
+                .findFirst()
+                .orElseGet(() -> fetch.apply(false))
+                .stream()
+                .filter(Objects::nonNull)
+                .map(reform -> responseBuilder.mapToResponse(reform, usr))
+                .toList();
     }
 
 }

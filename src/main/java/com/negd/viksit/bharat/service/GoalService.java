@@ -1,34 +1,41 @@
 package com.negd.viksit.bharat.service;
 
+import com.negd.viksit.bharat.Constants;
 import com.negd.viksit.bharat.dto.*;
 import com.negd.viksit.bharat.exception.InvalidStatusException;
 import com.negd.viksit.bharat.model.Goal;
 import com.negd.viksit.bharat.model.GoalIntervention;
+import com.negd.viksit.bharat.model.User;
 import com.negd.viksit.bharat.model.master.Ministry;
 import com.negd.viksit.bharat.repository.GoalRepository;
 import com.negd.viksit.bharat.repository.InterventionRepository;
 import com.negd.viksit.bharat.repository.MinistryRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
+@Slf4j
 public class GoalService {
 
     private final GoalRepository goalRepository;
     private final MinistryRepository ministryRepository;
     private final InterventionRepository interventionRepository;
+    private final ResBuildder responseBuilder;
 
-    public GoalService(GoalRepository goalRepository, MinistryRepository ministryRepository, InterventionRepository interventionRepository) {
+    public GoalService(GoalRepository goalRepository, MinistryRepository ministryRepository, InterventionRepository interventionRepository, ResBuildder responseBuilder) {
         this.goalRepository = goalRepository;
         this.ministryRepository = ministryRepository;
         this.interventionRepository = interventionRepository;
+        this.responseBuilder = responseBuilder;
     }
 
     public GoalStatusRespDto createGoal(GoalDto goalDto) {
@@ -72,21 +79,21 @@ public class GoalService {
         return new GoalStatusRespDto(savedGoal.getEntityId(), savedGoal.getStatus());
     }
 
-    public List<GoalResponseDto> getAllGoals() {
+    public List<GoalResponseDto> getAllGoals(User user) {
         return goalRepository.findAll()
                 .stream()
-                .map(this::mapToDto)
+                .map(goal -> responseBuilder.mapToDto(goal,user))
                 .collect(Collectors.toList());
     }
 
-    public GoalResponseDto getGoalById(String id) {
+    public GoalResponseDto getGoalById(String id,User user) {
         return goalRepository.findByEntityId(id)
-                .map(this::mapToDto)
+                .map(goal -> responseBuilder.mapToDto(goal,user))
                 .orElseThrow(() -> new EntityNotFoundException("Goal not found"));
     }
 
     @Transactional
-    public GoalResponseDto updateGoal(String id, GoalDto goalDto) {
+    public GoalResponseDto updateGoal(String id, GoalDto goalDto,User user) {
         Goal goal = goalRepository.findByEntityId(id)
                 .orElseThrow(() -> new EntityNotFoundException("Goal not found"));
 
@@ -126,7 +133,7 @@ public class GoalService {
 
         Goal updated = goalRepository.save(goal);
 
-        return mapToDto(updated);
+        return responseBuilder.mapToDto(updated,user);
     }
 
     public void deleteGoal(String id) {
@@ -162,40 +169,7 @@ public class GoalService {
         return goal;
     }
 
-    private GoalResponseDto mapToDto(Goal goal) {
-        GoalResponseDto dto = new GoalResponseDto();
-        dto.setGoalId(goal.getEntityId());
-        dto.setMinistryId(goal.getMinistry().getName());
-        dto.setGoalDescription(goal.getGoalDescription());
-        dto.setStatus(goal.getStatus());
-        dto.setLastUpdate(goal.getUpdatedOn());
-
-        List<InterventionResDto> interventionDtos = goal.getInterventions()
-                .stream()
-                .map(intervention -> {
-                    InterventionResDto iDto = new InterventionResDto();
-                    iDto.setId(intervention.getId());
-                    iDto.setTargetDescription(intervention.getTargetDescription());
-
-                    iDto.setPresentValue(intervention.getPresentValue());
-                    iDto.setPresentUnit(intervention.getPresentUnit());
-                    iDto.setPresentYear(intervention.getPresentYear());
-
-                    iDto.setTarget2030Value(intervention.getTarget2030Value());
-                    iDto.setTarget2030Unit(intervention.getTarget2030Unit());
-
-                    iDto.setTarget2047Value(intervention.getTarget2047Value());
-                    iDto.setTarget2047Unit(intervention.getTarget2047Unit());
-
-                    iDto.setSortOrder(intervention.getSortOrder());
-                    return iDto;
-                }).collect(Collectors.toList());
-
-        dto.setInterventions(interventionDtos);
-        return dto;
-    }
-
-    public GoalResponseDto updateStatus(String id, String status) {
+    public GoalResponseDto updateStatus(String id, String status,User user) {
         Goal goal = goalRepository.findByEntityId(id)
                 .orElseThrow(() -> new EntityNotFoundException("Goal not found with id: " + id));
 
@@ -212,24 +186,37 @@ public class GoalService {
         }
 
         Goal saved = goalRepository.save(goal);
-        return mapToDto(saved);
+        return responseBuilder.mapToDto(saved,user);
     }
 
-    public List<GoalResponseDto> filterGoals(Long entityid, String status, String goalDescription) {
+    @Transactional(readOnly = true)
+    public List<GoalResponseDto> filterGoals(User user, String status, String goalDesc) {
+        final Long id = user.getEntityid();
+        final boolean scoped = Stream.of(Constants.MADMIN, Constants.DADMIN).anyMatch(user::hasRole);
 
-        List<Goal> goals;
-        if (status == null && goalDescription == null) {
-            goals = goalRepository.findByCreatedBy(entityid);
-        } else if (status != null && goalDescription == null) {
-            goals = goalRepository.findByCreatedByAndStatusIgnoreCase(entityid, status);
-        } else if (status == null) {
-            goals = goalRepository.findByCreatedByAndGoalDescriptionContainingIgnoreCase(entityid, goalDescription);
-        } else {
-            goals = goalRepository.findByCreatedByAndStatusIgnoreCaseAndGoalDescriptionContainingIgnoreCase(
-                    entityid, status, goalDescription
-            );
-        }
+        return Optional.ofNullable(
+                        Stream.of(new Object())
+                                .map(__ -> {
+                                    Predicate<Object> n = Objects::nonNull;
+                                    boolean s = n.test(status), g = n.test(goalDesc);
 
-        return goals.stream().map(goal ->mapToDto(goal)).toList();
+                                    return scoped
+                                            ? s && g ? goalRepository.findByCreatedByAndStatusIgnoreCaseAndGoalDescriptionContainingIgnoreCase(id, status, goalDesc)
+                                            : s ? goalRepository.findByCreatedByAndStatusIgnoreCase(id, status)
+                                            : g ? goalRepository.findByCreatedByAndGoalDescriptionContainingIgnoreCase(id, goalDesc)
+                                            : goalRepository.findByCreatedBy(id)
+                                            : s && g ? goalRepository.findByStatusIgnoreCaseAndGoalDescriptionContainingIgnoreCase(status, goalDesc)
+                                            : s ? goalRepository.findByStatusIgnoreCase(status)
+                                            : g ? goalRepository.findByGoalDescriptionContainingIgnoreCase(goalDesc)
+                                            : goalRepository.findAll();
+                                })
+                                .findFirst()
+                                .orElse(Collections.emptyList())
+                )
+                .stream()
+                .flatMap(Collection::stream)
+                .map(goal -> responseBuilder.mapToDto(goal,user))
+                .filter(Objects::nonNull)
+                .toList();
     }
 }

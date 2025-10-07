@@ -22,22 +22,22 @@ public class RegulatoryReformController {
     private final RegulatoryReformService reformService;
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody RegulatoryReformDto dto, HttpServletRequest request) {
-        RegulatoryRespReformDto created = reformService.createReform(dto);
+    public ResponseEntity<?> create(@AuthenticationPrincipal User user,@RequestBody RegulatoryReformDto dto, HttpServletRequest request) {
+        RegulatoryRespReformDto created = reformService.createReform(dto,user);
         return ResponseGenerator.created(created, "Reform created successfully", request);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable String id, HttpServletRequest request) {
-        RegulatoryRespReformDto reform = reformService.getReformById(id);
+    public ResponseEntity<?> getById(@AuthenticationPrincipal User user,@PathVariable String id, HttpServletRequest request) {
+        RegulatoryRespReformDto reform = reformService.getReformById(id,user);
         return ResponseGenerator.success(reform, "Reform fetched successfully", request);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable String id,
+    public ResponseEntity<?> update(@AuthenticationPrincipal User user,@PathVariable String id,
                                     @RequestBody RegulatoryReformDto dto,
                                     HttpServletRequest request) {
-        RegulatoryRespReformDto updated = reformService.updateReform(id, dto);
+        RegulatoryRespReformDto updated = reformService.updateReform(id, dto,user);
         return ResponseGenerator.success(updated, "Reform updated successfully", request);
     }
 
@@ -48,8 +48,8 @@ public class RegulatoryReformController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAll(HttpServletRequest request) {
-        List<RegulatoryRespReformDto> all = reformService.getAllReforms();
+    public ResponseEntity<?> getAll(HttpServletRequest request,@AuthenticationPrincipal User user) {
+        List<RegulatoryRespReformDto> all = reformService.getAllReforms(user);
         return ResponseGenerator.success(all, "All reforms fetched successfully", request);
     }
 
@@ -58,7 +58,7 @@ public class RegulatoryReformController {
                                            @RequestParam(required = false) String status,
                                            HttpServletRequest request) {
 
-        List<RegulatoryRespReformDto> reforms = reformService.filterReforms(user.getEntityid(), status);
+        List<RegulatoryRespReformDto> reforms = reformService.filterReforms(user, status);
         return ResponseGenerator.success(reforms, "Reforms fetched successfully", request);
     }
 

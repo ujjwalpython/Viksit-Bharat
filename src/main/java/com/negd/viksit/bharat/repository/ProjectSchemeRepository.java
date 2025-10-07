@@ -15,4 +15,6 @@ public interface ProjectSchemeRepository extends JpaRepository<ProjectScheme,Str
     List<ProjectScheme> findByCreatedByAndStatusIgnoreCase(Long createdBy, String status);
 
     Optional<ProjectScheme> findByEntityId(String id);
+
+    List<ProjectScheme> findByStatusIgnoreCase(String st);
 }

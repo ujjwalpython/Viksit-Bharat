@@ -3,6 +3,7 @@ package com.negd.viksit.bharat.exception;
 
 
 import com.negd.viksit.bharat.util.ResponseGenerator;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
@@ -102,6 +103,12 @@ public class GlobalExceptionHandler {
         return ResponseGenerator.error(HttpStatus.NOT_FOUND, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(EntityExistsException.class)
+    public ResponseEntity<?> handleEntityExists(EntityExistsException ex,
+                                                HttpServletRequest request) {
+        log.warn("Entity already exists at [{}]: {}", request.getRequestURI(), ex.getMessage());
+        return ResponseGenerator.error(HttpStatus.CONFLICT, ex.getMessage(), request);
+    }
     @ExceptionHandler(InvalidStatusException.class)
     public ResponseEntity<?> handleInvalidStatus(InvalidStatusException ex,
                                                  HttpServletRequest request) {
