@@ -41,6 +41,7 @@ public class TargetInterventionController {
 	}
 
 	// READ ALL
+	@GetMapping("/getList")
 	public ResponseEntity<?> getAll(@AuthenticationPrincipal User user, HttpServletRequest request) {
 		List<TargetInterventionResponseDto> list = service.findAll(user);
 		return ResponseGenerator.success(list, "Target / Intervention fetched successfully", request);
