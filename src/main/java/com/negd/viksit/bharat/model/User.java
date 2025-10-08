@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.negd.viksit.bharat.model.master.GovernmentEntity;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -53,6 +54,7 @@ public class User extends Auditable<Long> implements Serializable, UserDetails {
     @Column(name = "mno")
     private String mobileNumber;
 
+/*
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ministry_id", nullable = true)
     private Ministry ministry;
@@ -60,6 +62,12 @@ public class User extends Auditable<Long> implements Serializable, UserDetails {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "department_id", nullable = true)
     private Department department;
+*/
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "gov_entity_id", nullable = true)
+    private GovernmentEntity governmentEntity;
+
 
     private String state;
 
@@ -145,5 +153,13 @@ public class User extends Auditable<Long> implements Serializable, UserDetails {
     public boolean hasRole(String roleName) {
         return this.roles.stream().anyMatch(r -> roleName.equals(r.getName()));
     }
+
+    public boolean hasRole(String... roleNames) {
+        Set<String> roleSet = Set.of(roleNames);
+        return this.roles.stream()
+                .map(Role::getName)
+                .anyMatch(roleSet::contains);
+    }
+
 }
 

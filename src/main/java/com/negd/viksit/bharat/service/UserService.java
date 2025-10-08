@@ -114,8 +114,10 @@ public class UserService {
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .isActive(true)
                 .roles(Set.of(role))
+/*
                 .ministry(ministry)
                 .department(department)
+*/
                 .build();
 
         log.info("Built User entity for email {}", dto.getEmail());

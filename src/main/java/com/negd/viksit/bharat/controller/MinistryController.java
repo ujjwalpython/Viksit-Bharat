@@ -1,5 +1,7 @@
 package com.negd.viksit.bharat.controller;
 
+import com.negd.viksit.bharat.dto.GovernmentEntityDto;
+import com.negd.viksit.bharat.model.master.GovernmentEntity;
 import com.negd.viksit.bharat.model.master.Ministry;
 import com.negd.viksit.bharat.service.MinistryService;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +17,7 @@ public class MinistryController {
     }
 
     @GetMapping
-    public List<Ministry> getAllMinistries() {
+    public List<GovernmentEntityDto> getAllMinistries() {
         return ministryService.getAllMinistries();
     }
 }

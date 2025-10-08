@@ -42,7 +42,7 @@ public class Goal extends Auditable<Long> {
     @PrePersist
     public void generateId() {
         if (this.seqNum != null) {
-            this.entityId = String.format("MOCVBG%02d", this.seqNum);
+            this.entityId = String.format("%s%02d", this.ministry.getCode(), this.seqNum);
         }
     }
 }

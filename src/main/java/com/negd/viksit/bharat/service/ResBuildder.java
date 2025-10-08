@@ -23,7 +23,7 @@ public class ResBuildder {
 
         String ministryStr = goal.getMinistry() != null ? goal.getMinistry().getName() : null;
 
-        if (user.hasRole("DEPT_ADMIN")) {
+  /*      if (user.hasRole("DEPT_ADMIN")) {
             log.info("User has DEPT_ADMIN role, checking department for ministry string.");
             if (user.getDepartment() != null) {
                 ministryStr = ministryStr != null
@@ -36,7 +36,7 @@ public class ResBuildder {
         } else {
             log.info("User does not have DEPT_ADMIN role. Using ministry only: {}", ministryStr);
         }
-
+*/
         dto.setMinistryId(ministryStr);
 
         dto.setGoalId(goal.getEntityId());
@@ -77,12 +77,14 @@ public class ResBuildder {
     public ProjectSchemeResponseDto mapToResponse(ProjectScheme project, User user) {
         String ministryStr = project.getMinistry() != null ? project.getMinistry().getName() : null;
 
+/*
         if (user.hasRole("DEPT_ADMIN") && user.getDepartment() != null) {
             String departmentName = user.getDepartment().getName();
             if (ministryStr != null && !departmentName.isBlank()) {
                 ministryStr = ministryStr + " / " + departmentName;
             }
         }
+*/
         return ProjectSchemeResponseDto.builder()
                 .id(project.getEntityId())
                 .name(project.getName())
@@ -117,12 +119,14 @@ public class ResBuildder {
     public RegulatoryRespReformDto mapToResponse(RegulatoryReform reform, User user) {
         String ministryStr = reform.getMinistry() != null ? reform.getMinistry().getName() : null;
 
+/*
         if (user.hasRole("DEPT_ADMIN") && user.getDepartment() != null) {
             String departmentName = user.getDepartment().getName();
             if (ministryStr != null && !departmentName.isBlank()) {
                 ministryStr = ministryStr + " / " + departmentName;
             }
         }
+*/
         return RegulatoryRespReformDto.builder()
                 .id(reform.getEntityId())
                 .name(reform.getName())

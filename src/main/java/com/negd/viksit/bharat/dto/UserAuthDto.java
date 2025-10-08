@@ -27,13 +27,7 @@ public class UserAuthDto {
         this.roles = user.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());
-        if (user.hasRole("DEPT_ADMIN")){
-            this.ministry = user.getMinistry().getName() + " / " + user.getDepartment().getName();
+        if (user.hasRole("DEPT_ADMIN","MINISTRY_ADMIN")){
+            this.ministry = user.getGovernmentEntity().getName();}
         }
-        else if(user.hasRole("MINISTRY_ADMIN")){
-            this.ministry = user.getMinistry().getName();}
-    }
-
-
-
 }
