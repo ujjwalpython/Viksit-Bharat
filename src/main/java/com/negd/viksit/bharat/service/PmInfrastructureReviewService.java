@@ -66,8 +66,8 @@ public class PmInfrastructureReviewService {
 	}
 
 	private String generateCustomId() {
-//		String sql = "SELECT pir.id FROM vb_core.pm_infrastructure_review pir WHERE pir.id LIKE :prefix ORDER BY pir.id DESC LIMIT 1";
-		String sql = "SELECT pir.id FROM pm_infrastructure_review pir WHERE pir.id LIKE :prefix ORDER BY pir.id DESC LIMIT 1";
+		String sql = "SELECT pir.id FROM vb_core.pm_infrastructure_review pir WHERE pir.id LIKE :prefix ORDER BY pir.id DESC LIMIT 1";
+//		String sql = "SELECT pir.id FROM pm_infrastructure_review pir WHERE pir.id LIKE :prefix ORDER BY pir.id DESC LIMIT 1";
 		List<String> result = entityManager.createNativeQuery(sql).setParameter("prefix", ID_PREFIX + "%")
 				.getResultList();
 
