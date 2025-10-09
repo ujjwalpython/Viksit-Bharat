@@ -9,9 +9,8 @@ import com.negd.viksit.bharat.dto.OtherProposalDto;
 import com.negd.viksit.bharat.dto.OtherProposalResponseDto;
 import com.negd.viksit.bharat.model.OtherProposal;
 import com.negd.viksit.bharat.model.User;
-import com.negd.viksit.bharat.model.master.Department;
-import com.negd.viksit.bharat.model.master.Ministry;
-import com.negd.viksit.bharat.repository.MinistryRepository;
+import com.negd.viksit.bharat.model.master.GovernmentEntity;
+import com.negd.viksit.bharat.repository.GovernmentEntityRepository;
 import com.negd.viksit.bharat.repository.ProposalRepository;
 
 import jakarta.persistence.EntityManager;
@@ -23,11 +22,12 @@ public class OtherProposalService {
 
 	private final ProposalRepository repository;
 
-	private final MinistryRepository ministryRepository;
+//	private final MinistryRepository ministryRepository;
+	private final GovernmentEntityRepository governmentEntityRepository;
 
-	public OtherProposalService(ProposalRepository repository, MinistryRepository ministryRepository) {
+	public OtherProposalService(ProposalRepository repository, GovernmentEntityRepository governmentEntityRepository) {
 		this.repository = repository;
-		this.ministryRepository = ministryRepository;
+		this.governmentEntityRepository = governmentEntityRepository;
 	}
 
 	private static final String ID_PREFIX = "MOCVBIP";
@@ -64,64 +64,69 @@ public class OtherProposalService {
 
 	// ----------------- Mapping Methods -----------------
 	private OtherProposalResponseDto mapToDto(OtherProposal entity) {
-	    OtherProposalResponseDto dto = new OtherProposalResponseDto();
+		OtherProposalResponseDto dto = new OtherProposalResponseDto();
 
-	    dto.setId(entity.getId());
+		dto.setId(entity.getId());
 //	    dto.setMinistryId(entity.getMinistry().getName());
-	    
-	    // Build Ministry / Department display name
-	    String ministryDisplayName = entity.getMinistry().getName();
 
-	    if (entity.getMinistry().getDepartments() != null && !entity.getMinistry().getDepartments().isEmpty()) {
-	        Department dept = entity.getMinistry().getDepartments().stream()
-	            .filter(d -> Boolean.TRUE.equals(d.getIsActive()))
-	            .findFirst()
-	            .orElse(null);
+		// Build Ministry / Department display name
+//	    String ministryDisplayName = entity.getMinistry().getName();
 
-	        if (dept != null) {
-	            ministryDisplayName += " / " + dept.getName();
-	        }
-	    }
+//	    if (entity.getMinistry().getDepartments() != null && !entity.getMinistry().getDepartments().isEmpty()) {
+//	        Department dept = entity.getMinistry().getDepartments().stream()
+//	            .filter(d -> Boolean.TRUE.equals(d.getIsActive()))
+//	            .findFirst()
+//	            .orElse(null);
+//
+//	        if (dept != null) {
+//	            ministryDisplayName += " / " + dept.getName();
+//	        }
+//	    }
 
-	    // Set the human-readable name in the ministryId field
-	    dto.setMinistryId(ministryDisplayName);
+		// Set the human-readable name in the ministryId field
+//	    dto.setMinistryId(ministryDisplayName);
+		if (entity.getMinistry() != null) {
+			dto.setMinistryId(entity.getMinistry().getName());
+		}
 
-	    
-	    dto.setIdeaProposalTitle(entity.getIdeaProposalTitle());
-	    dto.setProposalDescription(entity.getProposalDescription());
-	    dto.setProposalType(entity.getProposalType());
-	    dto.setPotentialEconomicDevelopment(entity.getPotentialEconomicDevelopment());
-	    dto.setPotentialEmploymentGeneration(entity.getPotentialEmploymentGeneration());
-	    dto.setTimelineStart(entity.getTimelineStart());
-	    dto.setTimelineEnd(entity.getTimelineEnd());
-	    dto.setStatus(entity.getStatus());
-	    dto.setLastUpdated(entity.getUpdatedOn());
-	    return dto;
+		dto.setIdeaProposalTitle(entity.getIdeaProposalTitle());
+		dto.setProposalDescription(entity.getProposalDescription());
+		dto.setProposalType(entity.getProposalType());
+		dto.setPotentialEconomicDevelopment(entity.getPotentialEconomicDevelopment());
+		dto.setPotentialEmploymentGeneration(entity.getPotentialEmploymentGeneration());
+		dto.setTimelineStart(entity.getTimelineStart());
+		dto.setTimelineEnd(entity.getTimelineEnd());
+		dto.setStatus(entity.getStatus());
+		dto.setLastUpdated(entity.getUpdatedOn());
+		return dto;
 	}
-
 
 	private OtherProposal mapToEntity(OtherProposalDto dto) {
-	    OtherProposal entity = new OtherProposal();
-	    entity.setId(dto.getId());
-	    
-	    if (dto.getMinistryId() != null) {
-	        Ministry ministry = ministryRepository.findById(dto.getMinistryId())
-	                .orElseThrow(() -> new RuntimeException("Ministry not found with id: " + dto.getMinistryId()));
-	        entity.setMinistry(ministry);
-	    }
+		OtherProposal entity = new OtherProposal();
+		entity.setId(dto.getId());
 
-	    entity.setIdeaProposalTitle(dto.getIdeaProposalTitle());
-	    entity.setProposalDescription(dto.getProposalDescription());
-	    entity.setProposalType(dto.getProposalType());
-	    entity.setPotentialEconomicDevelopment(dto.getPotentialEconomicDevelopment());
-	    entity.setPotentialEmploymentGeneration(dto.getPotentialEmploymentGeneration());
-	    entity.setTimelineStart(dto.getTimelineStart());
-	    entity.setTimelineEnd(dto.getTimelineEnd());
-	    entity.setStatus(dto.getStatus());
+//	    if (dto.getMinistryId() != null) {
+//	        Ministry ministry = ministryRepository.findById(dto.getMinistryId())
+//	                .orElseThrow(() -> new RuntimeException("Ministry not found with id: " + dto.getMinistryId()));
+//	        entity.setMinistry(ministry);
+//	    }
+		if (dto.getMinistryId() != null) {
+			GovernmentEntity ministry = governmentEntityRepository.findById(dto.getMinistryId()).orElseThrow(
+					() -> new RuntimeException("Ministry/Department not found with id: " + dto.getMinistryId()));
+			entity.setMinistry(ministry);
+		}
 
-	    return entity;
+		entity.setIdeaProposalTitle(dto.getIdeaProposalTitle());
+		entity.setProposalDescription(dto.getProposalDescription());
+		entity.setProposalType(dto.getProposalType());
+		entity.setPotentialEconomicDevelopment(dto.getPotentialEconomicDevelopment());
+		entity.setPotentialEmploymentGeneration(dto.getPotentialEmploymentGeneration());
+		entity.setTimelineStart(dto.getTimelineStart());
+		entity.setTimelineEnd(dto.getTimelineEnd());
+		entity.setStatus(dto.getStatus());
+
+		return entity;
 	}
-
 
 	// ----------------- Business Methods -----------------
 	// Create
@@ -133,24 +138,20 @@ public class OtherProposalService {
 
 	// GetAllList
 	public List<OtherProposalResponseDto> getAll(User user) {
-	    String email = user.getEmail();
+		String email = user.getEmail();
 
-	    // Super users who can see all
-	    List<String> superUsers = List.of(
-	            "super.admin@test.com",
-	            "cabsec.user@test.com",
-	            "pmo.user@test.com"
-	    );
+		// Super users who can see all
+		List<String> superUsers = List.of("super.admin@test.com", "cabsec.user@test.com", "pmo.user@test.com");
 
-	    List<OtherProposal> proposals;
+		List<OtherProposal> proposals;
 
-	    if (superUsers.contains(email)) {
-	        proposals = repository.findAll();
-	    } else {
-	        proposals = repository.findByCreatedBy(user.getEntityid());
-	    }
+		if (superUsers.contains(email)) {
+			proposals = repository.findAll();
+		} else {
+			proposals = repository.findByCreatedBy(user.getEntityid());
+		}
 
-	    return proposals.stream().map(this::mapToDto).collect(Collectors.toList());
+		return proposals.stream().map(this::mapToDto).collect(Collectors.toList());
 	}
 
 	// GetListById
@@ -165,11 +166,12 @@ public class OtherProposalService {
 		existing.setIdeaProposalTitle(dto.getIdeaProposalTitle());
 //		existing.setGoalId(dto.getGoalId());
 
-		Ministry ministry = ministryRepository.findById(dto.getMinistryId())
-				.orElseThrow(() -> new RuntimeException("Ministry not found"));
-
+//		Ministry ministry = ministryRepository.findById(dto.getMinistryId())
+//				.orElseThrow(() -> new RuntimeException("Ministry not found"));
+//
+//		existing.setMinistry(ministry);
+		GovernmentEntity ministry = governmentEntityRepository.findById(dto.getMinistryId()).orElseThrow(() -> new RuntimeException("Ministry/Department not found"));
 		existing.setMinistry(ministry);
-
 		existing.setProposalDescription(dto.getProposalDescription());
 		existing.setProposalType(dto.getProposalType());
 		existing.setPotentialEconomicDevelopment(dto.getPotentialEconomicDevelopment());
@@ -223,42 +225,41 @@ public class OtherProposalService {
 //		}
 //		return proposals.stream().map(this::mapToDto).collect(Collectors.toList());
 //	}
-	
-	public List<OtherProposalResponseDto> filterProposals(Long entityId, String status, String proposalDescription, String email) {
-	    List<String> superUsers = List.of(
-	            "super.admin@test.com",
-	            "cabsec.user@test.com",
-	            "pmo.user@test.com"
-	    );
 
-	    List<OtherProposal> proposals;
+	public List<OtherProposalResponseDto> filterProposals(Long entityId, String status, String proposalDescription,
+			String email) {
+		List<String> superUsers = List.of("super.admin@test.com", "cabsec.user@test.com", "pmo.user@test.com");
 
-	    if (superUsers.contains(email)) {
-	        // Super users → no restriction by createdBy
-	        if (status == null && proposalDescription == null) {
-	            proposals = repository.findAll();
-	        } else if (status != null && proposalDescription == null) {
-	            proposals = repository.findByStatusIgnoreCase(status);
-	        } else if (status == null) {
-	            proposals = repository.findByProposalDescriptionContainingIgnoreCase(proposalDescription);
-	        } else {
-	            proposals = repository.findByStatusIgnoreCaseAndProposalDescriptionContainingIgnoreCase(status, proposalDescription);
-	        }
-	    } else {
-	        // Normal users → restricted by createdBy
-	        if (status == null && proposalDescription == null) {
-	            proposals = repository.findByCreatedBy(entityId);
-	        } else if (status != null && proposalDescription == null) {
-	            proposals = repository.findByCreatedByAndStatusIgnoreCase(entityId, status);
-	        } else if (status == null) {
-	            proposals = repository.findByCreatedByAndProposalDescriptionContainingIgnoreCase(entityId, proposalDescription);
-	        } else {
-	            proposals = repository.findByCreatedByAndStatusIgnoreCaseAndProposalDescriptionContainingIgnoreCase(entityId, status, proposalDescription);
-	        }
-	    }
+		List<OtherProposal> proposals;
 
-	    return proposals.stream().map(this::mapToDto).collect(Collectors.toList());
+		if (superUsers.contains(email)) {
+			// Super users → no restriction by createdBy
+			if (status == null && proposalDescription == null) {
+				proposals = repository.findAll();
+			} else if (status != null && proposalDescription == null) {
+				proposals = repository.findByStatusIgnoreCase(status);
+			} else if (status == null) {
+				proposals = repository.findByProposalDescriptionContainingIgnoreCase(proposalDescription);
+			} else {
+				proposals = repository.findByStatusIgnoreCaseAndProposalDescriptionContainingIgnoreCase(status,
+						proposalDescription);
+			}
+		} else {
+			// Normal users → restricted by createdBy
+			if (status == null && proposalDescription == null) {
+				proposals = repository.findByCreatedBy(entityId);
+			} else if (status != null && proposalDescription == null) {
+				proposals = repository.findByCreatedByAndStatusIgnoreCase(entityId, status);
+			} else if (status == null) {
+				proposals = repository.findByCreatedByAndProposalDescriptionContainingIgnoreCase(entityId,
+						proposalDescription);
+			} else {
+				proposals = repository.findByCreatedByAndStatusIgnoreCaseAndProposalDescriptionContainingIgnoreCase(
+						entityId, status, proposalDescription);
+			}
+		}
+
+		return proposals.stream().map(this::mapToDto).collect(Collectors.toList());
 	}
-
 
 }

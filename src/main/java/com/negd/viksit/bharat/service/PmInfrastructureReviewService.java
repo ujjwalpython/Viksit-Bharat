@@ -15,10 +15,9 @@ import com.negd.viksit.bharat.model.Document;
 import com.negd.viksit.bharat.model.MilestonesList;
 import com.negd.viksit.bharat.model.PmInfrastructureReview;
 import com.negd.viksit.bharat.model.User;
-import com.negd.viksit.bharat.model.master.Department;
-import com.negd.viksit.bharat.model.master.Ministry;
+import com.negd.viksit.bharat.model.master.GovernmentEntity;
 import com.negd.viksit.bharat.repository.DocumentRepository;
-import com.negd.viksit.bharat.repository.MinistryRepository;
+import com.negd.viksit.bharat.repository.GovernmentEntityRepository;
 import com.negd.viksit.bharat.repository.PmInfrastructureReviewRepository;
 
 import jakarta.persistence.EntityManager;
@@ -31,13 +30,14 @@ public class PmInfrastructureReviewService {
 
 	private final DocumentRepository documentRepository;
 
-	private final MinistryRepository ministryRepository;
+//	private final MinistryRepository ministryRepository;
+	private final GovernmentEntityRepository governmentEntityRepository;
 
 	public PmInfrastructureReviewService(PmInfrastructureReviewRepository repository,
-			DocumentRepository documentRepository, MinistryRepository ministryRepository) {
+			DocumentRepository documentRepository, GovernmentEntityRepository governmentEntityRepository) {
 		this.repository = repository;
 		this.documentRepository = documentRepository;
-		this.ministryRepository = ministryRepository;
+		this.governmentEntityRepository = governmentEntityRepository;
 	}
 
 	private static final String ID_PREFIX = "MOCVBPMI";
@@ -88,9 +88,9 @@ public class PmInfrastructureReviewService {
 	private PmInfrastructureReview convertToEntity(PmInfrastructureReviewDto dto) {
 		PmInfrastructureReview entity = new PmInfrastructureReview();
 		entity.setId(dto.getId());
-		entity.setPrimatryMinistryDepartment(dto.getPrimatryMinistryDepartment());
+//		entity.setPrimatryMinistryDepartment(dto.getPrimatryMinistryDepartment());
 		entity.setDateOfReviewMeeting(dto.getDateOfReviewMeeting());
-		entity.setSupportingMinistryDepartment(dto.getSupportingMinistryDepartment());
+//		entity.setSupportingMinistryDepartment(dto.getSupportingMinistryDepartment());
 		entity.setCategory(dto.getCategory());
 		entity.setTargetCompletionDate(dto.getTargetCompletionDate());
 		entity.setActionItem(dto.getActionItem());
@@ -100,12 +100,19 @@ public class PmInfrastructureReviewService {
 		entity.setExpectedOutcome(dto.getExpectedOutcome());
 		entity.setStatus(dto.getStatus());
 
+//		if (dto.getMinistryId() != null) {
+//			Ministry ministry = ministryRepository.findById(dto.getMinistryId())
+//					.orElseThrow(() -> new RuntimeException("Ministry not found with id: " + dto.getMinistryId()));
+//			entity.setMinistry(ministry);
+//		}
 		if (dto.getMinistryId() != null) {
-			Ministry ministry = ministryRepository.findById(dto.getMinistryId())
-					.orElseThrow(() -> new RuntimeException("Ministry not found with id: " + dto.getMinistryId()));
+			GovernmentEntity ministry = governmentEntityRepository.findById(dto.getMinistryId()).orElseThrow(
+					() -> new RuntimeException("Ministry/Department not found with id: " + dto.getMinistryId()));
 			entity.setMinistry(ministry);
+			entity.setPrimatryMinistryDepartment(ministry.getName());
+			entity.setSupportingMinistryDepartment(ministry.getName());
 		}
-
+		
 		if (dto.getMilestonesList() != null) {
 			dto.getMilestonesList().forEach(kdDto -> {
 				MilestonesList kd = new MilestonesList();
@@ -127,23 +134,27 @@ public class PmInfrastructureReviewService {
 		dto.setId(entity.getId());
 
 		// Build Ministry / Department display name
-		String ministryDisplayName = entity.getMinistry().getName();
-
-		if (entity.getMinistry().getDepartments() != null && !entity.getMinistry().getDepartments().isEmpty()) {
-			Department dept = entity.getMinistry().getDepartments().stream()
-					.filter(d -> Boolean.TRUE.equals(d.getIsActive())).findFirst().orElse(null);
-
-			if (dept != null) {
-				ministryDisplayName += " / " + dept.getName();
-			}
+//		String ministryDisplayName = entity.getMinistry().getName();
+//
+//		if (entity.getMinistry().getDepartments() != null && !entity.getMinistry().getDepartments().isEmpty()) {
+//			Department dept = entity.getMinistry().getDepartments().stream()
+//					.filter(d -> Boolean.TRUE.equals(d.getIsActive())).findFirst().orElse(null);
+//
+//			if (dept != null) {
+//				ministryDisplayName += " / " + dept.getName();
+//			}
+//		}
+//
+//		// Set the human-readable name in the ministryId field
+//		dto.setMinistryId(ministryDisplayName);
+		if (entity.getMinistry() != null) {
+			dto.setMinistryId(entity.getMinistry().getName());
 		}
-
-		// Set the human-readable name in the ministryId field
-		dto.setMinistryId(ministryDisplayName);
-
-		dto.setPrimatryMinistryDepartment(entity.getPrimatryMinistryDepartment());
+		dto.setPrimatryMinistryDepartment(entity.getMinistry().getName());
+		dto.setSupportingMinistryDepartment(entity.getMinistry().getName());
+//		dto.setPrimatryMinistryDepartment(entity.getPrimatryMinistryDepartment());
 		dto.setDateOfReviewMeeting(entity.getDateOfReviewMeeting());
-		dto.setSupportingMinistryDepartment(entity.getSupportingMinistryDepartment());
+//		dto.setSupportingMinistryDepartment(entity.getSupportingMinistryDepartment());
 		dto.setCategory(entity.getCategory());
 		dto.setTargetCompletionDate(entity.getTargetCompletionDate());
 		dto.setActionItem(entity.getActionItem());
@@ -203,13 +214,15 @@ public class PmInfrastructureReviewService {
 		PmInfrastructureReview existing = repository.findById(id)
 				.orElseThrow(() -> new RuntimeException("PmInfrastructure Review Not Found"));
 
-		Ministry ministry = ministryRepository.findById(dto.getMinistryId())
-				.orElseThrow(() -> new RuntimeException("Ministry not found"));
-
+//		Ministry ministry = ministryRepository.findById(dto.getMinistryId())
+//				.orElseThrow(() -> new RuntimeException("Ministry not found"));
+//
+//		existing.setMinistry(ministry);
+		GovernmentEntity ministry = governmentEntityRepository.findById(dto.getMinistryId()).orElseThrow(() -> new RuntimeException("Ministry/Department not found"));
 		existing.setMinistry(ministry);
-		existing.setPrimatryMinistryDepartment(dto.getPrimatryMinistryDepartment());
+//		existing.setPrimatryMinistryDepartment(dto.getPrimatryMinistryDepartment());
 		existing.setDateOfReviewMeeting(dto.getDateOfReviewMeeting());
-		existing.setSupportingMinistryDepartment(dto.getSupportingMinistryDepartment());
+//		existing.setSupportingMinistryDepartment(dto.getSupportingMinistryDepartment());
 		existing.setCategory(dto.getCategory());
 		existing.setTargetCompletionDate(dto.getTargetCompletionDate());
 		existing.setActionItem(dto.getActionItem());
@@ -218,6 +231,8 @@ public class PmInfrastructureReviewService {
 		existing.setBottlenecks(dto.getBottlenecks());
 		existing.setExpectedOutcome(dto.getExpectedOutcome());
 		existing.setStatus(dto.getStatus());
+		existing.setPrimatryMinistryDepartment(ministry.getName());
+		existing.setSupportingMinistryDepartment(ministry.getName());
 
 		if (dto.getMilestonesList() != null) {
 			Map<String, MilestonesList> existingKdsMap = existing.getMilestonesList().stream()

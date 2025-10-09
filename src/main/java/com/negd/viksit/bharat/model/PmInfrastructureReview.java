@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.negd.viksit.bharat.audit.Auditable;
-import com.negd.viksit.bharat.model.master.Ministry;
+import com.negd.viksit.bharat.model.master.GovernmentEntity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -26,9 +26,12 @@ public class PmInfrastructureReview extends Auditable<Long>{
 	@Id
 	private String id;
 
+//	@ManyToOne(fetch = FetchType.LAZY)
+//	@JoinColumn(name = "ministry_id", nullable = false)
+//	private Ministry ministry;
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "ministry_id", nullable = false)
-	private Ministry ministry;
+	private GovernmentEntity ministry;
 	
 	private String primatryMinistryDepartment;
 	private LocalDate dateOfReviewMeeting;

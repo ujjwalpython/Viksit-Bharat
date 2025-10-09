@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.negd.viksit.bharat.audit.Auditable;
-import com.negd.viksit.bharat.model.master.Ministry;
+import com.negd.viksit.bharat.model.master.GovernmentEntity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -27,9 +27,12 @@ public class TargetIntervention extends Auditable<Long> {
 	private String id;
 //	private String goalId;
 
+//	@ManyToOne(fetch = FetchType.LAZY)
+//	@JoinColumn(name = "ministry_id", nullable = false)
+//	private Ministry ministry;
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "ministry_id", nullable = false)
-	private Ministry ministry;
+	private GovernmentEntity ministry;
 
 	private String targetDetails;
 	private String actionPoint;

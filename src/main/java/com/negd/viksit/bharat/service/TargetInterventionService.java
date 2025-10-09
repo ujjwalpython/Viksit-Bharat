@@ -13,9 +13,10 @@ import com.negd.viksit.bharat.model.Document;
 import com.negd.viksit.bharat.model.KeyDeliverable;
 import com.negd.viksit.bharat.model.TargetIntervention;
 import com.negd.viksit.bharat.model.master.Department;
+import com.negd.viksit.bharat.model.master.GovernmentEntity;
 import com.negd.viksit.bharat.model.master.Ministry;
 import com.negd.viksit.bharat.repository.DocumentRepository;
-import com.negd.viksit.bharat.repository.MinistryRepository;
+import com.negd.viksit.bharat.repository.GovernmentEntityRepository;
 import com.negd.viksit.bharat.repository.TargetInterventionRepository;
 
 import jakarta.persistence.EntityManager;
@@ -29,13 +30,14 @@ public class TargetInterventionService {
 
 	private final DocumentRepository documentRepository;
 
-	private final MinistryRepository ministryRepository;
+//	private final MinistryRepository ministryRepository;
+	private final GovernmentEntityRepository governmentEntityRepository;
 
 	public TargetInterventionService(TargetInterventionRepository repository, DocumentRepository documentRepository,
-			MinistryRepository ministryRepository) {
+			GovernmentEntityRepository governmentEntityRepository) {
 		this.repository = repository;
 		this.documentRepository = documentRepository;
-		this.ministryRepository = ministryRepository;
+		this.governmentEntityRepository = governmentEntityRepository;
 	}
 
 	private static final String ID_PREFIX = "MOCVBGA";
@@ -84,9 +86,14 @@ public class TargetInterventionService {
 		entity.setBottlenecks(dto.getBottlenecks());
 		entity.setStatus(dto.getStatus());
 
+//		if (dto.getMinistryId() != null) {
+//			Ministry ministry = ministryRepository.findById(dto.getMinistryId())
+//					.orElseThrow(() -> new RuntimeException("Ministry not found with id: " + dto.getMinistryId()));
+//			entity.setMinistry(ministry);
+//		}
 		if (dto.getMinistryId() != null) {
-			Ministry ministry = ministryRepository.findById(dto.getMinistryId())
-					.orElseThrow(() -> new RuntimeException("Ministry not found with id: " + dto.getMinistryId()));
+			GovernmentEntity ministry = governmentEntityRepository.findById(dto.getMinistryId()).orElseThrow(
+					() -> new RuntimeException("Ministry/Department not found with id: " + dto.getMinistryId()));
 			entity.setMinistry(ministry);
 		}
 
@@ -115,22 +122,25 @@ public class TargetInterventionService {
 //		dto.setMinistryId(entity.getMinistry().getName());
 		
 		 // Build Ministry / Department display name
-	    String ministryDisplayName = entity.getMinistry().getName();
-
-	    if (entity.getMinistry().getDepartments() != null && !entity.getMinistry().getDepartments().isEmpty()) {
-	        Department dept = entity.getMinistry().getDepartments().stream()
-	            .filter(d -> Boolean.TRUE.equals(d.getIsActive()))
-	            .findFirst()
-	            .orElse(null);
-
-	        if (dept != null) {
-	            ministryDisplayName += " / " + dept.getName();
-	        }
-	    }
-
-	    // Set the human-readable name in the ministryId field
-	    dto.setMinistryId(ministryDisplayName);
-
+//	    String ministryDisplayName = entity.getMinistry().getName();
+//
+//	    if (entity.getMinistry().getDepartments() != null && !entity.getMinistry().getDepartments().isEmpty()) {
+//	        Department dept = entity.getMinistry().getDepartments().stream()
+//	            .filter(d -> Boolean.TRUE.equals(d.getIsActive()))
+//	            .findFirst()
+//	            .orElse(null);
+//
+//	        if (dept != null) {
+//	            ministryDisplayName += " / " + dept.getName();
+//	        }
+//	    }
+//
+//	    // Set the human-readable name in the ministryId field
+//	    dto.setMinistryId(ministryDisplayName);
+		if (entity.getMinistry() != null) {
+			dto.setMinistryId(entity.getMinistry().getName());
+		}
+		
 		dto.setTargetDetails(entity.getTargetDetails());
 		dto.setActionPoint(entity.getActionPoint());
 		dto.setTargetDate(entity.getTargetDate());
@@ -194,9 +204,11 @@ public class TargetInterventionService {
 		TargetIntervention existing = repository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Target / Intervention Not Found"));
 
-		Ministry ministry = ministryRepository.findById(dto.getMinistryId())
-				.orElseThrow(() -> new RuntimeException("Ministry not found"));
-
+//		Ministry ministry = ministryRepository.findById(dto.getMinistryId())
+//				.orElseThrow(() -> new RuntimeException("Ministry not found"));
+//
+//		existing.setMinistry(ministry);
+		GovernmentEntity ministry = governmentEntityRepository.findById(dto.getMinistryId()).orElseThrow(() -> new RuntimeException("Ministry/Department not found"));
 		existing.setMinistry(ministry);
 		existing.setStatus(dto.getStatus());
 //		existing.setGoalId(dto.getGoalId());
