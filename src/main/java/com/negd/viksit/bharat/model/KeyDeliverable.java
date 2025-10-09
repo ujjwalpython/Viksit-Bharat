@@ -22,8 +22,8 @@ import lombok.Data;
 public class KeyDeliverable extends Auditable<Long> {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+//	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private String id;
 
 	@Column(nullable = false)
 	private String activityDescription;

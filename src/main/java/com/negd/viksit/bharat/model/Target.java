@@ -26,8 +26,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Target extends Auditable<Long> {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+//	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private String id;
 
 //	private String name;
 	private LocalDate deadline;

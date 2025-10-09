@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class TargetDto {
 
-	private Long id;
+	private String id;
 	private String activityDescription;
 	private LocalDate deadline;
 //	private String documentPath;

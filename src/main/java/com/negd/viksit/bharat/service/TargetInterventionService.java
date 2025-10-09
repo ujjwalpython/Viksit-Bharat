@@ -12,9 +12,7 @@ import com.negd.viksit.bharat.dto.TargetInterventionResponseDto;
 import com.negd.viksit.bharat.model.Document;
 import com.negd.viksit.bharat.model.KeyDeliverable;
 import com.negd.viksit.bharat.model.TargetIntervention;
-import com.negd.viksit.bharat.model.master.Department;
 import com.negd.viksit.bharat.model.master.GovernmentEntity;
-import com.negd.viksit.bharat.model.master.Ministry;
 import com.negd.viksit.bharat.repository.DocumentRepository;
 import com.negd.viksit.bharat.repository.GovernmentEntityRepository;
 import com.negd.viksit.bharat.repository.TargetInterventionRepository;
@@ -49,6 +47,17 @@ public class TargetInterventionService {
 	public TargetIntervention save(TargetIntervention reform) {
 		if (reform.getId() == null || reform.getId().isEmpty()) {
 			reform.setId(generateCustomId());
+		}
+		// Assign milestone IDs automatically
+		if (reform.getKeyDeliverables() != null && !reform.getKeyDeliverables().isEmpty()) {
+			for (int i = 0; i < reform.getKeyDeliverables().size(); i++) {
+				KeyDeliverable milestone = reform.getKeyDeliverables().get(i);
+				if (milestone.getId() == null || milestone.getId().isEmpty()) {
+					String milestoneId = reform.getId() + "/" + String.format("%02d", i + 1);
+					milestone.setId(milestoneId);
+				}
+				milestone.setTargetIntervention(reform);
+			}
 		}
 		return repository.save(reform);
 	}
@@ -120,8 +129,8 @@ public class TargetInterventionService {
 		dto.setId(entity.getId());
 //		dto.setGoalId(entity.getGoalId());
 //		dto.setMinistryId(entity.getMinistry().getName());
-		
-		 // Build Ministry / Department display name
+
+		// Build Ministry / Department display name
 //	    String ministryDisplayName = entity.getMinistry().getName();
 //
 //	    if (entity.getMinistry().getDepartments() != null && !entity.getMinistry().getDepartments().isEmpty()) {
@@ -140,7 +149,7 @@ public class TargetInterventionService {
 		if (entity.getMinistry() != null) {
 			dto.setMinistryId(entity.getMinistry().getName());
 		}
-		
+
 		dto.setTargetDetails(entity.getTargetDetails());
 		dto.setActionPoint(entity.getActionPoint());
 		dto.setTargetDate(entity.getTargetDate());
@@ -170,7 +179,7 @@ public class TargetInterventionService {
 	}
 
 	// ----------------- Business Methods -----------------
-    // Create
+	// Create
 	public TargetInterventionResponseDto save(TargetInterventionDto dto) {
 		TargetIntervention entity = convertToEntity(dto);
 		TargetIntervention saved = save(entity); // Use the save with ID generation
@@ -199,7 +208,7 @@ public class TargetInterventionService {
 		return convertToDto(entity);
 	}
 
-    // Update By Id
+	// Update By Id
 	public TargetInterventionResponseDto update(String id, TargetInterventionDto dto) {
 		TargetIntervention existing = repository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Target / Intervention Not Found"));
@@ -208,7 +217,8 @@ public class TargetInterventionService {
 //				.orElseThrow(() -> new RuntimeException("Ministry not found"));
 //
 //		existing.setMinistry(ministry);
-		GovernmentEntity ministry = governmentEntityRepository.findById(dto.getMinistryId()).orElseThrow(() -> new RuntimeException("Ministry/Department not found"));
+		GovernmentEntity ministry = governmentEntityRepository.findById(dto.getMinistryId())
+				.orElseThrow(() -> new RuntimeException("Ministry/Department not found"));
 		existing.setMinistry(ministry);
 		existing.setStatus(dto.getStatus());
 //		existing.setGoalId(dto.getGoalId());
@@ -220,7 +230,7 @@ public class TargetInterventionService {
 		existing.setBottlenecks(dto.getBottlenecks());
 
 		if (dto.getKeyDeliverables() != null) {
-			Map<Long, KeyDeliverable> existingKdsMap = existing.getKeyDeliverables().stream()
+			Map<String, KeyDeliverable> existingKdsMap = existing.getKeyDeliverables().stream()
 					.filter(kd -> kd.getId() != null).collect(Collectors.toMap(KeyDeliverable::getId, kd -> kd));
 
 			existing.getKeyDeliverables().clear();
@@ -254,7 +264,7 @@ public class TargetInterventionService {
 		TargetIntervention updated = repository.save(existing);
 		return convertToDto(updated);
 	}
- 
+
 	// Delete By Id
 	public void delete(String id) {
 		repository.deleteById(id);

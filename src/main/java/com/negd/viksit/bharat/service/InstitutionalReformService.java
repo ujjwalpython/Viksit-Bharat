@@ -28,7 +28,7 @@ public class InstitutionalReformService {
 	private final InstitutionalReformRepository reformRepo;
 	private final TargetRepository targetRepo;
 //	private final MinistryRepository ministryRepository;
-	private final GovernmentEntityRepository governmentEntityRepository; 
+	private final GovernmentEntityRepository governmentEntityRepository;
 	private final DocumentRepository documentRepository;
 
 	private static final String ID_PREFIX = "MOCVBIR";
@@ -40,6 +40,17 @@ public class InstitutionalReformService {
 	public InstitutionalReform save(InstitutionalReform reform) {
 		if (reform.getId() == null || reform.getId().isEmpty()) {
 			reform.setId(generateCustomId());
+		}
+		// Assign milestone IDs automatically
+		if (reform.getTarget() != null && !reform.getTarget().isEmpty()) {
+			for (int i = 0; i < reform.getTarget().size(); i++) {
+				Target milestone = reform.getTarget().get(i);
+				if (milestone.getId() == null || milestone.getId().isEmpty()) {
+					String milestoneId = reform.getId() + "/" + String.format("%02d", i + 1);
+					milestone.setId(milestoneId);
+				}
+				milestone.setInstitutionalReform(reform);
+			}
 		}
 		return reformRepo.save(reform);
 	}
@@ -134,8 +145,8 @@ public class InstitutionalReformService {
 		dto.setStatus(reform.getStatus());
 		dto.setLastUpdated(reform.getUpdatedOn());
 //		dto.setMinistryId(reform.getMinistry().getName());
-		
-		 // Build Ministry / Department display name
+
+		// Build Ministry / Department display name
 //	    String ministryDisplayName = reform.getMinistry().getName();
 //
 //	    if (reform.getMinistry().getDepartments() != null && !reform.getMinistry().getDepartments().isEmpty()) {
@@ -198,7 +209,8 @@ public class InstitutionalReformService {
 //				.orElseThrow(() -> new RuntimeException("Ministry not found"));
 //
 //		existing.setMinistry(ministry);
-		GovernmentEntity ministry = governmentEntityRepository.findById(dto.getMinistryId()).orElseThrow(() -> new RuntimeException("Ministry/Department not found"));
+		GovernmentEntity ministry = governmentEntityRepository.findById(dto.getMinistryId())
+				.orElseThrow(() -> new RuntimeException("Ministry/Department not found"));
 		existing.setMinistry(ministry);
 		existing.setStatus(dto.getStatus());
 		existing.setInstitutionalReformName(dto.getInstitutionalReformName());
@@ -278,8 +290,8 @@ public class InstitutionalReformService {
 	}
 
 	// Filters
-	public List<InstitutionalReformResponseDto> filterReforms(Long entityId, String status,
-			String reformDescription, String email) {
+	public List<InstitutionalReformResponseDto> filterReforms(Long entityId, String status, String reformDescription,
+			String email) {
 
 		List<String> superUsers = List.of("super.admin@test.com", "cabsec.user@test.com", "pmo.user@test.com");
 		List<InstitutionalReform> reforms;
@@ -303,10 +315,11 @@ public class InstitutionalReformService {
 			} else if (status != null && reformDescription == null) {
 				reforms = reformRepo.findByCreatedByAndStatusIgnoreCase(entityId, status);
 			} else if (status == null) {
-				reforms = reformRepo.findByCreatedByAndReformDescriptionContainingIgnoreCase(entityId, reformDescription);
+				reforms = reformRepo.findByCreatedByAndReformDescriptionContainingIgnoreCase(entityId,
+						reformDescription);
 			} else {
-				reforms = reformRepo.findByCreatedByAndStatusIgnoreCaseAndReformDescriptionContainingIgnoreCase(entityId,
-						status, reformDescription);
+				reforms = reformRepo.findByCreatedByAndStatusIgnoreCaseAndReformDescriptionContainingIgnoreCase(
+						entityId, status, reformDescription);
 			}
 		}
 
