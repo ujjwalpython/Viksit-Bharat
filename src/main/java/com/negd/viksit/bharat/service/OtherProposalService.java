@@ -3,6 +3,7 @@ package com.negd.viksit.bharat.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.negd.viksit.bharat.dto.OtherProposalDto;
@@ -138,17 +139,13 @@ public class OtherProposalService {
 
 	// GetAllList
 	public List<OtherProposalResponseDto> getAll(User user) {
-		String email = user.getEmail();
-
-		// Super users who can see all
-		List<String> superUsers = List.of("super.admin@test.com", "cabsec.user@test.com", "pmo.user@test.com");
-
+		Sort sort = Sort.by(Sort.Direction.DESC, "updatedOn");
 		List<OtherProposal> proposals;
 
-		if (superUsers.contains(email)) {
-			proposals = repository.findAll();
+		if (isSuperUser(user.getEmail())) {
+			proposals = repository.findAll(sort);
 		} else {
-			proposals = repository.findByCreatedBy(user.getEntityid());
+			proposals = repository.findByCreatedBy(user.getEntityid(), sort);
 		}
 
 		return proposals.stream().map(this::mapToDto).collect(Collectors.toList());
@@ -228,38 +225,41 @@ public class OtherProposalService {
 
 	public List<OtherProposalResponseDto> filterProposals(Long entityId, String status, String proposalDescription,
 			String email) {
-		List<String> superUsers = List.of("super.admin@test.com", "cabsec.user@test.com", "pmo.user@test.com");
-
+		Sort sort = Sort.by(Sort.Direction.DESC, "updatedOn");
 		List<OtherProposal> proposals;
 
-		if (superUsers.contains(email)) {
+		if (isSuperUser(email)) {
 			// Super users → no restriction by createdBy
 			if (status == null && proposalDescription == null) {
-				proposals = repository.findAll();
+				proposals = repository.findAll(sort);
 			} else if (status != null && proposalDescription == null) {
-				proposals = repository.findByStatusIgnoreCase(status);
+				proposals = repository.findByStatusIgnoreCase(status, sort);
 			} else if (status == null) {
-				proposals = repository.findByProposalDescriptionContainingIgnoreCase(proposalDescription);
+				proposals = repository.findByProposalDescriptionContainingIgnoreCase(proposalDescription, sort);
 			} else {
 				proposals = repository.findByStatusIgnoreCaseAndProposalDescriptionContainingIgnoreCase(status,
-						proposalDescription);
+						proposalDescription, sort);
 			}
 		} else {
 			// Normal users → restricted by createdBy
 			if (status == null && proposalDescription == null) {
-				proposals = repository.findByCreatedBy(entityId);
+				proposals = repository.findByCreatedBy(entityId, sort);
 			} else if (status != null && proposalDescription == null) {
-				proposals = repository.findByCreatedByAndStatusIgnoreCase(entityId, status);
+				proposals = repository.findByCreatedByAndStatusIgnoreCase(entityId, status, sort);
 			} else if (status == null) {
 				proposals = repository.findByCreatedByAndProposalDescriptionContainingIgnoreCase(entityId,
-						proposalDescription);
+						proposalDescription, sort);
 			} else {
 				proposals = repository.findByCreatedByAndStatusIgnoreCaseAndProposalDescriptionContainingIgnoreCase(
-						entityId, status, proposalDescription);
+						entityId, status, proposalDescription, sort);
 			}
 		}
 
 		return proposals.stream().map(this::mapToDto).collect(Collectors.toList());
+	}
+	
+	private boolean isSuperUser(String email) {
+		return List.of("super.admin@test.com", "cabsec.user@test.com", "pmo.user@test.com").contains(email);
 	}
 
 }

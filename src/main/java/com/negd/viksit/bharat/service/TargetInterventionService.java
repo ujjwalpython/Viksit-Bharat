@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.negd.viksit.bharat.dto.KeyDeliverableDto;
@@ -188,14 +189,13 @@ public class TargetInterventionService {
 
 	// Get All List
 	public List<TargetInterventionResponseDto> findAll(com.negd.viksit.bharat.model.User user) {
-		String email = user.getEmail();
-		List<String> superUsers = List.of("super.admin@test.com", "cabsec.user@test.com", "pmo.user@test.com");
-
+		Sort sort = Sort.by(Sort.Direction.DESC, "updatedOn");
 		List<TargetIntervention> entities;
-		if (superUsers.contains(email)) {
-			entities = repository.findAll();
+		
+		if (isSuperUser(user.getEmail())) {
+			entities = repository.findAll(sort);
 		} else {
-			entities = repository.findByCreatedBy(user.getEntityid());
+			entities = repository.findByCreatedBy(user.getEntityid(), sort);
 		}
 
 		return entities.stream().map(this::convertToDto).collect(Collectors.toList());
@@ -294,37 +294,39 @@ public class TargetInterventionService {
 	// Filter
 	public List<TargetInterventionResponseDto> filterTargetInterventions(Long entityId, String status,
 			String targetDetails, String email) {
-
-		List<String> superUsers = List.of("super.admin@test.com", "cabsec.user@test.com", "pmo.user@test.com");
-
+		Sort sort = Sort.by(Sort.Direction.DESC, "updatedOn");
 		List<TargetIntervention> entities;
 
-		if (superUsers.contains(email)) {
+		if (isSuperUser(email)) {
 			// Super users → see everything
 			if (status == null && targetDetails == null) {
-				entities = repository.findAll();
+				entities = repository.findAll(sort);
 			} else if (status != null && targetDetails == null) {
-				entities = repository.findByStatusIgnoreCase(status);
+				entities = repository.findByStatusIgnoreCase(status, sort);
 			} else if (status == null) {
-				entities = repository.findByTargetDetailsContainingIgnoreCase(targetDetails);
+				entities = repository.findByTargetDetailsContainingIgnoreCase(targetDetails, sort);
 			} else {
-				entities = repository.findByStatusIgnoreCaseAndTargetDetailsContainingIgnoreCase(status, targetDetails);
+				entities = repository.findByStatusIgnoreCaseAndTargetDetailsContainingIgnoreCase(status, targetDetails, sort);
 			}
 		} else {
 			// Normal users → restricted by createdBy
 			if (status == null && targetDetails == null) {
-				entities = repository.findByCreatedBy(entityId);
+				entities = repository.findByCreatedBy(entityId, sort);
 			} else if (status != null && targetDetails == null) {
-				entities = repository.findByCreatedByAndStatusIgnoreCase(entityId, status);
+				entities = repository.findByCreatedByAndStatusIgnoreCase(entityId, status, sort);
 			} else if (status == null) {
-				entities = repository.findByCreatedByAndTargetDetailsContainingIgnoreCase(entityId, targetDetails);
+				entities = repository.findByCreatedByAndTargetDetailsContainingIgnoreCase(entityId, targetDetails, sort);
 			} else {
 				entities = repository.findByCreatedByAndStatusIgnoreCaseAndTargetDetailsContainingIgnoreCase(entityId,
-						status, targetDetails);
+						status, targetDetails, sort);
 			}
 		}
 
 		return entities.stream().map(this::convertToDto).collect(Collectors.toList());
+	}
+	
+	private boolean isSuperUser(String email) {
+		return List.of("super.admin@test.com", "cabsec.user@test.com", "pmo.user@test.com").contains(email);
 	}
 
 }

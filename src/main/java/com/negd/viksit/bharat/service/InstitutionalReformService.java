@@ -3,6 +3,7 @@ package com.negd.viksit.bharat.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.negd.viksit.bharat.dto.InstitutionalReformDto;
@@ -182,14 +183,13 @@ public class InstitutionalReformService {
 
 	// READ ALL
 	public List<InstitutionalReformResponseDto> getAll(com.negd.viksit.bharat.model.User user) {
-		String email = user.getEmail();
-		List<String> superUsers = List.of("super.admin@test.com", "cabsec.user@test.com", "pmo.user@test.com");
-
+		Sort sort = Sort.by(Sort.Direction.DESC, "updatedOn");
 		List<InstitutionalReform> reforms;
-		if (superUsers.contains(email)) {
-			reforms = reformRepo.findAll();
+		
+		if (isSuperUser(user.getEmail())) {
+			reforms = reformRepo.findAll(sort);
 		} else {
-			reforms = reformRepo.findByCreatedBy(user.getEntityid());
+			reforms = reformRepo.findByCreatedBy(user.getEntityid(), sort);
 		}
 
 		return reforms.stream().map(this::mapToDto).collect(Collectors.toList());
@@ -292,38 +292,41 @@ public class InstitutionalReformService {
 	// Filters
 	public List<InstitutionalReformResponseDto> filterReforms(Long entityId, String status, String reformDescription,
 			String email) {
-
-		List<String> superUsers = List.of("super.admin@test.com", "cabsec.user@test.com", "pmo.user@test.com");
+		Sort sort = Sort.by(Sort.Direction.DESC, "updatedOn");
 		List<InstitutionalReform> reforms;
 
-		if (superUsers.contains(email)) {
+		if (isSuperUser(email)) {
 			// Super users → see everything
 			if (status == null && reformDescription == null) {
-				reforms = reformRepo.findAll();
+				reforms = reformRepo.findAll(sort);
 			} else if (status != null && reformDescription == null) {
-				reforms = reformRepo.findByStatusIgnoreCase(status);
+				reforms = reformRepo.findByStatusIgnoreCase(status, sort);
 			} else if (status == null) {
-				reforms = reformRepo.findByReformDescriptionContainingIgnoreCase(reformDescription);
+				reforms = reformRepo.findByReformDescriptionContainingIgnoreCase(reformDescription, sort);
 			} else {
 				reforms = reformRepo.findByStatusIgnoreCaseAndReformDescriptionContainingIgnoreCase(status,
-						reformDescription);
+						reformDescription, sort);
 			}
 		} else {
 			// Normal users → only their own records
 			if (status == null && reformDescription == null) {
-				reforms = reformRepo.findByCreatedBy(entityId);
+				reforms = reformRepo.findByCreatedBy(entityId, sort);
 			} else if (status != null && reformDescription == null) {
-				reforms = reformRepo.findByCreatedByAndStatusIgnoreCase(entityId, status);
+				reforms = reformRepo.findByCreatedByAndStatusIgnoreCase(entityId, status, sort);
 			} else if (status == null) {
 				reforms = reformRepo.findByCreatedByAndReformDescriptionContainingIgnoreCase(entityId,
-						reformDescription);
+						reformDescription, sort);
 			} else {
 				reforms = reformRepo.findByCreatedByAndStatusIgnoreCaseAndReformDescriptionContainingIgnoreCase(
-						entityId, status, reformDescription);
+						entityId, status, reformDescription, sort);
 			}
 		}
 
 		return reforms.stream().map(this::mapToDto).collect(Collectors.toList());
+	}
+
+	private boolean isSuperUser(String email) {
+		return List.of("super.admin@test.com", "cabsec.user@test.com", "pmo.user@test.com").contains(email);
 	}
 
 }
