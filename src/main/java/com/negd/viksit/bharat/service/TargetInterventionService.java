@@ -1,5 +1,6 @@
 package com.negd.viksit.bharat.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -233,8 +234,9 @@ public class TargetInterventionService {
 			Map<String, KeyDeliverable> existingKdsMap = existing.getKeyDeliverables().stream()
 					.filter(kd -> kd.getId() != null).collect(Collectors.toMap(KeyDeliverable::getId, kd -> kd));
 
-			existing.getKeyDeliverables().clear();
-
+			List<KeyDeliverable> updatedKeyDeliverable = new ArrayList<>();
+			int counter = existing.getKeyDeliverables().size() +1;
+			
 			for (KeyDeliverableDto kdDto : dto.getKeyDeliverables()) {
 				KeyDeliverable kd;
 
@@ -242,6 +244,8 @@ public class TargetInterventionService {
 					kd = existingKdsMap.get(kdDto.getId());
 				} else {
 					kd = new KeyDeliverable();
+					String keyDeliverableId = existing.getId() + "/" + String.format("%02d", counter++);
+					kd.setId(keyDeliverableId);
 				}
 
 				kd.setActivityDescription(kdDto.getActivityDescription());
@@ -254,9 +258,11 @@ public class TargetInterventionService {
 				} else {
 					kd.setDocument(null);
 				}
-
-				existing.addKeyDeliverable(kd);
+				kd.setTargetIntervention(existing);
+				updatedKeyDeliverable.add(kd);
 			}
+			existing.getKeyDeliverables().clear();
+			existing.getKeyDeliverables().addAll(updatedKeyDeliverable);
 		} else {
 			existing.getKeyDeliverables().clear();
 		}

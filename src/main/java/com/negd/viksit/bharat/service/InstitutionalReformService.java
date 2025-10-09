@@ -1,6 +1,8 @@
 package com.negd.viksit.bharat.service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Sort;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.negd.viksit.bharat.dto.InstitutionalReformDto;
 import com.negd.viksit.bharat.dto.InstitutionalReformResponseDto;
 import com.negd.viksit.bharat.dto.TargetDto;
+import com.negd.viksit.bharat.model.Document;
 import com.negd.viksit.bharat.model.InstitutionalReform;
 import com.negd.viksit.bharat.model.Target;
 import com.negd.viksit.bharat.model.master.GovernmentEntity;
@@ -223,10 +226,11 @@ public class InstitutionalReformService {
 		existing.setStatus(dto.getStatus());
 
 		if (dto.getTarget() != null) {
-			var existingTargetsMap = existing.getTarget().stream().filter(t -> t.getId() != null)
-					.collect(Collectors.toMap(Target::getId, t -> t));
+			Map<String, Target> existingTargetsMap = existing.getTarget().stream()
+					.filter(target -> target.getId() != null).collect(Collectors.toMap(Target::getId, target -> target));
 
-			existing.getTarget().clear();
+			List<Target> updatedTarget = new ArrayList<>();
+			int counter = existing.getTarget().size() + 1;
 
 			for (TargetDto tDto : dto.getTarget()) {
 				Target target;
@@ -235,21 +239,26 @@ public class InstitutionalReformService {
 					target = existingTargetsMap.get(tDto.getId());
 				} else {
 					target = new Target();
+					String targetId = existing.getId() + "/" + String.format("%02d", counter++);
+					target.setId(targetId);
 				}
 
 				target.setActivityDescription(tDto.getActivityDescription());
 				target.setDeadline(tDto.getDeadline());
-//				target.setDocumentPath(tDto.getDocumentPath());
 
 				if (tDto.getDocumentId() != null) {
-					target.setDocument(documentRepository.findById(tDto.getDocumentId())
-							.orElseThrow(() -> new RuntimeException("Document not found: " + tDto.getDocumentId())));
+					Document doc = documentRepository.findById(tDto.getDocumentId())
+							.orElseThrow(() -> new RuntimeException("Document not found: " + tDto.getDocumentId()));
+					target.setDocument(doc);
 				} else {
 					target.setDocument(null);
 				}
 
-				existing.addTarget(target);
+				target.setInstitutionalReform(existing);
+				updatedTarget.add(target);
 			}
+			existing.getTarget().clear();
+			existing.getTarget().addAll(updatedTarget);
 		} else {
 			existing.getTarget().clear();
 		}
