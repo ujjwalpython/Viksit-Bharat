@@ -182,6 +182,7 @@ public class TargetInterventionService {
 
 	// ----------------- Business Methods -----------------
 	// Create
+	@Transactional
 	public TargetInterventionResponseDto save(TargetInterventionDto dto) {
 		TargetIntervention entity = convertToEntity(dto);
 		TargetIntervention saved = save(entity); // Use the save with ID generation
@@ -192,7 +193,7 @@ public class TargetInterventionService {
 	public List<TargetInterventionResponseDto> findAll(com.negd.viksit.bharat.model.User user) {
 		Sort sort = Sort.by(Sort.Direction.DESC, "updatedOn");
 		List<TargetIntervention> entities;
-		
+
 		if (isSuperUser(user.getEmail())) {
 			entities = repository.findAll(sort);
 		} else {
@@ -210,6 +211,7 @@ public class TargetInterventionService {
 	}
 
 	// Update By Id
+	@Transactional
 	public TargetInterventionResponseDto update(String id, TargetInterventionDto dto) {
 		TargetIntervention existing = repository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Target / Intervention Not Found"));
@@ -230,13 +232,15 @@ public class TargetInterventionService {
 		existing.setPriority(dto.getPriority());
 		existing.setBottlenecks(dto.getBottlenecks());
 
+		existing.getKeyDeliverables().clear();
+
 		if (dto.getKeyDeliverables() != null) {
 			Map<String, KeyDeliverable> existingKdsMap = existing.getKeyDeliverables().stream()
 					.filter(kd -> kd.getId() != null).collect(Collectors.toMap(KeyDeliverable::getId, kd -> kd));
 
 			List<KeyDeliverable> updatedKeyDeliverable = new ArrayList<>();
-			int counter = existing.getKeyDeliverables().size() +1;
-			
+			int counter = existing.getKeyDeliverables().size() + 1;
+
 			for (KeyDeliverableDto kdDto : dto.getKeyDeliverables()) {
 				KeyDeliverable kd;
 
@@ -261,7 +265,7 @@ public class TargetInterventionService {
 				kd.setTargetIntervention(existing);
 				updatedKeyDeliverable.add(kd);
 			}
-			existing.getKeyDeliverables().clear();
+//			existing.getKeyDeliverables().clear();
 			existing.getKeyDeliverables().addAll(updatedKeyDeliverable);
 		} else {
 			existing.getKeyDeliverables().clear();
@@ -312,7 +316,8 @@ public class TargetInterventionService {
 			} else if (status == null) {
 				entities = repository.findByTargetDetailsContainingIgnoreCase(targetDetails, sort);
 			} else {
-				entities = repository.findByStatusIgnoreCaseAndTargetDetailsContainingIgnoreCase(status, targetDetails, sort);
+				entities = repository.findByStatusIgnoreCaseAndTargetDetailsContainingIgnoreCase(status, targetDetails,
+						sort);
 			}
 		} else {
 			// Normal users → restricted by createdBy
@@ -321,7 +326,8 @@ public class TargetInterventionService {
 			} else if (status != null && targetDetails == null) {
 				entities = repository.findByCreatedByAndStatusIgnoreCase(entityId, status, sort);
 			} else if (status == null) {
-				entities = repository.findByCreatedByAndTargetDetailsContainingIgnoreCase(entityId, targetDetails, sort);
+				entities = repository.findByCreatedByAndTargetDetailsContainingIgnoreCase(entityId, targetDetails,
+						sort);
 			} else {
 				entities = repository.findByCreatedByAndStatusIgnoreCaseAndTargetDetailsContainingIgnoreCase(entityId,
 						status, targetDetails, sort);
@@ -330,7 +336,7 @@ public class TargetInterventionService {
 
 		return entities.stream().map(this::convertToDto).collect(Collectors.toList());
 	}
-	
+
 	private boolean isSuperUser(String email) {
 		return List.of("super.admin@test.com", "cabsec.user@test.com", "pmo.user@test.com").contains(email);
 	}

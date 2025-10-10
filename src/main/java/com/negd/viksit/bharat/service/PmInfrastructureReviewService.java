@@ -112,7 +112,7 @@ public class PmInfrastructureReviewService {
 			entity.setPrimatryMinistryDepartment(ministry.getName());
 			entity.setSupportingMinistryDepartment(ministry.getName());
 		}
-		
+
 		if (dto.getMilestonesList() != null) {
 			dto.getMilestonesList().forEach(kdDto -> {
 				MilestonesList kd = new MilestonesList();
@@ -182,6 +182,7 @@ public class PmInfrastructureReviewService {
 
 	// ----------------- Business Methods -----------------
 	// Create
+	@Transactional
 	public PmInfrastructureReviewResponseDto save(PmInfrastructureReviewDto dto) {
 		PmInfrastructureReview entity = convertToEntity(dto);
 		PmInfrastructureReview saved = save(entity);
@@ -210,6 +211,7 @@ public class PmInfrastructureReviewService {
 	}
 
 	// Update By Id
+	@Transactional
 	public PmInfrastructureReviewResponseDto update(String id, PmInfrastructureReviewDto dto) {
 		PmInfrastructureReview existing = repository.findById(id)
 				.orElseThrow(() -> new RuntimeException("PmInfrastructure Review Not Found"));
@@ -218,7 +220,8 @@ public class PmInfrastructureReviewService {
 //				.orElseThrow(() -> new RuntimeException("Ministry not found"));
 //
 //		existing.setMinistry(ministry);
-		GovernmentEntity ministry = governmentEntityRepository.findById(dto.getMinistryId()).orElseThrow(() -> new RuntimeException("Ministry/Department not found"));
+		GovernmentEntity ministry = governmentEntityRepository.findById(dto.getMinistryId())
+				.orElseThrow(() -> new RuntimeException("Ministry/Department not found"));
 		existing.setMinistry(ministry);
 //		existing.setPrimatryMinistryDepartment(dto.getPrimatryMinistryDepartment());
 		existing.setDateOfReviewMeeting(dto.getDateOfReviewMeeting());
@@ -233,6 +236,8 @@ public class PmInfrastructureReviewService {
 		existing.setStatus(dto.getStatus());
 		existing.setPrimatryMinistryDepartment(ministry.getName());
 		existing.setSupportingMinistryDepartment(ministry.getName());
+
+		existing.getMilestonesList().clear();
 
 		if (dto.getMilestonesList() != null) {
 			Map<String, MilestonesList> existingKdsMap = existing.getMilestonesList().stream()
@@ -271,7 +276,7 @@ public class PmInfrastructureReviewService {
 			}
 
 			// Replace entire milestones list with updated one
-			existing.getMilestonesList().clear();
+//			existing.getMilestonesList().clear();
 			existing.getMilestonesList().addAll(updatedMilestones);
 		} else {
 			existing.getMilestonesList().clear();

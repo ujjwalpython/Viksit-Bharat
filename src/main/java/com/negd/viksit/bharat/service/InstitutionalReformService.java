@@ -178,6 +178,7 @@ public class InstitutionalReformService {
 
 	// ----------------- Business Methods -----------------
 	// CREATE
+	@Transactional
 	public InstitutionalReformResponseDto create(InstitutionalReformDto dto) {
 		InstitutionalReform entity = mapToEntity(dto);
 		InstitutionalReform saved = save(entity);
@@ -188,7 +189,7 @@ public class InstitutionalReformService {
 	public List<InstitutionalReformResponseDto> getAll(com.negd.viksit.bharat.model.User user) {
 		Sort sort = Sort.by(Sort.Direction.DESC, "updatedOn");
 		List<InstitutionalReform> reforms;
-		
+
 		if (isSuperUser(user.getEmail())) {
 			reforms = reformRepo.findAll(sort);
 		} else {
@@ -204,6 +205,7 @@ public class InstitutionalReformService {
 	}
 
 	// UPDATE
+	@Transactional
 	public InstitutionalReformResponseDto update(String id, InstitutionalReformDto dto) {
 		InstitutionalReform existing = reformRepo.findById(id)
 				.orElseThrow(() -> new RuntimeException("Institutional Reform Not Found"));
@@ -225,9 +227,12 @@ public class InstitutionalReformService {
 		existing.setPresentStatus(dto.getPresentStatus());
 		existing.setStatus(dto.getStatus());
 
+		existing.getTarget().clear();
+
 		if (dto.getTarget() != null) {
 			Map<String, Target> existingTargetsMap = existing.getTarget().stream()
-					.filter(target -> target.getId() != null).collect(Collectors.toMap(Target::getId, target -> target));
+					.filter(target -> target.getId() != null)
+					.collect(Collectors.toMap(Target::getId, target -> target));
 
 			List<Target> updatedTarget = new ArrayList<>();
 			int counter = existing.getTarget().size() + 1;
@@ -257,7 +262,7 @@ public class InstitutionalReformService {
 				target.setInstitutionalReform(existing);
 				updatedTarget.add(target);
 			}
-			existing.getTarget().clear();
+//			existing.getTarget().clear();
 			existing.getTarget().addAll(updatedTarget);
 		} else {
 			existing.getTarget().clear();
