@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ProjectSchemeRepository extends JpaRepository<ProjectScheme,String> {
+public interface ProjectSchemeRepository extends JpaRepository<ProjectScheme,Long> {
 
     List<ProjectScheme> findByCreatedBy(Long createdBy);
 

@@ -1,6 +1,7 @@
 package com.negd.viksit.bharat.repository;
 
 import com.negd.viksit.bharat.model.ReformMilestone;
+import com.negd.viksit.bharat.model.RegulatoryReform;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -11,5 +12,7 @@ public interface ReformMilestoneRepository extends JpaRepository<ReformMilestone
 
     @Query(value = "SELECT COUNT(*) FROM reform_milestone", nativeQuery = true)
     Long countAllIncludingDeleted();
+
+    void deleteByReform(RegulatoryReform reform);
 }
 

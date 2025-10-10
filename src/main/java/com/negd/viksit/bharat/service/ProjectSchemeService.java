@@ -7,19 +7,16 @@ import com.negd.viksit.bharat.model.Document;
 import com.negd.viksit.bharat.model.ProjectScheme;
 import com.negd.viksit.bharat.model.SchemeKeyDeliverable;
 import com.negd.viksit.bharat.model.User;
+import com.negd.viksit.bharat.model.master.GovernmentEntity;
 import com.negd.viksit.bharat.model.master.Ministry;
-import com.negd.viksit.bharat.repository.DocumentRepository;
-import com.negd.viksit.bharat.repository.MinistryRepository;
-import com.negd.viksit.bharat.repository.ProjectSchemeRepository;
+import com.negd.viksit.bharat.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 @Service
@@ -29,88 +26,127 @@ public class ProjectSchemeService {
 
     private final ProjectSchemeRepository projectRepo;
     private final DocumentRepository documentRepo;
-    private final MinistryRepository ministryRepository;
     private final ResBuildder responseBuilder;
+    private final GovernmentEntityRepository governmentEntityRepository;
+    private final SchemeDeliverableRepository schemeKeyDeliverableRepository;
 
 
-    public ProjectSchemeResponseDto create(ProjectSchemeDto dto,User user) {
-        Ministry ministry = ministryRepository.findById(dto.getMinistryId())
-                .orElseThrow(() -> new EntityNotFoundException("Ministry not found"));
+    @Transactional
+    public ProjectSchemeResponseDto create(ProjectSchemeDto dto) {
+
+        GovernmentEntity entity = governmentEntityRepository.findById(dto.getMinistryId())
+                .orElseThrow(() -> new EntityNotFoundException("Ministry/Department not found"));
+
+        // Step 1: Create and save the parent first
         ProjectScheme project = ProjectScheme.builder()
                 .name(dto.getName())
                 .type(dto.getType())
                 .status(dto.getStatus())
-                .ministry(ministry)
+                .governmentEntity(entity)
                 .description(dto.getDescription())
                 .targetDate(dto.getTargetDate())
                 .totalBudgetRequired(dto.getTotalBudgetRequired())
                 .beneficiariesNo(dto.getBeneficiariesNo())
+                .keyDeliverables(new ArrayList<>()) // initialize to avoid NPE
                 .build();
 
-        if (dto.getKeyDeliverables() != null) {
-            List<SchemeKeyDeliverable> deliverables = dto.getKeyDeliverables().stream().map(d -> {
-                Document doc = d.getDocumentId() != null
+        // Persist to generate seqNum and entityId
+        ProjectScheme saved = projectRepo.saveAndFlush(project);
+
+        // Step 2: Attach key deliverables (if present)
+        if (dto.getKeyDeliverables() != null && !dto.getKeyDeliverables().isEmpty()) {
+            AtomicInteger counter = new AtomicInteger(1);
+
+            dto.getKeyDeliverables().forEach(d -> {
+                Document doc = (d.getDocumentId() != null)
                         ? documentRepo.findById(d.getDocumentId())
                         .orElseThrow(() -> new EntityNotFoundException("Document not found"))
                         : null;
-                return SchemeKeyDeliverable.builder()
+
+                String suffix = String.format("%02d", counter.getAndIncrement());
+                String deliverableId = saved.getEntityId() + "/" + suffix;
+
+                SchemeKeyDeliverable deliverable = SchemeKeyDeliverable.builder()
+                        .entityId(deliverableId)
                         .activityDescription(d.getActivityDescription())
                         .deadline(d.getDeadline())
                         .progressMade(d.getProgressMade())
                         .document(doc)
-                        .projectScheme(project)
+                        .projectScheme(saved)
                         .build();
-            }).toList();
-            project.setKeyDeliverables(deliverables);
+
+                saved.getKeyDeliverables().add(deliverable);
+            });
+
+            // No need to call schemeKeyDeliverableRepository.saveAll()
+            // because cascade = ALL will persist children automatically
+            projectRepo.save(saved);
         }
 
-        ProjectScheme saved = projectRepo.save(project);
-        return responseBuilder.mapToResponse(saved,user);
+        return responseBuilder.mapToResponse(saved);
     }
 
-    public ProjectSchemeResponseDto getById(String id,User user) {
+    public ProjectSchemeResponseDto getById(String id) {
         return responseBuilder.mapToResponse(projectRepo.findByEntityId(id)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found")),user);
+                .orElseThrow(() -> new EntityNotFoundException("Project not found")));
     }
 
     public List<ProjectSchemeResponseDto> getAll(User user) {
-        return projectRepo.findAll().stream().map(goal -> responseBuilder.mapToResponse(goal,user) ).toList();
+        return projectRepo.findAll().stream().map(goal -> responseBuilder.mapToResponse(goal) ).toList();
     }
 
-    public ProjectSchemeResponseDto update(String id, ProjectSchemeDto dto,User user) {
-        Ministry ministry = ministryRepository.findById(dto.getMinistryId())
-                .orElseThrow(() -> new EntityNotFoundException("Ministry not found"));
-        ProjectScheme project = projectRepo.findByEntityId(id)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+    @Transactional
+    public ProjectSchemeResponseDto update(String id, ProjectSchemeDto dto, User user) {
 
+        GovernmentEntity governmentEntity = governmentEntityRepository.findById(dto.getMinistryId())
+                .orElseThrow(() -> new EntityNotFoundException("Ministry/Department not found"));
+
+        ProjectScheme project = projectRepo.findByEntityId(id)
+                .orElseThrow(() -> new EntityNotFoundException("Project not found"));
+
+        // Update project fields
         project.setName(dto.getName());
         project.setType(dto.getType());
-        project.setMinistry(ministry);
+        project.setGovernmentEntity(governmentEntity);
         project.setStatus(dto.getStatus());
         project.setDescription(dto.getDescription());
         project.setTargetDate(dto.getTargetDate());
         project.setTotalBudgetRequired(dto.getTotalBudgetRequired());
         project.setBeneficiariesNo(dto.getBeneficiariesNo());
 
+        // Clear old deliverables (orphanRemoval = true ensures DB deletes)
         project.getKeyDeliverables().clear();
-        if (dto.getKeyDeliverables() != null) {
-            List<SchemeKeyDeliverable> deliverables = dto.getKeyDeliverables().stream().map(d -> {
-                Document doc = d.getDocumentId() != null
+
+        // Add new deliverables if present
+        if (dto.getKeyDeliverables() != null && !dto.getKeyDeliverables().isEmpty()) {
+            AtomicInteger counter = new AtomicInteger(1);
+
+            dto.getKeyDeliverables().forEach(d -> {
+                Document doc = (d.getDocumentId() != null)
                         ? documentRepo.findById(d.getDocumentId())
                         .orElseThrow(() -> new EntityNotFoundException("Document not found"))
                         : null;
-                return SchemeKeyDeliverable.builder()
+
+                String suffix = String.format("%02d", counter.getAndIncrement());
+                String deliverableId = project.getEntityId() + "/" + suffix;
+
+                SchemeKeyDeliverable deliverable = SchemeKeyDeliverable.builder()
+                        .entityId(deliverableId)
                         .activityDescription(d.getActivityDescription())
                         .deadline(d.getDeadline())
                         .progressMade(d.getProgressMade())
                         .document(doc)
                         .projectScheme(project)
                         .build();
-            }).toList();
-            project.getKeyDeliverables().addAll(deliverables);
+
+                project.getKeyDeliverables().add(deliverable);
+            });
         }
 
-        return responseBuilder.mapToResponse(projectRepo.save(project),user);
+        // Save project — cascade persists deliverables automatically
+        ProjectScheme updated = projectRepo.save(project);
+
+        return responseBuilder.mapToResponse(updated);
     }
 
     public void delete(String id) {
@@ -140,7 +176,7 @@ public class ProjectSchemeService {
                 .map(s -> fetchProjects.get())
                 .orElseGet(fetchProjects)
                 .stream()
-                .map(projectScheme -> responseBuilder.mapToResponse(projectScheme,usr))
+                .map(projectScheme -> responseBuilder.mapToResponse(projectScheme))
                 .filter(Objects::nonNull)
                 .toList();
     }

@@ -39,7 +39,7 @@ public class GoalController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateGoal(@AuthenticationPrincipal User user,@PathVariable String id, @RequestBody GoalDto goalDto, HttpServletRequest request) {
-        GoalResponseDto updatedGoal = goalService.updateGoal(id, goalDto,user);
+        GoalResponseDto updatedGoal = goalService.updateGoal(id, goalDto);
         return ResponseGenerator.success(updatedGoal, "Goal updated successfully", request);
     }
 
@@ -55,7 +55,7 @@ public class GoalController {
             @PathVariable String status,
             HttpServletRequest request){
 
-        GoalResponseDto updatedGoal = goalService.updateStatus(id, status,user);
+        GoalResponseDto updatedGoal = goalService.updateStatus(id, status);
         return ResponseGenerator.success(updatedGoal, "Goal status updated successfully", request);
     }
 

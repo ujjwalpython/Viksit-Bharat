@@ -1,6 +1,5 @@
 package com.negd.viksit.bharat.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.negd.viksit.bharat.model.Document;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +23,8 @@ public class DocumentDto {
     public DocumentDto(Document document) {
         id = document.getId();
         fileName = document.getFileName();
-        fileType = document.getFileType();;
+        fileType = document.getFileType();
+        ;
         fileUrl = document.getFileUrl();
         size = document.getSize();
     }

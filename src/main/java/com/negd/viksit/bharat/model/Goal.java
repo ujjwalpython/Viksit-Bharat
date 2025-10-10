@@ -2,6 +2,7 @@ package com.negd.viksit.bharat.model;
 
 
 import com.negd.viksit.bharat.audit.Auditable;
+import com.negd.viksit.bharat.model.master.GovernmentEntity;
 import com.negd.viksit.bharat.model.master.Ministry;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -17,7 +18,7 @@ import java.util.List;
 @Table(name = "vb_goals",schema = "vb_core")
 public class Goal extends Auditable<Long> {
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true,nullable = false)
     private String entityId;
 
     @Id
@@ -26,9 +27,9 @@ public class Goal extends Auditable<Long> {
     @SequenceGenerator(name = "goal_seq_gen", sequenceName = "vb_core.goal_seq", allocationSize = 1)
     private Long seqNum;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "ministry_id")
-    private Ministry ministry;
+    @ManyToOne
+    @JoinColumn(name = "gov_entity_id")
+    private GovernmentEntity governmentEntity;
 
     @Column(length = 500)
     private String goalDescription;
@@ -42,7 +43,7 @@ public class Goal extends Auditable<Long> {
     @PrePersist
     public void generateId() {
         if (this.seqNum != null) {
-            this.entityId = String.format("%s%02d", this.ministry.getCode(), this.seqNum);
+            this.entityId = String.format("%s%02d", this.governmentEntity.getCode()+"G", this.seqNum);
         }
     }
 }

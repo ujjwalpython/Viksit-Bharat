@@ -21,7 +21,7 @@ import java.time.LocalDate;
 @Where(clause = "deleted_at IS NULL")
 public class ReformMilestone extends Auditable<Long> {
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String entityId;
 
     @Id
@@ -30,24 +30,19 @@ public class ReformMilestone extends Auditable<Long> {
     @SequenceGenerator(name = "milestone_seq_gen", sequenceName = "vb_core.milestone_seq", allocationSize = 1)
     private Long seqNum;
 
+    @Column(length = 1000)
     private String activityDescription;
+
     private LocalDate deadline;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "reform_id")
     private RegulatoryReform reform;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "document_id")
     private Document document;
 
     private Integer sortOrder;
-
-    @PrePersist
-    public void generateId() {
-        if (this.seqNum != null) {
-            this.entityId = String.format("RFML%02d", this.seqNum);
-        }
-    }
 }
 

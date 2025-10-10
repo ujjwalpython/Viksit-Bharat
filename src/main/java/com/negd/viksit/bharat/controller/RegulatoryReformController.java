@@ -23,13 +23,13 @@ public class RegulatoryReformController {
 
     @PostMapping
     public ResponseEntity<?> create(@AuthenticationPrincipal User user,@RequestBody RegulatoryReformDto dto, HttpServletRequest request) {
-        RegulatoryRespReformDto created = reformService.createReform(dto,user);
+        RegulatoryRespReformDto created = reformService.createReform(dto);
         return ResponseGenerator.created(created, "Reform created successfully", request);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@AuthenticationPrincipal User user,@PathVariable String id, HttpServletRequest request) {
-        RegulatoryRespReformDto reform = reformService.getReformById(id,user);
+        RegulatoryRespReformDto reform = reformService.getReformById(id);
         return ResponseGenerator.success(reform, "Reform fetched successfully", request);
     }
 
@@ -37,7 +37,7 @@ public class RegulatoryReformController {
     public ResponseEntity<?> update(@AuthenticationPrincipal User user,@PathVariable String id,
                                     @RequestBody RegulatoryReformDto dto,
                                     HttpServletRequest request) {
-        RegulatoryRespReformDto updated = reformService.updateReform(id, dto,user);
+        RegulatoryRespReformDto updated = reformService.updateReform(id, dto);
         return ResponseGenerator.success(updated, "Reform updated successfully", request);
     }
 
@@ -49,7 +49,7 @@ public class RegulatoryReformController {
 
     @GetMapping
     public ResponseEntity<?> getAll(HttpServletRequest request,@AuthenticationPrincipal User user) {
-        List<RegulatoryRespReformDto> all = reformService.getAllReforms(user);
+        List<RegulatoryRespReformDto> all = reformService.getAllReforms();
         return ResponseGenerator.success(all, "All reforms fetched successfully", request);
     }
 

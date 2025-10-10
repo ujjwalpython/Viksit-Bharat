@@ -21,7 +21,7 @@ import java.time.LocalDate;
 @Where(clause = "deleted_at IS NULL")
 public class SchemeKeyDeliverable extends Auditable<Long> {
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String entityId;
 
     @Id
@@ -38,19 +38,12 @@ public class SchemeKeyDeliverable extends Auditable<Long> {
     @Column(length = 2000)
     private String progressMade;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "document_id")
     private Document document;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_scheme_id")
     private ProjectScheme projectScheme;
-
-    @PrePersist
-    public void generateId() {
-        if (this.seqNum != null) {
-            this.entityId = String.format("SCKD%02d", this.seqNum);
-        }
-    }
 }
 

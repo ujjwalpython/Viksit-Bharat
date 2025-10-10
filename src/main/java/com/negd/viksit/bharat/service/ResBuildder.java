@@ -15,28 +15,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ResBuildder {
 
-    public GoalResponseDto mapToDto(Goal goal, User user) {
-        log.info("Mapping Goal entity to DTO: goalId={}, userId={}, roles={}",
-                goal.getEntityId(), user.getEntityid(), user.getRoles());
+    public GoalResponseDto mapToDto(Goal goal) {
 
         GoalResponseDto dto = new GoalResponseDto();
 
-        String ministryStr = goal.getMinistry() != null ? goal.getMinistry().getName() : null;
-
-  /*      if (user.hasRole("DEPT_ADMIN")) {
-            log.info("User has DEPT_ADMIN role, checking department for ministry string.");
-            if (user.getDepartment() != null) {
-                ministryStr = ministryStr != null
-                        ? ministryStr + " / " + user.getDepartment().getName()
-                        : user.getDepartment().getName();
-                log.info("Ministry string updated with department: {}", ministryStr);
-            } else {
-                log.info("User has DEPT_ADMIN role but no department assigned.");
-            }
-        } else {
-            log.info("User does not have DEPT_ADMIN role. Using ministry only: {}", ministryStr);
-        }
-*/
+        String ministryStr = goal.getGovernmentEntity() != null ? goal.getGovernmentEntity().getName() : null;
         dto.setMinistryId(ministryStr);
 
         dto.setGoalId(goal.getEntityId());
@@ -48,9 +31,8 @@ public class ResBuildder {
 
         List<InterventionResDto> interventionDtos = goal.getInterventions() != null
                 ? goal.getInterventions().stream().map(intervention -> {
-            log.info("Mapping Intervention: id={}, target='{}'", intervention.getId(), intervention.getTargetDescription());
             InterventionResDto iDto = new InterventionResDto();
-            iDto.setId(intervention.getId());
+            iDto.setId(intervention.getEntityId());
             iDto.setTargetDescription(intervention.getTargetDescription());
 
             iDto.setPresentValue(intervention.getPresentValue());
@@ -74,17 +56,8 @@ public class ResBuildder {
         return dto;
     }
 
-    public ProjectSchemeResponseDto mapToResponse(ProjectScheme project, User user) {
-        String ministryStr = project.getMinistry() != null ? project.getMinistry().getName() : null;
-
-/*
-        if (user.hasRole("DEPT_ADMIN") && user.getDepartment() != null) {
-            String departmentName = user.getDepartment().getName();
-            if (ministryStr != null && !departmentName.isBlank()) {
-                ministryStr = ministryStr + " / " + departmentName;
-            }
-        }
-*/
+    public ProjectSchemeResponseDto mapToResponse(ProjectScheme project) {
+        String ministryStr = project.getGovernmentEntity() != null ? project.getGovernmentEntity().getName() : null;
         return ProjectSchemeResponseDto.builder()
                 .id(project.getEntityId())
                 .name(project.getName())
@@ -116,17 +89,10 @@ public class ResBuildder {
     }
 
 
-    public RegulatoryRespReformDto mapToResponse(RegulatoryReform reform, User user) {
-        String ministryStr = reform.getMinistry() != null ? reform.getMinistry().getName() : null;
+    public RegulatoryRespReformDto mapToResponse(RegulatoryReform reform) {
+        String ministryStr = reform.getGovernmentEntity() != null ? reform.getGovernmentEntity().getName() : null;
 
-/*
-        if (user.hasRole("DEPT_ADMIN") && user.getDepartment() != null) {
-            String departmentName = user.getDepartment().getName();
-            if (ministryStr != null && !departmentName.isBlank()) {
-                ministryStr = ministryStr + " / " + departmentName;
-            }
-        }
-*/
+
         return RegulatoryRespReformDto.builder()
                 .id(reform.getEntityId())
                 .name(reform.getName())

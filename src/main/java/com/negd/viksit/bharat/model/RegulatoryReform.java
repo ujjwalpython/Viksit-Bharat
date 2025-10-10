@@ -1,6 +1,7 @@
 package com.negd.viksit.bharat.model;
 
 import com.negd.viksit.bharat.audit.Auditable;
+import com.negd.viksit.bharat.model.master.GovernmentEntity;
 import com.negd.viksit.bharat.model.master.Ministry;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,7 +23,7 @@ import java.util.List;
 @SQLDelete(sql = "UPDATE vb_core.regulatory_reform SET deleted_at = now() WHERE seq_num = ?")
 @Where(clause = "deleted_at IS NULL")
 public class RegulatoryReform extends Auditable<Long> {
-    @Column(unique = true, nullable = false)
+    @Column(unique = true,nullable = false)
     private String entityId;
 
     private String name;
@@ -33,12 +34,13 @@ public class RegulatoryReform extends Auditable<Long> {
     @SequenceGenerator(name = "reform_seq_gen", sequenceName = "vb_core.reform_seq", allocationSize = 1)
     private Long seqNum;
 
+    @Column(length = 1000)
     private String description;
     private String reformType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ministry_id")
-    private Ministry ministry;
+    @ManyToOne
+    @JoinColumn(name = "gov_entity_id")
+    private GovernmentEntity governmentEntity;
 
     private LocalDate targetCompletionDate;
     private String rulesToBeAmended;
@@ -52,7 +54,7 @@ public class RegulatoryReform extends Auditable<Long> {
     @PrePersist
     public void generateId() {
         if (this.seqNum != null) {
-            this.entityId = String.format("REGRF%02d", this.seqNum);
+            this.entityId = String.format("%s%02d", this.governmentEntity.getCode()+"RGRF", this.seqNum);
         }
     }
 }

@@ -6,8 +6,9 @@ import com.negd.viksit.bharat.exception.InvalidStatusException;
 import com.negd.viksit.bharat.model.Goal;
 import com.negd.viksit.bharat.model.GoalIntervention;
 import com.negd.viksit.bharat.model.User;
-import com.negd.viksit.bharat.model.master.Ministry;
+import com.negd.viksit.bharat.model.master.GovernmentEntity;
 import com.negd.viksit.bharat.repository.GoalRepository;
+import com.negd.viksit.bharat.repository.GovernmentEntityRepository;
 import com.negd.viksit.bharat.repository.InterventionRepository;
 import com.negd.viksit.bharat.repository.MinistryRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -25,56 +26,58 @@ import java.util.stream.Stream;
 @Transactional
 @Slf4j
 public class GoalService {
+    private final GovernmentEntityRepository governmentEntityRepository;
 
     private final GoalRepository goalRepository;
-    private final MinistryRepository ministryRepository;
     private final InterventionRepository interventionRepository;
     private final ResBuildder responseBuilder;
 
-    public GoalService(GoalRepository goalRepository, MinistryRepository ministryRepository, InterventionRepository interventionRepository, ResBuildder responseBuilder) {
+    public GoalService(GoalRepository goalRepository, MinistryRepository ministryRepository, InterventionRepository interventionRepository, ResBuildder responseBuilder,
+                       GovernmentEntityRepository governmentEntityRepository) {
         this.goalRepository = goalRepository;
-        this.ministryRepository = ministryRepository;
         this.interventionRepository = interventionRepository;
         this.responseBuilder = responseBuilder;
+        this.governmentEntityRepository = governmentEntityRepository;
     }
 
+    @Transactional
     public GoalStatusRespDto createGoal(GoalDto goalDto) {
+
+        GovernmentEntity governmentEntity = governmentEntityRepository.findById(goalDto.getMinistryId())
+                .orElseThrow(() -> new EntityNotFoundException("Ministry/Department not found"));
+
         Goal goal = new Goal();
         goal.setGoalDescription(goalDto.getGoalDescription());
         goal.setStatus(goalDto.getStatus());
-
-        Ministry ministry = ministryRepository.findById(goalDto.getMinistryId())
-                .orElseThrow(() -> new EntityNotFoundException("Ministry not found"));
-        goal.setMinistry(ministry);
-
+        goal.setGovernmentEntity(governmentEntity);
         goal.setInterventions(new ArrayList<>());
 
-        Goal savedGoal = goalRepository.save(goal);
+        // Persist goal first to get its seqNum (for entityId generation)
+        Goal savedGoal = goalRepository.saveAndFlush(goal);
 
+        // Now that entityId is available, we can safely build interventions
         AtomicInteger counter = new AtomicInteger(1);
-        List<GoalIntervention> interventions = goalDto.getInterventions()
-                .stream()
-                .map(iDto -> {
-                    GoalIntervention intervention = new GoalIntervention();
-                    intervention.setTargetDescription(iDto.getTargetDescription());
-                    intervention.setPresentValue(iDto.getPresentValue());
-                    intervention.setPresentUnit(iDto.getPresentUnit());
-                    intervention.setPresentYear(iDto.getPresentYear());
-                    intervention.setTarget2030Value(iDto.getTarget2030Value());
-                    intervention.setTarget2030Unit(iDto.getTarget2030Unit());
-                    intervention.setTarget2047Value(iDto.getTarget2047Value());
-                    intervention.setTarget2047Unit(iDto.getTarget2047Unit());
-                    intervention.setSortOrder(iDto.getSortOrder());
-                    intervention.setGoal(savedGoal);
+        goalDto.getInterventions().forEach(iDto -> {
+            GoalIntervention intervention = new GoalIntervention();
+            intervention.setTargetDescription(iDto.getTargetDescription());
+            intervention.setPresentValue(iDto.getPresentValue());
+            intervention.setPresentUnit(iDto.getPresentUnit());
+            intervention.setPresentYear(iDto.getPresentYear());
+            intervention.setTarget2030Value(iDto.getTarget2030Value());
+            intervention.setTarget2030Unit(iDto.getTarget2030Unit());
+            intervention.setTarget2047Value(iDto.getTarget2047Value());
+            intervention.setTarget2047Unit(iDto.getTarget2047Unit());
+            intervention.setSortOrder(iDto.getSortOrder());
+            intervention.setGoal(savedGoal);
 
-                    String suffix = String.format("%02d", counter.getAndIncrement());
-                    intervention.setId(savedGoal.getEntityId() + "/" + suffix);
+            String suffix = String.format("%02d", counter.getAndIncrement());
+            intervention.setEntityId(savedGoal.getEntityId() + "/" + suffix);
 
-                    return intervention;
-                })
-                .toList();
+            savedGoal.getInterventions().add(intervention);
+        });
 
-        interventionRepository.saveAll(interventions);
+        // Save goal again to cascade interventions
+        goalRepository.save(savedGoal);
 
         return new GoalStatusRespDto(savedGoal.getEntityId(), savedGoal.getStatus());
     }
@@ -82,58 +85,56 @@ public class GoalService {
     public List<GoalResponseDto> getAllGoals(User user) {
         return goalRepository.findAll()
                 .stream()
-                .map(goal -> responseBuilder.mapToDto(goal,user))
+                .map(goal -> responseBuilder.mapToDto(goal))
                 .collect(Collectors.toList());
     }
 
     public GoalResponseDto getGoalById(String id,User user) {
         return goalRepository.findByEntityId(id)
-                .map(goal -> responseBuilder.mapToDto(goal,user))
+                .map(goal -> responseBuilder.mapToDto(goal))
                 .orElseThrow(() -> new EntityNotFoundException("Goal not found"));
     }
 
     @Transactional
-    public GoalResponseDto updateGoal(String id, GoalDto goalDto,User user) {
+    public GoalResponseDto updateGoal(String id, GoalDto goalDto) {
         Goal goal = goalRepository.findByEntityId(id)
                 .orElseThrow(() -> new EntityNotFoundException("Goal not found"));
 
-        Ministry ministry = ministryRepository.findById(goalDto.getMinistryId())
-                .orElseThrow(() -> new EntityNotFoundException("Ministry not found"));
+        GovernmentEntity governmentEntity = governmentEntityRepository.findById(goalDto.getMinistryId())
+                .orElseThrow(() -> new EntityNotFoundException("Ministry/Department not found"));
 
-        goal.setMinistry(ministry);
+        goal.setGovernmentEntity(governmentEntity);
         goal.setGoalDescription(goalDto.getGoalDescription());
         goal.setStatus(goalDto.getStatus());
 
-        interventionRepository.deleteByGoal(goal);
+        // Clear old interventions safely
+        goal.getInterventions().clear();
 
+        // Recreate new interventions and attach to goal
         AtomicInteger counter = new AtomicInteger(1);
-        List<GoalIntervention> interventions = goalDto.getInterventions()
-                .stream()
-                .map(iDto -> {
-                    GoalIntervention intervention = new GoalIntervention();
-                    intervention.setTargetDescription(iDto.getTargetDescription());
-                    intervention.setPresentValue(iDto.getPresentValue());
-                    intervention.setPresentUnit(iDto.getPresentUnit());
-                    intervention.setPresentYear(iDto.getPresentYear());
-                    intervention.setTarget2030Value(iDto.getTarget2030Value());
-                    intervention.setTarget2030Unit(iDto.getTarget2030Unit());
-                    intervention.setTarget2047Value(iDto.getTarget2047Value());
-                    intervention.setTarget2047Unit(iDto.getTarget2047Unit());
-                    intervention.setSortOrder(iDto.getSortOrder());
-                    intervention.setGoal(goal);
+        goalDto.getInterventions().forEach(iDto -> {
+            GoalIntervention intervention = new GoalIntervention();
+            intervention.setTargetDescription(iDto.getTargetDescription());
+            intervention.setPresentValue(iDto.getPresentValue());
+            intervention.setPresentUnit(iDto.getPresentUnit());
+            intervention.setPresentYear(iDto.getPresentYear());
+            intervention.setTarget2030Value(iDto.getTarget2030Value());
+            intervention.setTarget2030Unit(iDto.getTarget2030Unit());
+            intervention.setTarget2047Value(iDto.getTarget2047Value());
+            intervention.setTarget2047Unit(iDto.getTarget2047Unit());
+            intervention.setSortOrder(iDto.getSortOrder());
+            intervention.setGoal(goal);
 
-                    String suffix = String.format("%02d", counter.getAndIncrement());
-                    intervention.setId(goal.getEntityId() + "/" + suffix);
+            String suffix = String.format("%02d", counter.getAndIncrement());
+            intervention.setEntityId(goal.getEntityId() + "/" + suffix);
 
-                    return intervention;
-                })
-                .toList();
+            goal.getInterventions().add(intervention);
+        });
 
-        interventionRepository.saveAll(interventions);
-
+        // No need to manually delete/save interventions or call their repository
         Goal updated = goalRepository.save(goal);
 
-        return responseBuilder.mapToDto(updated,user);
+        return responseBuilder.mapToDto(updated);
     }
 
     public void deleteGoal(String id) {
@@ -169,7 +170,7 @@ public class GoalService {
         return goal;
     }
 
-    public GoalResponseDto updateStatus(String id, String status,User user) {
+    public GoalResponseDto updateStatus(String id, String status) {
         Goal goal = goalRepository.findByEntityId(id)
                 .orElseThrow(() -> new EntityNotFoundException("Goal not found with id: " + id));
 
@@ -186,7 +187,7 @@ public class GoalService {
         }
 
         Goal saved = goalRepository.save(goal);
-        return responseBuilder.mapToDto(saved,user);
+        return responseBuilder.mapToDto(saved);
     }
 
     @Transactional(readOnly = true)
@@ -215,7 +216,7 @@ public class GoalService {
                 )
                 .stream()
                 .flatMap(Collection::stream)
-                .map(goal -> responseBuilder.mapToDto(goal,user))
+                .map(goal -> responseBuilder.mapToDto(goal))
                 .filter(Objects::nonNull)
                 .toList();
     }

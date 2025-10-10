@@ -25,13 +25,13 @@ public class ProjectSchemeController {
 
     @PostMapping
     public ResponseEntity<?> create(@AuthenticationPrincipal User user,@RequestBody ProjectSchemeDto dto, HttpServletRequest request) {
-        ProjectSchemeResponseDto created = projectService.create(dto,user);
+        ProjectSchemeResponseDto created = projectService.create(dto);
         return ResponseGenerator.created(created, "Project Scheme created successfully", request);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable String id, HttpServletRequest request,@AuthenticationPrincipal User user) {
-        ProjectSchemeResponseDto project = projectService.getById(id,user);
+        ProjectSchemeResponseDto project = projectService.getById(id);
         return ResponseGenerator.success(project, "Project Scheme fetched successfully", request);
     }
 

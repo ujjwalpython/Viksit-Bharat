@@ -4,7 +4,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.negd.viksit.bharat.dto.DocumentDto;
 import com.negd.viksit.bharat.dto.FileDownloadResponse;
 import com.negd.viksit.bharat.model.Document;
-import com.negd.viksit.bharat.model.Milestone;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -12,27 +11,18 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URLConnection;
-import java.util.Base64;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 
-import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.negd.viksit.bharat.repository.DocumentRepository;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -45,8 +35,10 @@ public class DocumentService {
     @Value("${cloud.aws.s3.bucket:}")
     private String bucketName;
 
-    public DocumentDto uploadFile(MultipartFile file) throws Exception {
-        String fileName = UUID.randomUUID() + "-" + file.getOriginalFilename();
+    public DocumentDto uploadFile(MultipartFile file, String refType, String refId) throws Exception {
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+
+        String fileName = file.getOriginalFilename() + timestamp;
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(file.getSize());
@@ -63,6 +55,8 @@ public class DocumentService {
                 .fileType(file.getContentType())
                 .fileUrl(fileUrl)
                 .size(file.getSize())
+                .referenceId(refId)
+                .referenceType(refType)
                 .build();
 
         return new DocumentDto(documentRepository.save(document));
@@ -94,12 +88,14 @@ public class DocumentService {
         Document document = documentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("document not found"));
 
-        String fileUrl = document.getFileUrl();
+    /*    String fileUrl = document.getFileUrl();
         URI uri = URI.create(fileUrl);
 
         String fileKey = uri.getPath().substring(1);
 
-        amazonS3.deleteObject(bucketName, fileKey);
+        amazonS3.deleteObject(bucketName, fileKey);*/
+
+        documentRepository.delete(document);
     }
 
     private String getExtensionFromMime(String mimeType) {

@@ -25,10 +25,10 @@ public class DocumentController {
 
     @PostMapping("/upload")
     public ResponseEntity<?> uploadDocument(
-            @RequestParam("file") MultipartFile file,
+            @RequestParam("file") MultipartFile file,@RequestParam(required = false) String refType,@RequestParam(required = false) String refId,
             HttpServletRequest request) throws Exception {
 
-        DocumentDto savedDoc = documentService.uploadFile(file);
+        DocumentDto savedDoc = documentService.uploadFile(file,refType,refId);
         return ResponseGenerator.success(savedDoc, "File uploaded successfully", request);
     }
 
@@ -38,6 +38,8 @@ public class DocumentController {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileBytes.getFileName() + "\"")
+                .header(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+                .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Content-Disposition, Content-Length, Content-Type")
                 .contentLength(fileBytes.getFileBytes().length)
                 .body(fileBytes.getFileBytes());
     }
